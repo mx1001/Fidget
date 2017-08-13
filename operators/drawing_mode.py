@@ -18,6 +18,9 @@ class ViewportButtons(bpy.types.Operator):
         self.highlight_color = (0.29, 0.52, 1.0, 0.9)
 
         self.buttons = {}
+        self.old_mouse_x = 0
+        self.old_mouse_y = 0
+        self.buttontop = False
 
         bpy.types.SpaceView3D.draw_handler_add(self.viewport_buttons, (context, ), 'WINDOW', 'POST_PIXEL')
         args = (self, context)
@@ -28,7 +31,7 @@ class ViewportButtons(bpy.types.Operator):
         return {'RUNNING_MODAL'}
 
     def modal(self, context, event):
-
+        context.area.tag_redraw()
         self.mouse_x = event.mouse_region_x
         self.mouse_y = event.mouse_region_y
 
@@ -70,7 +73,24 @@ class ViewportButtons(bpy.types.Operator):
 
                     return {'PASS_THROUGH'}
 
-        context.area.tag_redraw()
+        if event.type == 'RIGHTMOUSE':
+            if event.value == 'PRESS':
+                self.old_mouse_x = self.mouse_x
+                self.old_mouse_y = self.mouse_y
+
+        elif event.type == 'LEFTMOUSE':
+            if event.value == 'PRESS':
+                if self.button_top:
+                    bpy.ops.mesh.extrude_region_move()
+                    bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
+                    return {'RUNNING_MODAL'}
+                elif self.button_right:
+                    bpy.ops.mesh.inset('INVOKE_DEFAULT')
+                    return {'RUNNING_MODAL'}
+                elif self.button_left:
+                    bpy.ops.mesh.bevel('INVOKE_DEFAULT')
+                    return {'RUNNING_MODAL'}
+
         return {'PASS_THROUGH'}
 
     def is_mouse_over(self, x, y):

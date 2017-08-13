@@ -3,6 +3,7 @@ from bgl import *
 import math
 from mathutils import Vector
 from mathutils.geometry import tessellate_polygon
+from .. utils.region import rotate, scale, inside_polygon
 
 
 def draw_manipulator(self, context):
@@ -24,41 +25,60 @@ def draw_manipulator(self, context):
                     Vector((1284.1533203125, 479.75701904296875))]
 
     locations_2d_scaled = []
+    locations_2d_transed = []
 
     for v in locations_2d:
-        origin = 1284.1533203125, 429.12353515625
+        v[0] = v[0] - 1284.1533203125
+        v[1] = v[1] - 429.12353515625
+        locations_2d_transed.append(Vector((v[0], v[1])))
+
+    locations_2d = locations_2d_transed
+
+    for v in locations_2d:
+        origin = 0, 0
         point = v[0], v[1]
-        value = 0.6
+        value = 0.7
         px, py = scale(origin, point, value)
         locations_2d_scaled.append(Vector((px, py)))
 
     locations_2d = locations_2d_scaled
-
     location_2d_2 = []
     location_2d_3 = []
 
     for v in locations_2d:
-        origin = 1284.1533203125, 429.12353515625
+        origin = 0, 0
         point = v[0], v[1]
         angle = math.radians(120)
         px, py = rotate(origin, point, angle)
         location_2d_2.append(Vector((px, py)))
 
     for v in locations_2d:
-        origin = 1284.1533203125, 429.12353515625
+        origin = 0, 0
         point = v[0], v[1]
         angle = math.radians(-120)
         px, py = rotate(origin, point, angle)
         location_2d_3.append(Vector((px, py)))
+
+    for v in locations_2d:
+        v[0] = v[0] + self.old_mouse_x
+        v[1] = v[1] + self.old_mouse_y
+    for v in location_2d_2:
+        v[0] = v[0] + self.old_mouse_x
+        v[1] = v[1] + self.old_mouse_y
+    for v in location_2d_3:
+        v[0] = v[0] + self.old_mouse_x
+        v[1] = v[1] + self.old_mouse_y
 
     triangles = tessellate_polygon([locations_2d])
     triangles2 = tessellate_polygon([location_2d_2])
     triangles3 = tessellate_polygon([location_2d_3])
 
     if inside_polygon(self.mouse_x, self.mouse_y, locations_2d):
-        glColor4f(0.8, 0, 0, 0.5)
+        glColor4f(0.29, 0.52, 1.0, 0.9)
+        self.button_top = True
     else:
         glColor4f(0.3, 0.3, 0.3, 0.5)
+        self.button_top = False
     glBegin(GL_TRIANGLES)
     for tri in triangles:
         for v_id in tri:
@@ -67,9 +87,11 @@ def draw_manipulator(self, context):
     glEnd()
 
     if inside_polygon(self.mouse_x, self.mouse_y, location_2d_2):
-        glColor4f(0, 0.8, 0, 0.5)
+        glColor4f(0.29, 0.52, 1.0, 0.9)
+        self.button_left = True
     else:
         glColor4f(0.5, 0.5, 0.5, 0.5)
+        self.button_left = False
     glBegin(GL_TRIANGLES)
     for tri in triangles2:
         for v_id in tri:
@@ -78,9 +100,11 @@ def draw_manipulator(self, context):
     glEnd()
 
     if inside_polygon(self.mouse_x, self.mouse_y, location_2d_3):
-        glColor4f(0, 0, 0.8, 0.5)
+        glColor4f(0.29, 0.52, 1.0, 0.9)
+        self.button_right = True
     else:
         glColor4f(0.7, 0.7, 0.7, 0.5)
+        self.button_right = False
     glBegin(GL_TRIANGLES)
     for tri in triangles3:
         for v_id in tri:
@@ -88,42 +112,5 @@ def draw_manipulator(self, context):
             glVertex2f(v[0], v[1])
     glEnd()
 
-    glDisable(GL_BLEND)
     glDisable(GL_LINE_SMOOTH)
-
-
-def rotate(origin, point, angle):
-    ox, oy = origin
-    px, py = point
-
-    qx = ox + math.cos(angle) * (px - ox) - math.sin(angle) * (py - oy)
-    qy = oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy)
-    return qx, qy
-
-
-def scale(origin, point, value):
-    ox, oy = origin
-    px, py = point
-
-    px = (px-ox)*value+ox
-    py = (py-oy)*value+oy
-
-    return px, py
-
-
-def inside_polygon(x, y, points):
-
-    n = len(points)
-    inside = False
-    p1x, p1y = points[0]
-    for i in range(1, n + 1):
-        p2x, p2y = points[i % n]
-        if y > min(p1y, p2y):
-            if y <= max(p1y, p2y):
-                if x <= max(p1x, p2x):
-                    if p1y != p2y:
-                        xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                    if p1x == p2x or x <= xinters:
-                        inside = not inside
-        p1x, p1y = p2x, p2y
-    return inside
+    glDisable(GL_BLEND)
