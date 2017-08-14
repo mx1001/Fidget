@@ -80,17 +80,38 @@ class ViewportButtons(bpy.types.Operator):
 
         elif event.type == 'LEFTMOUSE':
             if event.value == 'PRESS':
-                if self.button_top:
-                    bpy.ops.mesh.extrude_region_move()
-                    bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
+                if bpy.context.active_object.mode == 'EDIT':
+                    if self.button_top:
+                        bpy.ops.mesh.extrude_region_move()
+                        bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
+                        return {'RUNNING_MODAL'}
+                    elif self.button_right:
+                        bpy.ops.mesh.inset('INVOKE_DEFAULT')
+                        return {'RUNNING_MODAL'}
+                    elif self.button_left:
+                        bpy.ops.mesh.bevel('INVOKE_DEFAULT')
                     return {'RUNNING_MODAL'}
-                elif self.button_right:
-                    bpy.ops.mesh.inset('INVOKE_DEFAULT')
-                    return {'RUNNING_MODAL'}
-                elif self.button_left:
-                    bpy.ops.mesh.bevel('INVOKE_DEFAULT')
-                    return {'RUNNING_MODAL'}
-
+                
+                if bpy.context.active_object.mode == 'OBJECT':
+                    if self.button_top:
+                         if len(bpy.context.selected_objects) > 1:
+                            bpy.ops.wm.call_menu(name='hops.bool_menu')
+                            return {'RUNNING_MODAL'}
+                         else:
+                            bpy.ops.hops.adjust_bevel('INVOKE_DEFAULT')
+                            return {'RUNNING_MODAL'}
+                    elif self.button_right:
+                        if len(bpy.context.selected_objects) > 1:
+                            bpy.ops.hops.bool_difference('INVOKE_DEFAULT')
+                            return {'RUNNING_MODAL'}
+                        else: 
+                            bpy.ops.wm.call_menu(name='hops_main_menu')
+                            return {'RUNNING_MODAL'}
+                    
+                    elif self.button_left:
+                        bpy.ops.wm.call_menu(name='hops.reset_axis_submenu')
+                        return {'RUNNING_MODAL'}
+                    
         return {'PASS_THROUGH'}
 
     def is_mouse_over(self, x, y):
