@@ -74,6 +74,7 @@ class ViewportButtons(bpy.types.Operator):
                     return {'PASS_THROUGH'}
 
         if event.type == 'RIGHTMOUSE':
+        #if event.type == 'RIGHTMOUSE' and event.value == 'RELEASE' and event.alt:
             if event.value == 'PRESS':
                 self.old_mouse_x = self.mouse_x
                 self.old_mouse_y = self.mouse_y
@@ -82,11 +83,19 @@ class ViewportButtons(bpy.types.Operator):
             if event.value == 'PRESS':
                 if bpy.context.active_object.mode == 'EDIT':
                     if self.button_top:
-                        bpy.ops.mesh.extrude_region_move()
-                        bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
+                        #Face Mode
+                        if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
+                            bpy.ops.mesh.extrude_region_move()
+                            bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL') 
+                        else:
+                            bpy.ops.clean1.objects('INVOKE_DEFAULT',clearsharps=False)
                         return {'RUNNING_MODAL'}
                     elif self.button_right:
-                        bpy.ops.mesh.inset('INVOKE_DEFAULT')
+                        #Face Mode
+                        if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
+                            bpy.ops.mesh.inset('INVOKE_DEFAULT')
+                        else:
+                            bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
                         return {'RUNNING_MODAL'}
                     elif self.button_left:
                         bpy.ops.mesh.bevel('INVOKE_DEFAULT')
@@ -98,7 +107,8 @@ class ViewportButtons(bpy.types.Operator):
                             bpy.ops.wm.call_menu(name='hops.bool_menu')
                             return {'RUNNING_MODAL'}
                          else:
-                            bpy.ops.hops.adjust_bevel('INVOKE_DEFAULT')
+                            bpy.ops.wm.call_menu(name='INFO_MT_mesh_add')
+                            #bpy.ops.hops.adjust_bevel('INVOKE_DEFAULT')
                             return {'RUNNING_MODAL'}
                     elif self.button_right:
                         if len(bpy.context.selected_objects) > 1:
@@ -109,7 +119,10 @@ class ViewportButtons(bpy.types.Operator):
                             return {'RUNNING_MODAL'}
                     
                     elif self.button_left:
-                        bpy.ops.wm.call_menu(name='hops.reset_axis_submenu')
+                        if len(bpy.context.selected_objects) > 1:
+                            bpy.ops.hops.slash('INVOKE_DEFAULT')
+                        else: 
+                            bpy.ops.wm.call_menu(name='hops.symetry_submenu')
                         return {'RUNNING_MODAL'}
                     
         return {'PASS_THROUGH'}
