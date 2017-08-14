@@ -22,7 +22,7 @@ class ViewportButtons(bpy.types.Operator):
         self.old_mouse_y = 0
         self.buttontop = False
 
-        bpy.types.SpaceView3D.draw_handler_add(self.viewport_buttons, (context, ), 'WINDOW', 'POST_PIXEL')
+        #bpy.types.SpaceView3D.draw_handler_add(self.viewport_buttons, (context, ), 'WINDOW', 'POST_PIXEL')
         args = (self, context)
         bpy.types.SpaceView3D.draw_handler_add(draw_manipulator, args, 'WINDOW', 'POST_PIXEL')
         context.window_manager.modal_handler_add(self)
