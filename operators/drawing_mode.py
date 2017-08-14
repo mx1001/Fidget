@@ -1,6 +1,7 @@
 import bpy
 from bgl import *
 from .. graphic.manipulator import draw_manipulator
+from mathutils import Vector
 # from ... utils.blender_ui import get_dpi, get_dpi_factor
 # from ... preferences import Hops_logo_color_cstep
 
@@ -12,10 +13,26 @@ class ViewportButtons(bpy.types.Operator):
 
     def invoke(self, context, event):
 
+        self.locations_2d = [Vector((3.4141845703125, 50.245880126953125)),
+                             Vector((6.77001953125, 49.0897216796875)), Vector((10.010009765625, 47.184783935546875)), Vector((13.0787353515625, 44.563629150390625)),
+                             Vector((15.923583984375, 41.271148681640625)), Vector((18.49609375, 37.3636474609375)), Vector((18.4464111328125, 34.4862060546875)),
+                             Vector((18.572265625, 31.24371337890625)), Vector((19.0562744140625, 27.856903076171875)), Vector((19.8902587890625, 24.383697509765625)),
+                             Vector((21.059814453125, 20.883544921875)), Vector((22.544921875, 17.41632080078125)), Vector((24.3203125, 14.041351318359375)),
+                             Vector((0.0, 0.0)),
+                             Vector((-24.3330078125, 14.040130615234375)), Vector((-22.556396484375, 17.415802001953125)), Vector((-21.0697021484375, 20.883636474609375)),
+                             Vector((-19.8984375, 24.38427734375)), Vector((-19.0626220703125, 27.85784912109375)), Vector((-18.5765380859375, 31.244903564453125)),
+                             Vector((-18.448486328125, 34.48748779296875)), Vector((-18.4962158203125, 37.3636474609375)), Vector((-15.9237060546875, 41.271148681640625)),
+                             Vector((-13.0787353515625, 44.563629150390625)), Vector((-10.0101318359375, 47.184783935546875)), Vector((-6.7701416015625, 49.0897216796875)),
+                             Vector((-3.414306640625, 50.245880126953125)),
+                             Vector((0.0, 50.63348388671875))]
+
         self.buttons = {}
         self.old_mouse_x = 0
         self.old_mouse_y = 0
+
         self.buttontop = False
+        self.move_manipulator = False
+        self.manipulator_scale = 0.7
 
         args = (self, context)
         bpy.types.SpaceView3D.draw_handler_add(draw_manipulator, args, 'WINDOW', 'POST_PIXEL')
@@ -26,15 +43,21 @@ class ViewportButtons(bpy.types.Operator):
 
     def modal(self, context, event):
         context.area.tag_redraw()
+
         self.mouse_x = event.mouse_region_x
         self.mouse_y = event.mouse_region_y
 
         if event.type == 'RIGHTMOUSE':
             if event.value == 'PRESS':
-                self.old_mouse_x = self.mouse_x
-                self.old_mouse_y = self.mouse_y
+                if self.button_top or self.button_left or self.button_right:
+                    self.move_manipulator = True
+            elif event.value == 'RELEASE':
+                self.move_manipulator = False
+        if self.move_manipulator:
+            self.old_mouse_x = self.mouse_x
+            self.old_mouse_y = self.mouse_y
 
-        elif event.type == 'LEFTMOUSE':
+        if event.type == 'LEFTMOUSE':
             if event.value == 'PRESS':
 
                 if context.active_object is None:
@@ -46,20 +69,22 @@ class ViewportButtons(bpy.types.Operator):
                             if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
                                 bpy.ops.mesh.extrude_region_move()
                                 bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
+                                return {'RUNNING_MODAL'}
                             else:
                                 bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
-                            return {'RUNNING_MODAL'}
+                                return {'RUNNING_MODAL'}
                         elif self.button_right:
                             # Face Mode
                             if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
                                 bpy.ops.mesh.inset('INVOKE_DEFAULT')
+                                return {'RUNNING_MODAL'}
                             else:
                                 bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
-                            return {'RUNNING_MODAL'}
+                                return {'RUNNING_MODAL'}
                         elif self.button_left:
                             bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
                             bpy.ops.mesh.bevel('INVOKE_DEFAULT')
-                        return {'RUNNING_MODAL'}
+                            return {'RUNNING_MODAL'}
 
                     if bpy.context.active_object.mode == 'OBJECT':
                         if self.button_top:
@@ -76,13 +101,28 @@ class ViewportButtons(bpy.types.Operator):
                                 bpy.ops.hops.bool_difference('INVOKE_DEFAULT')
                                 return {'RUNNING_MODAL'}
                             else:
-                                bpy.ops.wm.call_menu(name='hops_main_menu')
-                                return {'RUNNING_MODAL'}
+                                pass
+                                # bpy.ops.wm.call_menu(name='hops_main_menu')
+                                # return {'RUNNING_MODAL'}
                         elif self.button_left:
                             if len(bpy.context.selected_objects) > 1:
                                 bpy.ops.hops.slash('INVOKE_DEFAULT')
+                                return {'RUNNING_MODAL'}
                             else:
                                 bpy.ops.wm.call_menu(name='hops.symetry_submenu')
-                            return {'RUNNING_MODAL'}
+                                return {'RUNNING_MODAL'}
+
+            elif event.value == 'RELEASE':
+
+                if context.active_object is None:
+                    pass
+                else:
+                    if bpy.context.active_object.mode == 'OBJECT':
+                        if self.button_right:
+                            if len(bpy.context.selected_objects) > 1:
+                                pass
+                            else:
+                                bpy.ops.wm.call_menu(name='hops_main_menu')
+                                return {'RUNNING_MODAL'}
 
         return {'PASS_THROUGH'}
