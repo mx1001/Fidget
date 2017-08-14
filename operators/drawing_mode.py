@@ -98,6 +98,7 @@ class ViewportButtons(bpy.types.Operator):
                             bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
                         return {'RUNNING_MODAL'}
                     elif self.button_left:
+                        bpy.ops.clean1.objects('INVOKE_DEFAULT',clearsharps=False)
                         bpy.ops.mesh.bevel('INVOKE_DEFAULT')
                     return {'RUNNING_MODAL'}
                 
@@ -108,6 +109,7 @@ class ViewportButtons(bpy.types.Operator):
                             return {'RUNNING_MODAL'}
                          else:
                             bpy.ops.wm.call_menu(name='INFO_MT_mesh_add')
+                            #bpy.ops.transform.resize('INVOKE_DEFAULT')
                             #bpy.ops.hops.adjust_bevel('INVOKE_DEFAULT')
                             return {'RUNNING_MODAL'}
                     elif self.button_right:
