@@ -19,14 +19,14 @@ Created by masterxeon1001 and team
 '''
 
 bl_info = {
-    "name": "nox",
-    "description": "nox",
+    "name": "Fidget",
+    "description": "Touchscreen Interface Prototype",
     "author": "MX, AR",
     "version": (0, 0, 0, 1),
     "blender": (2, 78, 0),
     "location": "View3D",
     # "warning": ",
-    "wiki_url": "https://masterxeon1001.com/2017/04/29/hard-ops-009-release-notes/",
+    "wiki_url": "none",
     "category": "Object"}
 
 
