@@ -3,9 +3,9 @@ from bgl import *
 from .. graphic.manipulator import draw_manipulator
 from .. graphic.modes import draw_mode1, draw_mode2, draw_mode3
 from .. utils.region import region_exists, ui_contexts_under_coord
+from .. utils.object import get_current_selected_status
 from mathutils import Vector
-# from ... utils.blender_ui import get_dpi, get_dpi_factor
-# from ... preferences import Hops_logo_color_cstep
+from .. preferences import get_preferences
 
 
 def draw(self, context):
@@ -48,13 +48,17 @@ class ViewportButtons(bpy.types.Operator):
                                  Vector((0.0, 50.63348388671875))]
 
             self.buttons = {}
-            self.old_mouse_x = 0
-            self.old_mouse_y = 0
+            self.old_mouse_x = bpy.context.region.width/1.2
+            self.old_mouse_y = bpy.context.region.height/3
 
             self.buttontop = False
             self.move_manipulator = False
             self.manipulator_scale = 0.7
             self.manipulator_radius = 4
+
+            self.is_over_mode1 = False
+            self.is_over_mode2 = False
+            self.is_over_mode3 = False
 
             args = (self, context)
             self._handle = bpy.types.SpaceView3D.draw_handler_add(draw, args, 'WINDOW', 'POST_PIXEL')
@@ -103,89 +107,149 @@ class ViewportButtons(bpy.types.Operator):
             if event.type == 'LEFTMOUSE':
 
                 if event.value == 'PRESS':
-                    if context.active_object is None:
-                        pass
-                    else:
-                        if bpy.context.active_object.mode == 'EDIT':
-                            if self.button_top:
-                                # Face Mode
-                                if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
-                                    bpy.ops.mesh.extrude_region_move()
-                                    bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
-                                    return {'RUNNING_MODAL'}
-                                elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
-                                    bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
-                                    return {'RUNNING_MODAL'}
-                                elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
-                                    bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
-                                    return {'RUNNING_MODAL'}
-                                else:
-                                    bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
-                                    return {'RUNNING_MODAL'}
-                            elif self.button_right:
-                                # Face Mode
-                                if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
-                                    bpy.ops.mesh.inset('INVOKE_DEFAULT')
-                                    return {'RUNNING_MODAL'}
-                                elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
-                                    bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
-                                    return {'RUNNING_MODAL'}
-                                elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
-                                    bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
-                                    return {'RUNNING_MODAL'}
-                                else:
-                                    bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
-                                    return {'RUNNING_MODAL'}
-                            elif self.button_left:
-                                bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
-                                bpy.ops.mesh.bevel('INVOKE_DEFAULT')
-                                return {'RUNNING_MODAL'}
+                    if self.is_over_mode1:
+                        get_preferences().mode = "MODE1"
+                    if self.is_over_mode2:
+                        get_preferences().mode = "MODE2"
+                    if self.is_over_mode3:
+                        get_preferences().mode = "MODE3"
 
-                        if bpy.context.active_object.mode == 'OBJECT':
-                            if self.button_top:
-                                if len(bpy.context.selected_objects) > 1:
-                                    bpy.ops.wm.call_menu(name='hops.bool_menu')
+                    if get_preferences().mode == "MODE1":
+
+                        if context.active_object is None:
+                            pass
+                        else:
+                            if bpy.context.active_object.mode == 'EDIT':
+                                if self.button_top:
+                                    # Face Mode
+                                    if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
+                                        bpy.ops.mesh.extrude_region_move()
+                                        bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
+                                        return {'RUNNING_MODAL'}
+                                    elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+                                        bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
+                                        return {'RUNNING_MODAL'}
+                                    elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+                                        bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
+                                        return {'RUNNING_MODAL'}
+                                    else:
+                                        bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
+                                        return {'RUNNING_MODAL'}
+                                elif self.button_right:
+                                    # Face Mode
+                                    if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
+                                        bpy.ops.mesh.inset('INVOKE_DEFAULT')
+                                        return {'RUNNING_MODAL'}
+                                    elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+                                        bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
+                                        return {'RUNNING_MODAL'}
+                                    elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+                                        bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
+                                        return {'RUNNING_MODAL'}
+                                    else:
+                                        bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
+                                        return {'RUNNING_MODAL'}
+                                elif self.button_left:
+                                    bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
+                                    bpy.ops.mesh.bevel('INVOKE_DEFAULT')
                                     return {'RUNNING_MODAL'}
-                                else:
-                                    bpy.ops.wm.call_menu(name='INFO_MT_mesh_add')
-                                    return {'RUNNING_MODAL'}
-                            elif self.button_right:
-                                if len(bpy.context.selected_objects) > 1:
-                                    bpy.ops.hops.bool_difference('INVOKE_DEFAULT')
-                                    return {'RUNNING_MODAL'}
-                                else:
-                                    pass
-                            elif self.button_left:
-                                if len(bpy.context.selected_objects) > 1:
-                                    bpy.ops.hops.slash('INVOKE_DEFAULT')
-                                    return {'RUNNING_MODAL'}
-                                else:
-                                    bpy.ops.wm.call_menu(name='hops.symetry_submenu')
-                                    return {'RUNNING_MODAL'}
+
+                            if bpy.context.active_object.mode == 'OBJECT':
+                                if self.button_top:
+                                    if len(bpy.context.selected_objects) > 1:
+                                        pass
+                                    else:
+                                        pass
+                                elif self.button_right:
+                                    if len(bpy.context.selected_objects) > 1:
+                                        bpy.ops.hops.bool_difference('INVOKE_DEFAULT')
+                                        return {'RUNNING_MODAL'}
+                                    else:
+                                        pass
+                                elif self.button_left:
+                                    if len(bpy.context.selected_objects) > 1:
+                                        pass
+                                    else:
+                                        pass
+
+                    # Hardops mode (hardcoded)
+                    if get_preferences().mode == "MODE3":
+                        active_object, other_objects, other_object = get_current_selected_status()
+                        only_meshes_selected = all(object.type == "MESH" for object in bpy.context.selected_objects)
+
+                        object = bpy.context.active_object
+
+                        if len(bpy.context.selected_objects) == 1:
+                            if object.hops.status in ("CSHARP", "CSTEP"):
+                                if active_object is not None and other_object is None and only_meshes_selected:
+                                    if object.hops.is_pending_boolean:
+                                        if self.button_top:
+                                            bpy.ops.hops.complex_sharpen()
+                                        elif self.button_left:
+                                            bpy.ops.hops.adjust_bevel('INVOKE_DEFAULT')
+                                        elif self.button_right:
+                                            bpy.ops.hops.slash()
+                                    else:
+                                        if self.button_top:
+                                            bpy.ops.hops.soft_sharpen()
+                                        elif self.button_left:
+                                            bpy.ops.hops.adjust_bevel('INVOKE_DEFAULT')
+                                        elif self.button_right:
+                                            bpy.ops.hops.step()
+                            if object.hops.status == "UNDEFINED":
+                                if active_object is not None and other_object is None and only_meshes_selected:
+                                    if self.button_top:
+                                        bpy.ops.hops.soft_sharpen()
+                                    elif self.button_left:
+                                        bpy.ops.hops.complex_sharpen()
+                                    elif self.button_right:
+                                        if object.hops.is_pending_boolean:
+                                            bpy.ops.hops.slash()
+                                        else:
+                                            bpy.ops.hops.adjust_tthick('INVOKE_DEFAULT')
+                        else:
+                            pass
 
                 elif event.value == 'RELEASE':
-                    if context.active_object is None:
-                        pass
-                    else:
-                        if bpy.context.active_object.mode == 'EDIT':
-                            if self.button_top:
-                                # Face Mode
-                                if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
-                                    pass
-                                elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
-                                    pass
-                                elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
-                                    pass
-                                else:
-                                    pass
 
-                        if bpy.context.active_object.mode == 'OBJECT':
-                            if self.button_right:
-                                if len(bpy.context.selected_objects) > 1:
-                                    pass
-                                else:
-                                    bpy.ops.wm.call_menu(name='hops_main_menu')
-                                    return {'RUNNING_MODAL'}
+                    if get_preferences().mode == "MODE1":
+
+                        if context.active_object is None:
+                            pass
+                        else:
+                            if bpy.context.active_object.mode == 'EDIT':
+                                if self.button_top:
+                                    # Face Mode
+                                    if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
+                                        pass
+                                    elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+                                        pass
+                                    elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+                                        pass
+                                    else:
+                                        pass
+
+                            if bpy.context.active_object.mode == 'OBJECT':
+                                if self.button_top:
+                                    if len(bpy.context.selected_objects) > 1:
+                                        bpy.ops.wm.call_menu(name='hops.bool_menu')
+                                        return {'RUNNING_MODAL'}
+                                    else:
+                                        bpy.ops.wm.call_menu(name='INFO_MT_mesh_add')
+                                        return {'RUNNING_MODAL'}
+                                elif self.button_right:
+                                    if len(bpy.context.selected_objects) > 1:
+                                        pass
+                                    else:
+                                        bpy.ops.wm.call_menu(name='hops_main_menu')
+                                        return {'RUNNING_MODAL'}
+                                elif self.button_left:
+                                    if len(bpy.context.selected_objects) > 1:
+                                        bpy.ops.hops.slash('INVOKE_DEFAULT')
+                                        return {'RUNNING_MODAL'}
+                                    else:
+                                        bpy.ops.wm.call_menu(name='hops.symetry_submenu')
+                                        return {'RUNNING_MODAL'}
 
             if event.type == 'ESC' and event.value == 'PRESS':
                 self.cancel(context)
