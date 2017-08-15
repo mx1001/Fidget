@@ -3,6 +3,7 @@ from bgl import *
 from .. graphic.manipulator import draw_manipulator
 from .. graphic.modes import draw_mode1, draw_mode2, draw_mode3
 from .. utils.region import region_exists, ui_contexts_under_coord
+from .. utils.object import get_current_selected_status
 from mathutils import Vector
 from .. preferences import get_preferences
 
@@ -175,8 +176,43 @@ class ViewportButtons(bpy.types.Operator):
                                         bpy.ops.wm.call_menu(name='hops.symetry_submenu')
                                         return {'RUNNING_MODAL'}
 
+                    # Hardops mode (hardcoded)
                     if get_preferences().mode == "MODE3":
-                        pass
+                        active_object, other_objects, other_object = get_current_selected_status()
+                        only_meshes_selected = all(object.type == "MESH" for object in bpy.context.selected_objects)
+
+                        object = bpy.context.active_object
+
+                        if len(bpy.context.selected_objects) == 1:
+                            if object.hops.status in ("CSHARP", "CSTEP"):
+                                if active_object is not None and other_object is None and only_meshes_selected:
+                                    if object.hops.is_pending_boolean:
+                                        if self.button_top:
+                                            bpy.ops.hops.complex_sharpen()
+                                        elif self.button_left:
+                                            bpy.ops.hops.adjust_bevel('INVOKE_DEFAULT')
+                                        elif self.button_right:
+                                            bpy.ops.hops.slash()
+                                    else:
+                                        if self.button_top:
+                                            bpy.ops.hops.soft_sharpen()
+                                        elif self.button_left:
+                                            bpy.ops.hops.adjust_bevel('INVOKE_DEFAULT')
+                                        elif self.button_right:
+                                            bpy.ops.hops.step()
+                            if object.hops.status == "UNDEFINED":
+                                if active_object is not None and other_object is None and only_meshes_selected:
+                                    if self.button_top:
+                                        bpy.ops.hops.soft_sharpen()
+                                    elif self.button_left:
+                                        bpy.ops.hops.complex_sharpen()
+                                    elif self.button_right:
+                                        if object.hops.is_pending_boolean:
+                                            bpy.ops.hops.slash()
+                                        else:
+                                            bpy.ops.hops.adjust_tthick('INVOKE_DEFAULT')
+                        else:
+                            pass
 
                 elif event.value == 'RELEASE':
 
