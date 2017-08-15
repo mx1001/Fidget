@@ -103,6 +103,7 @@ class ViewportButtons(bpy.types.Operator):
             if self.move_manipulator:
                 self.old_mouse_x = self.mouse_x
                 self.old_mouse_y = self.mouse_y
+                return {'RUNNING_MODAL'}
 
             if event.type == 'LEFTMOUSE':
 
