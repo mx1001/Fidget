@@ -11,6 +11,10 @@ def get_preferences():
 def get_addon_name():
     return os.path.basename(os.path.dirname(os.path.realpath(__file__)))
 
+manipulator_modes = [
+    ("MODE1", "mode1", ""),
+    ("MODE2", "mode2", ""),
+    ("MODE3", "mode3", "")]
 
 settings_tabs_items = [
     ("UI", "UI", ""),
@@ -23,16 +27,17 @@ class FidgetPreferences(bpy.types.AddonPreferences):
     bl_idname = get_addon_name()
 
     tab = EnumProperty(name="Tab", items=settings_tabs_items)
+    mode = EnumProperty(name="", options={"SKIP_SAVE"}, items=manipulator_modes)
 
     fidget_manimulator_scale = FloatProperty(
         name="Fidget Manipulator Scale",
         description="Fidget manipulator Scale",
-        default=0.7, min=0, max=10)
+        default=0.9, min=0, max=10)
 
     fidget_manimulator_radius = FloatProperty(
         name="Fidget Manipulator Radius",
         description="Fidget manipulator Radius",
-        default=4, min=0, max=100)
+        default=7, min=0, max=100)
 
     def draw(self, context):
         layout = self.layout

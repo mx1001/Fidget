@@ -3,13 +3,10 @@ from bgl import *
 import math
 from mathutils import Vector
 from .. preferences import get_preferences
-from .. utils.region import scale
+from .. utils.region import scale, inside_polygon
 
 
 def draw_mode1(self, context):
-
-    glColor4f(0.29, 0.52, 1.0, 0.9)
-    # glColor4f(0.7, 0.7, 0.7, 0.1)
 
     center = Vector((35.0, 21.0))
 
@@ -22,6 +19,22 @@ def draw_mode1(self, context):
     amount = 36
 
     self.list = calc_circle_pints(center, radius, amount)
+
+    polygon = []
+    for x, y in zip(self.list[0], self.list[1]):
+        polygon.append([x, y])
+
+    if inside_polygon(self.mouse_x, self.mouse_y, polygon):
+        glColor4f(0.29, 0.52, 1.0, 0.9)
+        self.is_over_mode1 = True
+    else:
+        self.is_over_mode1 = False
+        if get_preferences().mode == "MODE1":
+            glColor4f(0.29, 0.52, 1.0, 0.9)
+        else:
+            glColor4f(0.7, 0.7, 0.7, 0.1)
+
+    polygon[:] = []
 
     glEnable(GL_BLEND)
     glEnable(GL_LINE_SMOOTH)
@@ -37,8 +50,6 @@ def draw_mode1(self, context):
 
 def draw_mode2(self, context):
 
-    glColor4f(0.7, 0.7, 0.7, 0.1)
-
     center = Vector((-35.0, 21.0))
 
     origin = 0, 0
@@ -50,6 +61,22 @@ def draw_mode2(self, context):
     amount = 36
 
     self.list = calc_circle_pints(center, radius, amount)
+
+    polygon = []
+    for x, y in zip(self.list[0], self.list[1]):
+        polygon.append([x, y])
+
+    if inside_polygon(self.mouse_x, self.mouse_y, polygon):
+        glColor4f(0.29, 0.52, 1.0, 0.9)
+        self.is_over_mode2 = True
+    else:
+        self.is_over_mode2 = False
+        if get_preferences().mode == "MODE2":
+            glColor4f(0.29, 0.52, 1.0, 0.9)
+        else:
+            glColor4f(0.7, 0.7, 0.7, 0.1)
+
+    polygon[:] = []
 
     glEnable(GL_BLEND)
     glEnable(GL_LINE_SMOOTH)
@@ -65,8 +92,6 @@ def draw_mode2(self, context):
 
 def draw_mode3(self, context):
 
-    glColor4f(0.7, 0.7, 0.7, 0.1)
-
     center = Vector((0.0, -40.0))
 
     origin = 0, 0
@@ -78,6 +103,22 @@ def draw_mode3(self, context):
     amount = 36
 
     self.list = calc_circle_pints(center, radius, amount)
+
+    polygon = []
+    for x, y in zip(self.list[0], self.list[1]):
+        polygon.append([x, y])
+
+    if inside_polygon(self.mouse_x, self.mouse_y, polygon):
+        glColor4f(0.29, 0.52, 1.0, 0.9)
+        self.is_over_mode3 = True
+    else:
+        self.is_over_mode3 = False
+        if get_preferences().mode == "MODE3":
+            glColor4f(0.29, 0.52, 1.0, 0.9)
+        else:
+            glColor4f(0.7, 0.7, 0.7, 0.1)
+
+    polygon[:] = []
 
     glEnable(GL_BLEND)
     glEnable(GL_LINE_SMOOTH)
