@@ -167,6 +167,18 @@ class ViewportButtons(bpy.types.Operator):
                     if context.active_object is None:
                         pass
                     else:
+                        if bpy.context.active_object.mode == 'EDIT':
+                            if self.button_top:
+                                # Face Mode
+                                if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
+                                    pass
+                                elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+                                    pass
+                                elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+                                    pass
+                                else:
+                                    pass
+
                         if bpy.context.active_object.mode == 'OBJECT':
                             if self.button_right:
                                 if len(bpy.context.selected_objects) > 1:
