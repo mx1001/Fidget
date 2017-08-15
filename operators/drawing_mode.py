@@ -157,11 +157,9 @@ class ViewportButtons(bpy.types.Operator):
                             if bpy.context.active_object.mode == 'OBJECT':
                                 if self.button_top:
                                     if len(bpy.context.selected_objects) > 1:
-                                        bpy.ops.wm.call_menu(name='hops.bool_menu')
-                                        return {'RUNNING_MODAL'}
+                                        pass
                                     else:
-                                        bpy.ops.wm.call_menu(name='INFO_MT_mesh_add')
-                                        return {'RUNNING_MODAL'}
+                                        pass
                                 elif self.button_right:
                                     if len(bpy.context.selected_objects) > 1:
                                         bpy.ops.hops.bool_difference('INVOKE_DEFAULT')
@@ -170,11 +168,9 @@ class ViewportButtons(bpy.types.Operator):
                                         pass
                                 elif self.button_left:
                                     if len(bpy.context.selected_objects) > 1:
-                                        bpy.ops.hops.slash('INVOKE_DEFAULT')
-                                        return {'RUNNING_MODAL'}
+                                        pass
                                     else:
-                                        bpy.ops.wm.call_menu(name='hops.symetry_submenu')
-                                        return {'RUNNING_MODAL'}
+                                        pass
 
                     # Hardops mode (hardcoded)
                     if get_preferences().mode == "MODE3":
@@ -234,11 +230,25 @@ class ViewportButtons(bpy.types.Operator):
                                         pass
 
                             if bpy.context.active_object.mode == 'OBJECT':
-                                if self.button_right:
+                                if self.button_top:
+                                    if len(bpy.context.selected_objects) > 1:
+                                        bpy.ops.wm.call_menu(name='hops.bool_menu')
+                                        return {'RUNNING_MODAL'}
+                                    else:
+                                        bpy.ops.wm.call_menu(name='INFO_MT_mesh_add')
+                                        return {'RUNNING_MODAL'}
+                                elif self.button_right:
                                     if len(bpy.context.selected_objects) > 1:
                                         pass
                                     else:
                                         bpy.ops.wm.call_menu(name='hops_main_menu')
+                                        return {'RUNNING_MODAL'}
+                                elif self.button_left:
+                                    if len(bpy.context.selected_objects) > 1:
+                                        bpy.ops.hops.slash('INVOKE_DEFAULT')
+                                        return {'RUNNING_MODAL'}
+                                    else:
+                                        bpy.ops.wm.call_menu(name='hops.symetry_submenu')
                                         return {'RUNNING_MODAL'}
 
             if event.type == 'ESC' and event.value == 'PRESS':
