@@ -32,7 +32,12 @@ class FidgetPreferences(bpy.types.AddonPreferences):
     fidget_manimulator_scale = FloatProperty(
         name="Fidget Manipulator Scale",
         description="Fidget manipulator Scale",
-        default=0.9, min=0, max=10)
+        default=0.7, min=0, max=10)
+
+    fidget_manimulator_dots_scale = FloatProperty(
+        name="Fidget Manipulator Dots Scale",
+        description="Fidget manipulator Dots Scale",
+        default=0.34, min=0, max=10)
 
     fidget_manimulator_radius = FloatProperty(
         name="Fidget Manipulator Radius",
@@ -62,8 +67,9 @@ class FidgetPreferences(bpy.types.AddonPreferences):
 
         row = box.row(align=True)
         row.prop(self, "fidget_manimulator_scale", text="Manipualtor Scale")
-
-        box = layout.box()
+        row = box.row(align=True)
+        row.prop(self, "fidget_manimulator_dots_scale", text="Manipulator dots scale")
+        # box = layout.box()
         row = box.row(align=True)
         row.prop(self, "fidget_manimulator_radius", text="Manipulator dots radius")
 

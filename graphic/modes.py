@@ -11,7 +11,7 @@ def draw_mode1(self, context):
     center = Vector((35.0, 21.0))
 
     origin = 0, 0
-    value = get_preferences().fidget_manimulator_scale
+    value = get_preferences().fidget_manimulator_scale + get_preferences().fidget_manimulator_dots_scale
     center = scale(origin, center, value)
     center = center[0] + self.old_mouse_x, center[1] + self.old_mouse_y
 
@@ -53,7 +53,7 @@ def draw_mode2(self, context):
     center = Vector((-35.0, 21.0))
 
     origin = 0, 0
-    value = get_preferences().fidget_manimulator_scale
+    value = get_preferences().fidget_manimulator_scale + get_preferences().fidget_manimulator_dots_scale
     center = scale(origin, center, value)
     center = center[0] + self.old_mouse_x, center[1] + self.old_mouse_y
 
@@ -95,7 +95,7 @@ def draw_mode3(self, context):
     center = Vector((0.0, -40.0))
 
     origin = 0, 0
-    value = get_preferences().fidget_manimulator_scale
+    value = get_preferences().fidget_manimulator_scale + get_preferences().fidget_manimulator_dots_scale
     center = scale(origin, center, value)
     center = center[0] + self.old_mouse_x, center[1] + self.old_mouse_y
 
