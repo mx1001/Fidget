@@ -2,6 +2,7 @@ import bpy
 from bgl import *
 from .. graphic.manipulator import draw_manipulator
 from .. graphic.modes import draw_mode1, draw_mode2, draw_mode3
+from .. utils.region import region_exists, ui_contexts_under_coord
 from mathutils import Vector
 # from ... utils.blender_ui import get_dpi, get_dpi_factor
 # from ... preferences import Hops_logo_color_cstep
@@ -16,66 +17,6 @@ def draw(self, context):
     draw_mode1(self, context)
     draw_mode2(self, context)
     draw_mode3(self, context)
-
-# ============ from dairin0d's library ============ #
-
-
-def point_in_rect(p, r):
-    return ((p[0] >= r.x) and (p[0] < r.x + r.width) and (p[1] >= r.y) and (p[1] < r.y + r.height))
-
-
-def rv3d_from_region(area, region):
-    if (area.type != 'VIEW_3D') or (region.type != 'WINDOW'): return None
-
-    space_data = area.spaces.active
-    try:
-        quadviews = space_data.region_quadviews
-    except AttributeError:
-        quadviews = None # old API
-
-    if not quadviews: return space_data.region_3d
-
-    x_id = 0
-    y_id = 0
-    for r in area.regions:
-        if (r.type == 'WINDOW') and (r != region):
-            if r.x < region.x: x_id = 1
-            if r.y < region.y: y_id = 1
-
-    # 0: bottom left (Front Ortho)
-    # 1: top left (Top Ortho)
-    # 2: bottom right (Right Ortho)
-    # 3: top right (User Persp)
-    return quadviews[y_id | (x_id << 1)]
-
-# areas can't overlap, but regions can
-
-
-def ui_contexts_under_coord(x, y, window=None):
-    point = int(x), int(y)
-    if not window: window = bpy.context.window
-    screen = window.screen
-    scene = screen.scene
-    tool_settings = scene.tool_settings
-    for area in screen.areas:
-        if point_in_rect(point, area):
-            space_data = area.spaces.active
-            for region in area.regions:
-                if point_in_rect(point, region):
-                    yield dict(window=window, screen=screen,
-                               area=area, space_data=space_data, region=region,
-                               region_data=rv3d_from_region(area, region),
-                               scene=scene, tool_settings=tool_settings)
-            break
-
-
-def region_exists(r):
-    wm = bpy.context.window_manager
-    for window in wm.windows:
-        for area in window.screen.areas:
-            for region in area.regions:
-                if region == r: return True
-    return False
 
 
 class ViewportButtons(bpy.types.Operator):
@@ -160,8 +101,8 @@ class ViewportButtons(bpy.types.Operator):
                 self.old_mouse_y = self.mouse_y
 
             if event.type == 'LEFTMOUSE':
-                if event.value == 'PRESS':
 
+                if event.value == 'PRESS':
                     if context.active_object is None:
                         pass
                     else:
@@ -172,6 +113,12 @@ class ViewportButtons(bpy.types.Operator):
                                     bpy.ops.mesh.extrude_region_move()
                                     bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
                                     return {'RUNNING_MODAL'}
+                                elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+                                    bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
+                                    return {'RUNNING_MODAL'}
+                                elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+                                    bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
+                                    return {'RUNNING_MODAL'}
                                 else:
                                     bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
                                     return {'RUNNING_MODAL'}
@@ -179,6 +126,12 @@ class ViewportButtons(bpy.types.Operator):
                                 # Face Mode
                                 if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
                                     bpy.ops.mesh.inset('INVOKE_DEFAULT')
+                                    return {'RUNNING_MODAL'}
+                                elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+                                    bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
+                                    return {'RUNNING_MODAL'}
+                                elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+                                    bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
                                     return {'RUNNING_MODAL'}
                                 else:
                                     bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
@@ -195,8 +148,6 @@ class ViewportButtons(bpy.types.Operator):
                                     return {'RUNNING_MODAL'}
                                 else:
                                     bpy.ops.wm.call_menu(name='INFO_MT_mesh_add')
-                                    # bpy.ops.transform.resize('INVOKE_DEFAULT')
-                                    # bpy.ops.hops.adjust_bevel('INVOKE_DEFAULT')
                                     return {'RUNNING_MODAL'}
                             elif self.button_right:
                                 if len(bpy.context.selected_objects) > 1:
@@ -204,8 +155,6 @@ class ViewportButtons(bpy.types.Operator):
                                     return {'RUNNING_MODAL'}
                                 else:
                                     pass
-                                    # bpy.ops.wm.call_menu(name='hops_main_menu')
-                                    # return {'RUNNING_MODAL'}
                             elif self.button_left:
                                 if len(bpy.context.selected_objects) > 1:
                                     bpy.ops.hops.slash('INVOKE_DEFAULT')
@@ -215,7 +164,6 @@ class ViewportButtons(bpy.types.Operator):
                                     return {'RUNNING_MODAL'}
 
                 elif event.value == 'RELEASE':
-
                     if context.active_object is None:
                         pass
                     else:
