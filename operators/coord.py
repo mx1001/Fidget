@@ -4,7 +4,7 @@ import bpy_extras.view3d_utils
 
 
 class ViewportCoord(bpy.types.Operator):
-    bl_idname = "nox.getcoord"
+    bl_idname = "fidget.getcoord"
     bl_label = "coord get"
     bl_description = "get vertex coordinates"
 

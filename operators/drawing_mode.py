@@ -1,7 +1,7 @@
 import bpy
 from bgl import *
 from .. graphic.manipulator import draw_manipulator
-from .. graphic.modes import draw_modes
+from .. graphic.modes import draw_mode1, draw_mode2, draw_mode3
 from mathutils import Vector
 # from ... utils.blender_ui import get_dpi, get_dpi_factor
 # from ... preferences import Hops_logo_color_cstep
@@ -13,7 +13,9 @@ def draw(self, context):
     if self._region != context.region: return
 
     draw_manipulator(self, context)
-    draw_modes(self, context)
+    draw_mode1(self, context)
+    draw_mode2(self, context)
+    draw_mode3(self, context)
 
 # ============ from dairin0d's library ============ #
 
@@ -77,8 +79,8 @@ def region_exists(r):
 
 
 class ViewportButtons(bpy.types.Operator):
-    bl_idname = "nox.viewport_buttons"
-    bl_label = "Viewport Buttons"
+    bl_idname = "fidget.viewport_buttons"
+    bl_label = "Fidget Viewport Buttons"
     bl_description = "Draw interactive viewport buttons for hops"
 
     running_fidget = {}
@@ -111,6 +113,7 @@ class ViewportButtons(bpy.types.Operator):
             self.buttontop = False
             self.move_manipulator = False
             self.manipulator_scale = 0.7
+            self.manipulator_radius = 4
 
             args = (self, context)
             self._handle = bpy.types.SpaceView3D.draw_handler_add(draw, args, 'WINDOW', 'POST_PIXEL')

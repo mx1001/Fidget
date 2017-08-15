@@ -2,6 +2,7 @@ import bpy
 from bgl import *
 import math
 from mathutils import Vector
+from .. preferences import get_preferences
 from mathutils.geometry import tessellate_polygon
 from .. utils.region import rotate, scale, inside_polygon
 
@@ -18,7 +19,7 @@ def draw_manipulator(self, context):
     for v in locations_2d:
         origin = 0, 0
         point = v[0], v[1]
-        value = self.manipulator_scale
+        value = get_preferences().fidget_manimulator_scale
         px, py = scale(origin, point, value)
         locations_2d_scaled.append(Vector((px, py)))
 
