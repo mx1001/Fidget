@@ -47,8 +47,8 @@ class ViewportButtons(bpy.types.Operator):
                                  Vector((0.0, 50.63348388671875))]
 
             self.buttons = {}
-            self.old_mouse_x = 0
-            self.old_mouse_y = 0
+            self.old_mouse_x = bpy.context.region.width/1.2
+            self.old_mouse_y = bpy.context.region.height/3
 
             self.buttontop = False
             self.move_manipulator = False
