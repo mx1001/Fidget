@@ -44,6 +44,11 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         description="Fidget manipulator Radius",
         default=7, min=0, max=100)
 
+    fidget_manimulator_rotation = IntProperty(
+        name="Fidget Manipulator Rotation",
+        description="Fidget manipulator Rotation",
+        default=0, min=-360, max=360)
+
     def draw(self, context):
         layout = self.layout
 
@@ -72,6 +77,8 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         # box = layout.box()
         row = box.row(align=True)
         row.prop(self, "fidget_manimulator_radius", text="Manipulator dots radius")
+        row = box.row(align=True)
+        row.prop(self, "fidget_manimulator_rotation", text="Manipulator rotation")
 
     def draw_properties_tab(self, layout):
         box = layout.box()

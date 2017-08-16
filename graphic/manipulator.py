@@ -15,7 +15,6 @@ def draw_manipulator(self, context):
     locations_2d = self.locations_2d
 
     locations_2d_scaled = []
-
     for v in locations_2d:
         origin = 0, 0
         point = v[0], v[1]
@@ -24,6 +23,17 @@ def draw_manipulator(self, context):
         locations_2d_scaled.append(Vector((px, py)))
 
     locations_2d = locations_2d_scaled
+
+    locations_2d_rotated = []
+    for v in locations_2d:
+        origin = 0, 0
+        point = v[0], v[1]
+        angle = math.radians(get_preferences().fidget_manimulator_rotation)
+        px, py = rotate(origin, point, angle)
+        locations_2d_rotated.append(Vector((px, py)))
+
+    locations_2d = locations_2d_rotated
+
     location_2d_2 = []
     location_2d_3 = []
 
