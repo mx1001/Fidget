@@ -242,10 +242,12 @@ class ViewportButtons(bpy.types.Operator):
 
                             if bpy.context.active_object.mode == 'OBJECT':
                                 if self.button_top:
-                                    if len(bpy.context.selected_objects) > 1:
+                                    if len(bpy.context.selected_objects) == 2:
                                         bpy.ops.wm.call_menu(name='hops.bool_menu')
-                                    else:
+                                    elif len(bpy.context.selected_objects) == 1:
                                         bpy.ops.wm.call_menu(name='INFO_MT_mesh_add')
+                                    else:
+                                        bpy.ops.mesh.primitive_cube_add()
                                     return {'RUNNING_MODAL'}
                                 elif self.button_right:
                                     if len(bpy.context.selected_objects) > 1:
