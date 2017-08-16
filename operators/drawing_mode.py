@@ -163,7 +163,7 @@ class ViewportButtons(bpy.types.Operator):
                                     return {'RUNNING_MODAL'}
                                 elif self.button_right:
                                     if len(bpy.context.selected_objects) > 1:
-                                        bpy.ops.hops.bool_difference('INVOKE_DEFAULT')
+                                        pass
                                     else:
                                         pass
                                     return {'RUNNING_MODAL'}
@@ -251,7 +251,7 @@ class ViewportButtons(bpy.types.Operator):
                                     return {'RUNNING_MODAL'}
                                 elif self.button_right:
                                     if len(bpy.context.selected_objects) > 1:
-                                        pass
+                                        bpy.ops.hops.bool_difference('INVOKE_DEFAULT')
                                     else:
                                         bpy.ops.wm.call_menu(name='hops_main_menu')
                                     return {'RUNNING_MODAL'}
