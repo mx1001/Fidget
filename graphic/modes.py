@@ -3,7 +3,7 @@ from bgl import *
 import math
 from mathutils import Vector
 from .. preferences import get_preferences
-from .. utils.region import scale, inside_polygon
+from .. utils.region import scale, inside_polygon, rotate
 
 
 def draw_mode1(self, context):
@@ -12,7 +12,9 @@ def draw_mode1(self, context):
 
     origin = 0, 0
     value = get_preferences().fidget_manimulator_scale + get_preferences().fidget_manimulator_dots_scale
+    angle = math.radians(get_preferences().fidget_manimulator_rotation)
     center = scale(origin, center, value)
+    center = rotate(origin, center, angle)
     center = center[0] + self.old_mouse_x, center[1] + self.old_mouse_y
 
     radius = get_preferences().fidget_manimulator_radius
@@ -54,7 +56,9 @@ def draw_mode2(self, context):
 
     origin = 0, 0
     value = get_preferences().fidget_manimulator_scale + get_preferences().fidget_manimulator_dots_scale
+    angle = math.radians(get_preferences().fidget_manimulator_rotation)
     center = scale(origin, center, value)
+    center = rotate(origin, center, angle)
     center = center[0] + self.old_mouse_x, center[1] + self.old_mouse_y
 
     radius = get_preferences().fidget_manimulator_radius
@@ -96,7 +100,9 @@ def draw_mode3(self, context):
 
     origin = 0, 0
     value = get_preferences().fidget_manimulator_scale + get_preferences().fidget_manimulator_dots_scale
+    angle = math.radians(get_preferences().fidget_manimulator_rotation)
     center = scale(origin, center, value)
+    center = rotate(origin, center, angle)
     center = center[0] + self.old_mouse_x, center[1] + self.old_mouse_y
 
     radius = get_preferences().fidget_manimulator_radius
