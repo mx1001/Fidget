@@ -27,25 +27,51 @@ def draw_mode1(self, context):
         polygon.append([x, y])
 
     if inside_polygon(self.mouse_x, self.mouse_y, polygon):
-        glColor4f(0.29, 0.52, 1.0, 0.9)
+        bgR = get_preferences().fidget_mode1_color_hover[0]
+        bgG = get_preferences().fidget_mode1_color_hover[1]
+        bgB = get_preferences().fidget_mode1_color_hover[2]
+        bgA = get_preferences().fidget_mode1_color_hover[3]
+        glColor4f(bgR, bgG, bgB, bgA)
         self.is_over_mode1 = True
     else:
         self.is_over_mode1 = False
         if get_preferences().mode == "MODE1":
-            glColor4f(0.29, 0.52, 1.0, 0.9)
+            bgR = get_preferences().fidget_mode1_color_hover[0]
+            bgG = get_preferences().fidget_mode1_color_hover[1]
+            bgB = get_preferences().fidget_mode1_color_hover[2]
+            bgA = get_preferences().fidget_mode1_color_hover[3]
+            glColor4f(bgR, bgG, bgB, bgA)
         else:
-            glColor4f(0.7, 0.7, 0.7, 0.1)
+            bgR = get_preferences().fidget_mode1_color[0]
+            bgG = get_preferences().fidget_mode1_color[0]
+            bgB = get_preferences().fidget_mode1_color[0]
+            bgA = get_preferences().fidget_mode1_color[3]
+            glColor4f(bgR, bgG, bgB, bgA)
 
     polygon[:] = []
 
     glEnable(GL_BLEND)
     glEnable(GL_LINE_SMOOTH)
+
     glBegin(GL_TRIANGLE_FAN)
 
     for x, y in zip(self.list[0], self.list[1]):
         glVertex2f(x, y)
 
     glEnd()
+
+    bgR = get_preferences().fidget_outline[0]
+    bgG = get_preferences().fidget_outline[1]
+    bgB = get_preferences().fidget_outline[2]
+    bgA = get_preferences().fidget_outline[3]
+    glColor4f(bgR, bgG, bgB, bgA)
+    glBegin(GL_LINE_LOOP)
+
+    for x, y in zip(self.list[0], self.list[1]):
+        glVertex2f(x, y)
+
+    glEnd()
+
     glDisable(GL_LINE_SMOOTH)
     glDisable(GL_BLEND)
 
@@ -71,25 +97,51 @@ def draw_mode2(self, context):
         polygon.append([x, y])
 
     if inside_polygon(self.mouse_x, self.mouse_y, polygon):
-        glColor4f(0.29, 0.52, 1.0, 0.9)
+        bgR = get_preferences().fidget_mode2_color_hover[0]
+        bgG = get_preferences().fidget_mode2_color_hover[1]
+        bgB = get_preferences().fidget_mode2_color_hover[2]
+        bgA = get_preferences().fidget_mode2_color_hover[3]
+        glColor4f(bgR, bgG, bgB, bgA)
         self.is_over_mode2 = True
     else:
         self.is_over_mode2 = False
         if get_preferences().mode == "MODE2":
-            glColor4f(0.29, 0.52, 1.0, 0.9)
+            bgR = get_preferences().fidget_mode2_color_hover[0]
+            bgG = get_preferences().fidget_mode2_color_hover[1]
+            bgB = get_preferences().fidget_mode2_color_hover[2]
+            bgA = get_preferences().fidget_mode2_color_hover[3]
+            glColor4f(bgR, bgG, bgB, bgA)
         else:
-            glColor4f(0.7, 0.7, 0.7, 0.1)
+            bgR = get_preferences().fidget_mode2_color[0]
+            bgG = get_preferences().fidget_mode2_color[0]
+            bgB = get_preferences().fidget_mode2_color[0]
+            bgA = get_preferences().fidget_mode2_color[3]
+            glColor4f(bgR, bgG, bgB, bgA)
 
     polygon[:] = []
 
     glEnable(GL_BLEND)
     glEnable(GL_LINE_SMOOTH)
+
     glBegin(GL_TRIANGLE_FAN)
 
     for x, y in zip(self.list[0], self.list[1]):
         glVertex2f(x, y)
 
     glEnd()
+
+    bgR = get_preferences().fidget_outline[0]
+    bgG = get_preferences().fidget_outline[1]
+    bgB = get_preferences().fidget_outline[2]
+    bgA = get_preferences().fidget_outline[3]
+    glColor4f(bgR, bgG, bgB, bgA)
+    glBegin(GL_LINE_LOOP)
+
+    for x, y in zip(self.list[0], self.list[1]):
+        glVertex2f(x, y)
+
+    glEnd()
+
     glDisable(GL_LINE_SMOOTH)
     glDisable(GL_BLEND)
 
@@ -115,25 +167,51 @@ def draw_mode3(self, context):
         polygon.append([x, y])
 
     if inside_polygon(self.mouse_x, self.mouse_y, polygon):
-        glColor4f(0.29, 0.52, 1.0, 0.9)
+        bgR = get_preferences().fidget_mode3_color_hover[0]
+        bgG = get_preferences().fidget_mode3_color_hover[1]
+        bgB = get_preferences().fidget_mode3_color_hover[2]
+        bgA = get_preferences().fidget_mode3_color_hover[3]
+        glColor4f(bgR, bgG, bgB, bgA)
         self.is_over_mode3 = True
     else:
         self.is_over_mode3 = False
         if get_preferences().mode == "MODE3":
-            glColor4f(0.29, 0.52, 1.0, 0.9)
+            bgR = get_preferences().fidget_mode3_color_hover[0]
+            bgG = get_preferences().fidget_mode3_color_hover[1]
+            bgB = get_preferences().fidget_mode3_color_hover[2]
+            bgA = get_preferences().fidget_mode3_color_hover[3]
+            glColor4f(bgR, bgG, bgB, bgA)
         else:
-            glColor4f(0.7, 0.7, 0.7, 0.1)
+            bgR = get_preferences().fidget_mode3_color[0]
+            bgG = get_preferences().fidget_mode3_color[0]
+            bgB = get_preferences().fidget_mode3_color[0]
+            bgA = get_preferences().fidget_mode3_color[3]
+            glColor4f(bgR, bgG, bgB, bgA)
 
     polygon[:] = []
 
     glEnable(GL_BLEND)
     glEnable(GL_LINE_SMOOTH)
+
     glBegin(GL_TRIANGLE_FAN)
 
     for x, y in zip(self.list[0], self.list[1]):
         glVertex2f(x, y)
 
     glEnd()
+
+    bgR = get_preferences().fidget_outline[0]
+    bgG = get_preferences().fidget_outline[1]
+    bgB = get_preferences().fidget_outline[2]
+    bgA = get_preferences().fidget_outline[3]
+    glColor4f(bgR, bgG, bgB, bgA)
+    glBegin(GL_LINE_LOOP)
+
+    for x, y in zip(self.list[0], self.list[1]):
+        glVertex2f(x, y)
+
+    glEnd()
+
     glDisable(GL_LINE_SMOOTH)
     glDisable(GL_BLEND)
 

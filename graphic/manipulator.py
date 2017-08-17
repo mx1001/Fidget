@@ -66,10 +66,18 @@ def draw_manipulator(self, context):
     triangles3 = tessellate_polygon([location_2d_3])
 
     if inside_polygon(self.mouse_x, self.mouse_y, locations_2d):
-        glColor4f(0.29, 0.52, 1.0, 0.9)
+        bgR = get_preferences().fidget_button1_color_hover[0]
+        bgG = get_preferences().fidget_button1_color_hover[1]
+        bgB = get_preferences().fidget_button1_color_hover[2]
+        bgA = get_preferences().fidget_button1_color_hover[3]
+        glColor4f(bgR, bgG, bgB, bgA)
         self.button_top = True
     else:
-        glColor4f(0.3, 0.3, 0.3, 0.5)
+        bgR = get_preferences().fidget_button1_color[0]
+        bgG = get_preferences().fidget_button1_color[1]
+        bgB = get_preferences().fidget_button1_color[2]
+        bgA = get_preferences().fidget_button1_color[3]
+        glColor4f(bgR, bgG, bgB, bgA)
         self.button_top = False
     glBegin(GL_TRIANGLES)
     for tri in triangles:
@@ -78,11 +86,29 @@ def draw_manipulator(self, context):
             glVertex2f(v[0], v[1])
     glEnd()
 
+    bgR = get_preferences().fidget_outline[0]
+    bgG = get_preferences().fidget_outline[1]
+    bgB = get_preferences().fidget_outline[2]
+    bgA = get_preferences().fidget_outline[3]
+    glColor4f(bgR, bgG, bgB, bgA)
+    glBegin(GL_LINE_LOOP)
+    for loc_2d in locations_2d:
+        glVertex2f(loc_2d[0], loc_2d[1])
+    glEnd()
+
     if inside_polygon(self.mouse_x, self.mouse_y, location_2d_2):
-        glColor4f(0.29, 0.52, 1.0, 0.9)
+        bgR = get_preferences().fidget_button2_color_hover[0]
+        bgG = get_preferences().fidget_button2_color_hover[1]
+        bgB = get_preferences().fidget_button2_color_hover[2]
+        bgA = get_preferences().fidget_button2_color_hover[3]
+        glColor4f(bgR, bgG, bgB, bgA)
         self.button_left = True
     else:
-        glColor4f(0.5, 0.5, 0.5, 0.5)
+        bgR = get_preferences().fidget_button2_color[0]
+        bgG = get_preferences().fidget_button2_color[1]
+        bgB = get_preferences().fidget_button2_color[2]
+        bgA = get_preferences().fidget_button2_color[3]
+        glColor4f(bgR, bgG, bgB, bgA)
         self.button_left = False
     glBegin(GL_TRIANGLES)
     for tri in triangles2:
@@ -91,17 +117,45 @@ def draw_manipulator(self, context):
             glVertex2f(v[0], v[1])
     glEnd()
 
+    bgR = get_preferences().fidget_outline[0]
+    bgG = get_preferences().fidget_outline[1]
+    bgB = get_preferences().fidget_outline[2]
+    bgA = get_preferences().fidget_outline[3]
+    glColor4f(bgR, bgG, bgB, bgA)
+    glBegin(GL_LINE_LOOP)
+    for loc_2d in location_2d_2:
+        glVertex2f(loc_2d[0], loc_2d[1])
+    glEnd()
+
     if inside_polygon(self.mouse_x, self.mouse_y, location_2d_3):
-        glColor4f(0.29, 0.52, 1.0, 0.9)
+        bgR = get_preferences().fidget_button3_color_hover[0]
+        bgG = get_preferences().fidget_button3_color_hover[1]
+        bgB = get_preferences().fidget_button3_color_hover[2]
+        bgA = get_preferences().fidget_button3_color_hover[3]
+        glColor4f(bgR, bgG, bgB, bgA)
         self.button_right = True
     else:
-        glColor4f(0.7, 0.7, 0.7, 0.5)
+        bgR = get_preferences().fidget_button3_color[0]
+        bgG = get_preferences().fidget_button3_color[1]
+        bgB = get_preferences().fidget_button3_color[2]
+        bgA = get_preferences().fidget_button3_color[3]
+        glColor4f(bgR, bgG, bgB, bgA)
         self.button_right = False
     glBegin(GL_TRIANGLES)
     for tri in triangles3:
         for v_id in tri:
             v = location_2d_3[v_id]
             glVertex2f(v[0], v[1])
+    glEnd()
+
+    bgR = get_preferences().fidget_outline[0]
+    bgG = get_preferences().fidget_outline[1]
+    bgB = get_preferences().fidget_outline[2]
+    bgA = get_preferences().fidget_outline[3]
+    glColor4f(bgR, bgG, bgB, bgA)
+    glBegin(GL_LINE_LOOP)
+    for loc_2d in location_2d_3:
+        glVertex2f(loc_2d[0], loc_2d[1])
     glEnd()
 
     glDisable(GL_LINE_SMOOTH)

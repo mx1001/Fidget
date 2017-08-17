@@ -49,6 +49,118 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         description="Fidget manipulator Rotation",
         default=0, min=-360, max=360)
 
+    fidget_manimulator_outline = BoolProperty(
+        name="Clump Mirror",
+        description="Clump Mirror",
+        default=False)
+
+
+    # colors
+
+    fidget_mode1_color = FloatVectorProperty(
+            name="",
+            default=(0.7, 0.7, 0.7, 0.1),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_mode2_color = FloatVectorProperty(
+            name="",
+            default=(0.7, 0.7, 0.7, 0.1),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_mode3_color = FloatVectorProperty(
+            name="",
+            default=(0.7, 0.7, 0.7, 0.1),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_mode1_color_hover = FloatVectorProperty(
+            name="",
+            default=(0.29, 0.52, 1.0, 0.9),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_mode2_color_hover = FloatVectorProperty(
+            name="",
+            default=(0.29, 0.52, 1.0, 0.9),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_mode3_color_hover = FloatVectorProperty(
+            name="",
+            default=(0.29, 0.52, 1.0, 0.9),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button1_color = FloatVectorProperty(
+            name="",
+            default=(0.3, 0.3, 0.3, 0.5),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button2_color = FloatVectorProperty(
+            name="",
+            default=(0.5, 0.5, 0.5, 0.5),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button3_color = FloatVectorProperty(
+            name="",
+            default=(0.7, 0.7, 0.7, 0.5),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button1_color_hover = FloatVectorProperty(
+            name="",
+            default=(0.29, 0.52, 1.0, 0.9),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button2_color_hover = FloatVectorProperty(
+            name="",
+            default=(0.29, 0.52, 1.0, 0.9),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button3_color_hover = FloatVectorProperty(
+            name="",
+            default=(0.29, 0.52, 1.0, 0.9),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_outline = FloatVectorProperty(
+            name="",
+            default=(0.1, 0.1, 0.1, 0.4),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
     def draw(self, context):
         layout = self.layout
 
@@ -69,7 +181,8 @@ class FidgetPreferences(bpy.types.AddonPreferences):
 
     def draw_ui_tab(self, layout):
         box = layout.box()
-
+        row = box.row(align=True)
+        row.label("Size")
         row = box.row(align=True)
         row.prop(self, "fidget_manimulator_scale", text="Manipualtor Scale")
         row = box.row(align=True)
@@ -79,6 +192,37 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         row.prop(self, "fidget_manimulator_radius", text="Manipulator dots radius")
         row = box.row(align=True)
         row.prop(self, "fidget_manimulator_rotation", text="Manipulator rotation")
+
+        box = layout.box()
+        row = box.row(align=True)
+        row.label("Modes Colors")
+        row = box.row(align=True)
+        row.prop(self, "fidget_mode1_color", text="Mode 1 color")
+        row.prop(self, "fidget_mode1_color_hover", text="Mode 1 hover")
+        row = box.row(align=True)
+        row.prop(self, "fidget_mode2_color", text="Mode 2 color")
+        row.prop(self, "fidget_mode2_color_hover", text="Mode 2 hover")
+        row = box.row(align=True)
+        row.prop(self, "fidget_mode3_color", text="Mode 3 color")
+        row.prop(self, "fidget_mode3_color_hover", text="Mode 3 hover")
+
+        box = layout.box()
+        row = box.row(align=True)
+        row.label("Manipulator Colors")
+        row = box.row(align=True)
+        row.prop(self, "fidget_button1_color", text="Button 1 color")
+        row.prop(self, "fidget_button1_color_hover", text="Button 1 hover")
+        row = box.row(align=True)
+        row.prop(self, "fidget_button2_color", text="Button 2 color")
+        row.prop(self, "fidget_button2_color_hover", text="Button 2 hover")
+        row = box.row(align=True)
+        row.prop(self, "fidget_button3_color", text="Button 3 color")
+        row.prop(self, "fidget_button3_color_hover", text="Button 3 hover")
+
+        box = layout.box()
+        row = box.row(align=True)
+        row.label("Manipulator outline")
+        row.prop(self, "fidget_outline", text="outline")
 
     def draw_properties_tab(self, layout):
         box = layout.box()
