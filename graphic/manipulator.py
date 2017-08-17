@@ -52,14 +52,14 @@ def draw_manipulator(self, context):
         location_2d_3.append(Vector((px, py)))
 
     for v in locations_2d:
-        v[0] = v[0] + self.old_mouse_pos[0]
-        v[1] = v[1] + self.old_mouse_pos[1]
+        v[0] = v[0] + self.center[0]
+        v[1] = v[1] + self.center[1]
     for v in location_2d_2:
-        v[0] = v[0] + self.old_mouse_pos[0]
-        v[1] = v[1] + self.old_mouse_pos[1]
+        v[0] = v[0] + self.center[0]
+        v[1] = v[1] + self.center[1]
     for v in location_2d_3:
-        v[0] = v[0] + self.old_mouse_pos[0]
-        v[1] = v[1] + self.old_mouse_pos[1]
+        v[0] = v[0] + self.center[0]
+        v[1] = v[1] + self.center[1]
 
     triangles = tessellate_polygon([locations_2d])
     triangles2 = tessellate_polygon([location_2d_2])

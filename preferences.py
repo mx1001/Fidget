@@ -47,7 +47,12 @@ class FidgetPreferences(bpy.types.AddonPreferences):
     fidget_manimulator_rotation = IntProperty(
         name="Fidget Manipulator Rotation",
         description="Fidget manipulator Rotation",
-        default=0, min=-360, max=360)
+        default=0, min=0, max=360)
+
+    fidget_manimulator_rotation_angle = IntProperty(
+        name="Fidget Manipulator Rotation",
+        description="Fidget manipulator Rotation",
+        default=30, min=1, max=360)
 
     fidget_enable_outline = BoolProperty(
         name="Enable Outline",
@@ -191,6 +196,8 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         row.prop(self, "fidget_manimulator_radius", text="Manipulator dots radius")
         row = box.row(align=True)
         row.prop(self, "fidget_manimulator_rotation", text="Manipulator rotation")
+        row = box.row(align=True)
+        row.prop(self, "fidget_manimulator_rotation_angle", text="Manipulator rotation angle")
 
         box = layout.box()
         row = box.row(align=True)

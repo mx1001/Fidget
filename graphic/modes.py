@@ -15,7 +15,7 @@ def draw_mode1(self, context):
     angle = math.radians(get_preferences().fidget_manimulator_rotation)
     center = scale(origin, center, value)
     center = rotate(origin, center, angle)
-    center = center[0] + self.old_mouse_pos[0], center[1] + self.old_mouse_pos[1]
+    center = center[0] + self.center[0], center[1] + self.center[1]
 
     radius = get_preferences().fidget_manimulator_radius
     amount = 36
@@ -86,7 +86,7 @@ def draw_mode2(self, context):
     angle = math.radians(get_preferences().fidget_manimulator_rotation)
     center = scale(origin, center, value)
     center = rotate(origin, center, angle)
-    center = center[0] + self.old_mouse_pos[0], center[1] + self.old_mouse_pos[1]
+    center = center[0] + self.center[0], center[1] + self.center[1]
 
     radius = get_preferences().fidget_manimulator_radius
     amount = 36
@@ -157,7 +157,7 @@ def draw_mode3(self, context):
     angle = math.radians(get_preferences().fidget_manimulator_rotation)
     center = scale(origin, center, value)
     center = rotate(origin, center, angle)
-    center = center[0] + self.old_mouse_pos[0], center[1] + self.old_mouse_pos[1]
+    center = center[0] + self.center[0], center[1] + self.center[1]
 
     radius = get_preferences().fidget_manimulator_radius
     amount = 36

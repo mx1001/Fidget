@@ -1,8 +1,9 @@
 import bpy
 from bgl import *
+import numpy as np
 from .. graphic.manipulator import draw_manipulator
 from .. graphic.modes import draw_mode1, draw_mode2, draw_mode3
-from .. utils.region import region_exists, ui_contexts_under_coord
+from .. utils.region import region_exists, ui_contexts_under_coord, calculate_angle
 from .. utils.object import get_current_selected_status
 from mathutils import Vector
 from .. preferences import get_preferences
@@ -48,7 +49,8 @@ class ViewportButtons(bpy.types.Operator):
                                  Vector((0.0, 50.63348388671875))]
 
             self.buttons = {}
-            self.old_mouse_pos = [bpy.context.region.width/1.2, bpy.context.region.height/3]
+            self.center = Vector((bpy.context.region.width/1.2, bpy.context.region.height/3))
+            self.drag_static = Vector((self.center[0]+35.0, self.center[1]+21.0))
 
             self.buttontop = False
             self.manipulator_scale = 0.7
@@ -82,6 +84,11 @@ class ViewportButtons(bpy.types.Operator):
                 return {'CANCELLED'}
 
             context.area.tag_redraw()
+            if event.type == 'R' and event.value == 'PRESS':
+                if event.shift:
+                    self.drag_mode = None
+                else:
+                    self.drag_mode = 'ROTATE'
 
             if event.type == 'MOUSEMOVE':
                 self.mouse_pos = Vector((event.mouse_region_x, event.mouse_region_y))
@@ -95,18 +102,25 @@ class ViewportButtons(bpy.types.Operator):
 
             if event.type == 'RIGHTMOUSE':
                 if event.value == 'PRESS':
-                    if self.is_over_mode1 or self.is_over_mode2 or self.is_over_mode3:
+                    if self.is_over_mode1:
+                        self.drag_static = Vector((self.center[0]+35.0, self.center[1]+21.0))
+                        self.drag_mode = 'ROTATE'
+                        return {'RUNNING_MODAL'}
+                    elif self.is_over_mode2:
+                        self.drag_static = Vector((self.center[0]-35.0, self.center[1]+21.0))
+                        self.drag_mode = 'ROTATE'
+                        return {'RUNNING_MODAL'}
+                    elif self.is_over_mode3:
+                        self.drag_static = Vector((self.center[0], self.center[1]-40.0))
+                        self.drag_mode = 'ROTATE'
                         return {'RUNNING_MODAL'}
                     if self.button_top or self.button_left or self.button_right:
                         self.drag_mode = 'MOVE'
                         return {'RUNNING_MODAL'}
                 elif event.value == 'RELEASE':
                     self.drag_mode = None
-            if self.drag_mode == "MOVE":
-                self.old_mouse_pos = self.mouse_pos
-                return {'RUNNING_MODAL'}
 
-            if event.type == 'LEFTMOUSE':
+            elif event.type == 'LEFTMOUSE':
 
                 if event.value == 'PRESS':
                     if self.is_over_mode1:
@@ -259,6 +273,26 @@ class ViewportButtons(bpy.types.Operator):
                                     else:
                                         bpy.ops.wm.call_menu(name='hops.symetry_submenu')
                                     return {'RUNNING_MODAL'}
+
+            if self.drag_mode == "MOVE":
+                self.center = self.mouse_pos
+                self.drag_static = Vector((self.center[0]+35.0, self.center[1]+21.0))
+                return {'RUNNING_MODAL'}
+
+            elif self.drag_mode == 'ROTATE':
+                self.mouse_pos = Vector((event.mouse_region_x, event.mouse_region_y))
+                a = np.array([self.center.x, self.center.y])
+                b = np.array([self.drag_static.x, self.drag_static.y])
+                c = np.array([self.mouse_pos.x, self.mouse_pos.y])
+                # create vectors
+                ba = a - b
+                ac = a - c
+                # rotate
+                base = get_preferences().fidget_manimulator_rotation_angle
+                cal_angle = int(base * round(float((360 - calculate_angle(ba, ac))/base)))
+                get_preferences().fidget_manimulator_rotation = cal_angle
+                print(cal_angle)
+                return {'RUNNING_MODAL'}
 
             if event.type == 'ESC' and event.value == 'PRESS':
                 self.cancel(context)

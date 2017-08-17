@@ -1,5 +1,6 @@
 import bpy
 import math
+import numpy as np
 
 
 def rotate(origin, point, angle):
@@ -97,3 +98,9 @@ def region_exists(r):
             for region in area.regions:
                 if region == r: return True
     return False
+
+
+def calculate_angle(point_a, point_b):
+    ang_a = np.arctan2(*point_a[::-1])
+    ang_b = np.arctan2(*point_b[::-1])
+    return np.rad2deg((ang_a - ang_b) % (2 * np.pi))
