@@ -48,8 +48,7 @@ class ViewportButtons(bpy.types.Operator):
                                  Vector((0.0, 50.63348388671875))]
 
             self.buttons = {}
-            self.old_mouse_x = bpy.context.region.width/1.2
-            self.old_mouse_y = bpy.context.region.height/3
+            self.old_mouse_pos = [bpy.context.region.width/1.2, bpy.context.region.height/3]
 
             self.buttontop = False
             self.move_manipulator = False
@@ -84,10 +83,9 @@ class ViewportButtons(bpy.types.Operator):
             context.area.tag_redraw()
 
             if event.type == 'MOUSEMOVE':
-                self.mouse_x = event.mouse_region_x
-                self.mouse_y = event.mouse_region_y
-                x_abs = self.mouse_x + context.region.x
-                y_abs = self.mouse_y + context.region.y
+                self.mouse_pos = Vector((event.mouse_region_x, event.mouse_region_y))
+                x_abs = self.mouse_pos[0] + context.region.x
+                y_abs = self.mouse_pos[1] + context.region.y
                 ui_contexts = list(ui_contexts_under_coord(x_abs, y_abs, context.window))
                 if ui_contexts and ui_contexts[0]:
                     self._region_mouse = [uic["region"] for uic in ui_contexts]
@@ -104,8 +102,7 @@ class ViewportButtons(bpy.types.Operator):
                 elif event.value == 'RELEASE':
                     self.move_manipulator = False
             if self.move_manipulator:
-                self.old_mouse_x = self.mouse_x
-                self.old_mouse_y = self.mouse_y
+                self.old_mouse_pos = self.mouse_pos
                 return {'RUNNING_MODAL'}
 
             if event.type == 'LEFTMOUSE':

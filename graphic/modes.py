@@ -15,7 +15,7 @@ def draw_mode1(self, context):
     angle = math.radians(get_preferences().fidget_manimulator_rotation)
     center = scale(origin, center, value)
     center = rotate(origin, center, angle)
-    center = center[0] + self.old_mouse_x, center[1] + self.old_mouse_y
+    center = center[0] + self.old_mouse_pos[0], center[1] + self.old_mouse_pos[1]
 
     radius = get_preferences().fidget_manimulator_radius
     amount = 36
@@ -26,7 +26,7 @@ def draw_mode1(self, context):
     for x, y in zip(self.list[0], self.list[1]):
         polygon.append([x, y])
 
-    if inside_polygon(self.mouse_x, self.mouse_y, polygon):
+    if inside_polygon(self.mouse_pos[0], self.mouse_pos[1], polygon):
         bgR = get_preferences().fidget_mode1_color_hover[0]
         bgG = get_preferences().fidget_mode1_color_hover[1]
         bgB = get_preferences().fidget_mode1_color_hover[2]
@@ -86,7 +86,7 @@ def draw_mode2(self, context):
     angle = math.radians(get_preferences().fidget_manimulator_rotation)
     center = scale(origin, center, value)
     center = rotate(origin, center, angle)
-    center = center[0] + self.old_mouse_x, center[1] + self.old_mouse_y
+    center = center[0] + self.old_mouse_pos[0], center[1] + self.old_mouse_pos[1]
 
     radius = get_preferences().fidget_manimulator_radius
     amount = 36
@@ -97,7 +97,7 @@ def draw_mode2(self, context):
     for x, y in zip(self.list[0], self.list[1]):
         polygon.append([x, y])
 
-    if inside_polygon(self.mouse_x, self.mouse_y, polygon):
+    if inside_polygon(self.mouse_pos[0], self.mouse_pos[1], polygon):
         bgR = get_preferences().fidget_mode2_color_hover[0]
         bgG = get_preferences().fidget_mode2_color_hover[1]
         bgB = get_preferences().fidget_mode2_color_hover[2]
@@ -157,7 +157,7 @@ def draw_mode3(self, context):
     angle = math.radians(get_preferences().fidget_manimulator_rotation)
     center = scale(origin, center, value)
     center = rotate(origin, center, angle)
-    center = center[0] + self.old_mouse_x, center[1] + self.old_mouse_y
+    center = center[0] + self.old_mouse_pos[0], center[1] + self.old_mouse_pos[1]
 
     radius = get_preferences().fidget_manimulator_radius
     amount = 36
@@ -168,7 +168,7 @@ def draw_mode3(self, context):
     for x, y in zip(self.list[0], self.list[1]):
         polygon.append([x, y])
 
-    if inside_polygon(self.mouse_x, self.mouse_y, polygon):
+    if inside_polygon(self.mouse_pos[0], self.mouse_pos[1], polygon):
         bgR = get_preferences().fidget_mode3_color_hover[0]
         bgG = get_preferences().fidget_mode3_color_hover[1]
         bgB = get_preferences().fidget_mode3_color_hover[2]

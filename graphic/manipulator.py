@@ -52,20 +52,20 @@ def draw_manipulator(self, context):
         location_2d_3.append(Vector((px, py)))
 
     for v in locations_2d:
-        v[0] = v[0] + self.old_mouse_x
-        v[1] = v[1] + self.old_mouse_y
+        v[0] = v[0] + self.old_mouse_pos[0]
+        v[1] = v[1] + self.old_mouse_pos[1]
     for v in location_2d_2:
-        v[0] = v[0] + self.old_mouse_x
-        v[1] = v[1] + self.old_mouse_y
+        v[0] = v[0] + self.old_mouse_pos[0]
+        v[1] = v[1] + self.old_mouse_pos[1]
     for v in location_2d_3:
-        v[0] = v[0] + self.old_mouse_x
-        v[1] = v[1] + self.old_mouse_y
+        v[0] = v[0] + self.old_mouse_pos[0]
+        v[1] = v[1] + self.old_mouse_pos[1]
 
     triangles = tessellate_polygon([locations_2d])
     triangles2 = tessellate_polygon([location_2d_2])
     triangles3 = tessellate_polygon([location_2d_3])
 
-    if inside_polygon(self.mouse_x, self.mouse_y, locations_2d):
+    if inside_polygon(self.mouse_pos[0], self.mouse_pos[1], locations_2d):
         bgR = get_preferences().fidget_button1_color_hover[0]
         bgG = get_preferences().fidget_button1_color_hover[1]
         bgB = get_preferences().fidget_button1_color_hover[2]
@@ -97,7 +97,7 @@ def draw_manipulator(self, context):
             glVertex2f(loc_2d[0], loc_2d[1])
         glEnd()
 
-    if inside_polygon(self.mouse_x, self.mouse_y, location_2d_2):
+    if inside_polygon(self.mouse_pos[0], self.mouse_pos[1], location_2d_2):
         bgR = get_preferences().fidget_button2_color_hover[0]
         bgG = get_preferences().fidget_button2_color_hover[1]
         bgB = get_preferences().fidget_button2_color_hover[2]
@@ -129,7 +129,7 @@ def draw_manipulator(self, context):
             glVertex2f(loc_2d[0], loc_2d[1])
         glEnd()
 
-    if inside_polygon(self.mouse_x, self.mouse_y, location_2d_3):
+    if inside_polygon(self.mouse_pos[0], self.mouse_pos[1], location_2d_3):
         bgR = get_preferences().fidget_button3_color_hover[0]
         bgG = get_preferences().fidget_button3_color_hover[1]
         bgB = get_preferences().fidget_button3_color_hover[2]
