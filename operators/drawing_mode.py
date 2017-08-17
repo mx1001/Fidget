@@ -51,13 +51,14 @@ class ViewportButtons(bpy.types.Operator):
             self.old_mouse_pos = [bpy.context.region.width/1.2, bpy.context.region.height/3]
 
             self.buttontop = False
-            self.move_manipulator = False
             self.manipulator_scale = 0.7
             self.manipulator_radius = 4
 
             self.is_over_mode1 = False
             self.is_over_mode2 = False
             self.is_over_mode3 = False
+
+            self.drag_mode = None
 
             args = (self, context)
             self._handle = bpy.types.SpaceView3D.draw_handler_add(draw, args, 'WINDOW', 'POST_PIXEL')
@@ -97,11 +98,11 @@ class ViewportButtons(bpy.types.Operator):
                     if self.is_over_mode1 or self.is_over_mode2 or self.is_over_mode3:
                         return {'RUNNING_MODAL'}
                     if self.button_top or self.button_left or self.button_right:
-                        self.move_manipulator = True
+                        self.drag_mode = 'MOVE'
                         return {'RUNNING_MODAL'}
                 elif event.value == 'RELEASE':
-                    self.move_manipulator = False
-            if self.move_manipulator:
+                    self.drag_mode = None
+            if self.drag_mode == "MOVE":
                 self.old_mouse_pos = self.mouse_pos
                 return {'RUNNING_MODAL'}
 
