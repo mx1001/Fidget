@@ -49,11 +49,10 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         description="Fidget manipulator Rotation",
         default=0, min=-360, max=360)
 
-    fidget_manimulator_outline = BoolProperty(
-        name="Clump Mirror",
-        description="Clump Mirror",
-        default=False)
-
+    fidget_enable_outline = BoolProperty(
+        name="Enable Outline",
+        description="Enable Outline",
+        default=True)
 
     # colors
 
@@ -222,6 +221,8 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         box = layout.box()
         row = box.row(align=True)
         row.label("Manipulator outline")
+        row = box.row(align=True)
+        row.prop(self, "fidget_enable_outline", text="Enable Outline")
         row.prop(self, "fidget_outline", text="outline")
 
     def draw_properties_tab(self, layout):

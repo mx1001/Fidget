@@ -86,15 +86,16 @@ def draw_manipulator(self, context):
             glVertex2f(v[0], v[1])
     glEnd()
 
-    bgR = get_preferences().fidget_outline[0]
-    bgG = get_preferences().fidget_outline[1]
-    bgB = get_preferences().fidget_outline[2]
-    bgA = get_preferences().fidget_outline[3]
-    glColor4f(bgR, bgG, bgB, bgA)
-    glBegin(GL_LINE_LOOP)
-    for loc_2d in locations_2d:
-        glVertex2f(loc_2d[0], loc_2d[1])
-    glEnd()
+    if get_preferences().fidget_enable_outline:
+        bgR = get_preferences().fidget_outline[0]
+        bgG = get_preferences().fidget_outline[1]
+        bgB = get_preferences().fidget_outline[2]
+        bgA = get_preferences().fidget_outline[3]
+        glColor4f(bgR, bgG, bgB, bgA)
+        glBegin(GL_LINE_LOOP)
+        for loc_2d in locations_2d:
+            glVertex2f(loc_2d[0], loc_2d[1])
+        glEnd()
 
     if inside_polygon(self.mouse_x, self.mouse_y, location_2d_2):
         bgR = get_preferences().fidget_button2_color_hover[0]
@@ -117,15 +118,16 @@ def draw_manipulator(self, context):
             glVertex2f(v[0], v[1])
     glEnd()
 
-    bgR = get_preferences().fidget_outline[0]
-    bgG = get_preferences().fidget_outline[1]
-    bgB = get_preferences().fidget_outline[2]
-    bgA = get_preferences().fidget_outline[3]
-    glColor4f(bgR, bgG, bgB, bgA)
-    glBegin(GL_LINE_LOOP)
-    for loc_2d in location_2d_2:
-        glVertex2f(loc_2d[0], loc_2d[1])
-    glEnd()
+    if get_preferences().fidget_enable_outline:
+        bgR = get_preferences().fidget_outline[0]
+        bgG = get_preferences().fidget_outline[1]
+        bgB = get_preferences().fidget_outline[2]
+        bgA = get_preferences().fidget_outline[3]
+        glColor4f(bgR, bgG, bgB, bgA)
+        glBegin(GL_LINE_LOOP)
+        for loc_2d in location_2d_2:
+            glVertex2f(loc_2d[0], loc_2d[1])
+        glEnd()
 
     if inside_polygon(self.mouse_x, self.mouse_y, location_2d_3):
         bgR = get_preferences().fidget_button3_color_hover[0]
@@ -148,15 +150,16 @@ def draw_manipulator(self, context):
             glVertex2f(v[0], v[1])
     glEnd()
 
-    bgR = get_preferences().fidget_outline[0]
-    bgG = get_preferences().fidget_outline[1]
-    bgB = get_preferences().fidget_outline[2]
-    bgA = get_preferences().fidget_outline[3]
-    glColor4f(bgR, bgG, bgB, bgA)
-    glBegin(GL_LINE_LOOP)
-    for loc_2d in location_2d_3:
-        glVertex2f(loc_2d[0], loc_2d[1])
-    glEnd()
+    if get_preferences().fidget_enable_outline:
+        bgR = get_preferences().fidget_outline[0]
+        bgG = get_preferences().fidget_outline[1]
+        bgB = get_preferences().fidget_outline[2]
+        bgA = get_preferences().fidget_outline[3]
+        glColor4f(bgR, bgG, bgB, bgA)
+        glBegin(GL_LINE_LOOP)
+        for loc_2d in location_2d_3:
+            glVertex2f(loc_2d[0], loc_2d[1])
+        glEnd()
 
     glDisable(GL_LINE_SMOOTH)
     glDisable(GL_BLEND)

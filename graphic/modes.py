@@ -60,17 +60,18 @@ def draw_mode1(self, context):
 
     glEnd()
 
-    bgR = get_preferences().fidget_outline[0]
-    bgG = get_preferences().fidget_outline[1]
-    bgB = get_preferences().fidget_outline[2]
-    bgA = get_preferences().fidget_outline[3]
-    glColor4f(bgR, bgG, bgB, bgA)
-    glBegin(GL_LINE_LOOP)
+    if get_preferences().fidget_enable_outline:
+        bgR = get_preferences().fidget_outline[0]
+        bgG = get_preferences().fidget_outline[1]
+        bgB = get_preferences().fidget_outline[2]
+        bgA = get_preferences().fidget_outline[3]
+        glColor4f(bgR, bgG, bgB, bgA)
+        glBegin(GL_LINE_LOOP)
 
-    for x, y in zip(self.list[0], self.list[1]):
-        glVertex2f(x, y)
+        for x, y in zip(self.list[0], self.list[1]):
+            glVertex2f(x, y)
 
-    glEnd()
+        glEnd()
 
     glDisable(GL_LINE_SMOOTH)
     glDisable(GL_BLEND)
@@ -130,17 +131,18 @@ def draw_mode2(self, context):
 
     glEnd()
 
-    bgR = get_preferences().fidget_outline[0]
-    bgG = get_preferences().fidget_outline[1]
-    bgB = get_preferences().fidget_outline[2]
-    bgA = get_preferences().fidget_outline[3]
-    glColor4f(bgR, bgG, bgB, bgA)
-    glBegin(GL_LINE_LOOP)
+    if get_preferences().fidget_enable_outline:
+        bgR = get_preferences().fidget_outline[0]
+        bgG = get_preferences().fidget_outline[1]
+        bgB = get_preferences().fidget_outline[2]
+        bgA = get_preferences().fidget_outline[3]
+        glColor4f(bgR, bgG, bgB, bgA)
+        glBegin(GL_LINE_LOOP)
 
-    for x, y in zip(self.list[0], self.list[1]):
-        glVertex2f(x, y)
+        for x, y in zip(self.list[0], self.list[1]):
+            glVertex2f(x, y)
 
-    glEnd()
+        glEnd()
 
     glDisable(GL_LINE_SMOOTH)
     glDisable(GL_BLEND)
@@ -200,17 +202,18 @@ def draw_mode3(self, context):
 
     glEnd()
 
-    bgR = get_preferences().fidget_outline[0]
-    bgG = get_preferences().fidget_outline[1]
-    bgB = get_preferences().fidget_outline[2]
-    bgA = get_preferences().fidget_outline[3]
-    glColor4f(bgR, bgG, bgB, bgA)
-    glBegin(GL_LINE_LOOP)
+    if get_preferences().fidget_enable_outline:
+        bgR = get_preferences().fidget_outline[0]
+        bgG = get_preferences().fidget_outline[1]
+        bgB = get_preferences().fidget_outline[2]
+        bgA = get_preferences().fidget_outline[3]
+        glColor4f(bgR, bgG, bgB, bgA)
+        glBegin(GL_LINE_LOOP)
 
-    for x, y in zip(self.list[0], self.list[1]):
-        glVertex2f(x, y)
+        for x, y in zip(self.list[0], self.list[1]):
+            glVertex2f(x, y)
 
-    glEnd()
+        glEnd()
 
     glDisable(GL_LINE_SMOOTH)
     glDisable(GL_BLEND)
