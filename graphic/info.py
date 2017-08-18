@@ -22,11 +22,15 @@ def draw_text(text, x, y, align="LEFT", size=12, color=(1, 1, 1, 1)):
 
 
 def draw_info(self, context):
-    if self.button_top:
-        text = "info text"
-    else:
-        text = "asdasdad"
     x = self.center[0] + get_preferences().fidget_info_pos_x
     y = self.center[1] + get_preferences().fidget_info_pos_y
     size = get_preferences().fidget_info_font_size
-    draw_text(text, x, y, align="LEFT", size=size, color=(1, 1, 1, 1))
+    if self.button_top:
+        text = "Ssharpen"
+        draw_text(text, x, y, align="LEFT", size=size, color=(1, 1, 1, 1))
+    elif self.button_right:
+        text = "Step"
+        draw_text(text, x, y, align="LEFT", size=size, color=(1, 1, 1, 1))
+    elif self.button_left:
+        text = "Bweight"
+        draw_text(text, x, y, align="LEFT", size=size, color=(1, 1, 1, 1))
