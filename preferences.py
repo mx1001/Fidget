@@ -27,6 +27,7 @@ class FidgetPreferences(bpy.types.AddonPreferences):
     bl_idname = get_addon_name()
 
     tab = EnumProperty(name="Tab", items=settings_tabs_items)
+    pref_mode = EnumProperty(name="Tab", items=manipulator_modes)
     mode = EnumProperty(name="", options={"SKIP_SAVE"}, items=manipulator_modes)
 
     fidget_manimulator_scale = FloatProperty(
@@ -157,6 +158,104 @@ class FidgetPreferences(bpy.types.AddonPreferences):
             subtype='COLOR'
             )
 
+    # mode2
+    fidget_button1_color_mode2 = FloatVectorProperty(
+            name="",
+            default=(0.3, 0.3, 0.3, 0.5),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button2_color_mode2 = FloatVectorProperty(
+            name="",
+            default=(0.5, 0.5, 0.5, 0.5),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button3_color_mode2 = FloatVectorProperty(
+            name="",
+            default=(0.7, 0.7, 0.7, 0.5),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button1_color_mode2_hover = FloatVectorProperty(
+            name="",
+            default=(0.29, 0.52, 1.0, 0.9),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button2_color_mode2_hover = FloatVectorProperty(
+            name="",
+            default=(0.29, 0.52, 1.0, 0.9),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button3_color_mode2_hover = FloatVectorProperty(
+            name="",
+            default=(0.29, 0.52, 1.0, 0.9),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    # mode3
+    fidget_button1_color_mode3 = FloatVectorProperty(
+            name="",
+            default=(0.3, 0.3, 0.3, 0.5),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button2_color_mode3 = FloatVectorProperty(
+            name="",
+            default=(0.5, 0.5, 0.5, 0.5),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button3_color_mode3 = FloatVectorProperty(
+            name="",
+            default=(0.7, 0.7, 0.7, 0.5),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button1_color_mode3_hover = FloatVectorProperty(
+            name="",
+            default=(0.29, 0.52, 1.0, 0.9),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button2_color_mode3_hover = FloatVectorProperty(
+            name="",
+            default=(0.29, 0.52, 1.0, 0.9),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
+    fidget_button3_color_mode3_hover = FloatVectorProperty(
+            name="",
+            default=(0.29, 0.52, 1.0, 0.9),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
     fidget_outline = FloatVectorProperty(
             name="",
             default=(0.1, 0.1, 0.1, 0.4),
@@ -215,15 +314,38 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         box = layout.box()
         row = box.row(align=True)
         row.label("Manipulator Colors")
-        row = box.row(align=True)
-        row.prop(self, "fidget_button1_color", text="Button 1 color")
-        row.prop(self, "fidget_button1_color_hover", text="Button 1 hover")
-        row = box.row(align=True)
-        row.prop(self, "fidget_button2_color", text="Button 2 color")
-        row.prop(self, "fidget_button2_color_hover", text="Button 2 hover")
-        row = box.row(align=True)
-        row.prop(self, "fidget_button3_color", text="Button 3 color")
-        row.prop(self, "fidget_button3_color_hover", text="Button 3 hover")
+        row.prop(self, "pref_mode", expand=True)
+
+        if self.pref_mode == "MODE1":
+            row = box.row(align=True)
+            row.prop(self, "fidget_button1_color", text="Button 1 color")
+            row.prop(self, "fidget_button1_color_hover", text="Button 1 hover")
+            row = box.row(align=True)
+            row.prop(self, "fidget_button2_color", text="Button 2 color")
+            row.prop(self, "fidget_button2_color_hover", text="Button 2 hover")
+            row = box.row(align=True)
+            row.prop(self, "fidget_button3_color", text="Button 3 color")
+            row.prop(self, "fidget_button3_color_hover", text="Button 3 hover")
+        elif self.pref_mode == "MODE2":
+            row = box.row(align=True)
+            row.prop(self, "fidget_button1_color_mode2", text="Button 1 color")
+            row.prop(self, "fidget_button1_color_mode2_hover", text="Button 1 hover")
+            row = box.row(align=True)
+            row.prop(self, "fidget_button2_color_mode2", text="Button 2 color")
+            row.prop(self, "fidget_button2_color_mode2_hover", text="Button 2 hover")
+            row = box.row(align=True)
+            row.prop(self, "fidget_button3_color_mode2", text="Button 3 color")
+            row.prop(self, "fidget_button3_color_mode2_hover", text="Button 3 hover")
+        elif self.pref_mode == "MODE3":
+            row = box.row(align=True)
+            row.prop(self, "fidget_button1_color_mode3", text="Button 1 color")
+            row.prop(self, "fidget_button1_color_mode3_hover", text="Button 1 hover")
+            row = box.row(align=True)
+            row.prop(self, "fidget_button2_color_mode3", text="Button 2 color")
+            row.prop(self, "fidget_button2_color_mode3_hover", text="Button 2 hover")
+            row = box.row(align=True)
+            row.prop(self, "fidget_button3_color_mode3", text="Button 3 color")
+            row.prop(self, "fidget_button3_color_mode3_hover", text="Button 3 hover")
 
         box = layout.box()
         row = box.row(align=True)
