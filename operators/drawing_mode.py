@@ -84,11 +84,6 @@ class ViewportButtons(bpy.types.Operator):
                 return {'CANCELLED'}
 
             context.area.tag_redraw()
-            if event.type == 'R' and event.value == 'PRESS':
-                if event.shift:
-                    self.drag_mode = None
-                else:
-                    self.drag_mode = 'ROTATE'
 
             if event.type == 'MOUSEMOVE':
                 self.mouse_pos = Vector((event.mouse_region_x, event.mouse_region_y))
