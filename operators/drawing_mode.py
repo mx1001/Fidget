@@ -3,6 +3,7 @@ from bgl import *
 import numpy as np
 from .. graphic.manipulator import draw_manipulator
 from .. graphic.modes import draw_mode1, draw_mode2, draw_mode3
+from .. graphic.info import draw_info
 from .. utils.region import region_exists, ui_contexts_under_coord, calculate_angle
 from .. utils.object import get_current_selected_status
 from mathutils import Vector
@@ -18,6 +19,7 @@ def draw(self, context):
     draw_mode1(self, context)
     draw_mode2(self, context)
     draw_mode3(self, context)
+    draw_info(self, context)
 
 
 class ViewportButtons(bpy.types.Operator):
