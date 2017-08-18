@@ -5,6 +5,7 @@ from mathutils import Vector
 from .. preferences import get_preferences
 from mathutils.geometry import tessellate_polygon
 from .. utils.region import rotate, scale, inside_polygon
+from .. utils.drawing import set_color
 
 
 def draw_manipulator(self, context):
@@ -66,17 +67,21 @@ def draw_manipulator(self, context):
     triangles3 = tessellate_polygon([location_2d_3])
 
     if inside_polygon(self.mouse_pos[0], self.mouse_pos[1], locations_2d):
-        bgR = get_preferences().fidget_button1_color_hover[0]
-        bgG = get_preferences().fidget_button1_color_hover[1]
-        bgB = get_preferences().fidget_button1_color_hover[2]
-        bgA = get_preferences().fidget_button1_color_hover[3]
+        if get_preferences().mode == "MODE1":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button1_color_hover)
+        elif get_preferences().mode == "MODE2":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button1_color_mode2_hover)
+        elif get_preferences().mode == "MODE3":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button1_color_mode3_hover)
         glColor4f(bgR, bgG, bgB, bgA)
         self.button_top = True
     else:
-        bgR = get_preferences().fidget_button1_color[0]
-        bgG = get_preferences().fidget_button1_color[1]
-        bgB = get_preferences().fidget_button1_color[2]
-        bgA = get_preferences().fidget_button1_color[3]
+        if get_preferences().mode == "MODE1":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button1_color)
+        elif get_preferences().mode == "MODE2":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button1_color_mode2)
+        elif get_preferences().mode == "MODE3":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button1_color_mode3)
         glColor4f(bgR, bgG, bgB, bgA)
         self.button_top = False
     glBegin(GL_TRIANGLES)
@@ -87,10 +92,7 @@ def draw_manipulator(self, context):
     glEnd()
 
     if get_preferences().fidget_enable_outline:
-        bgR = get_preferences().fidget_outline[0]
-        bgG = get_preferences().fidget_outline[1]
-        bgB = get_preferences().fidget_outline[2]
-        bgA = get_preferences().fidget_outline[3]
+        bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_outline)
         glColor4f(bgR, bgG, bgB, bgA)
         glBegin(GL_LINE_LOOP)
         for loc_2d in locations_2d:
@@ -98,17 +100,21 @@ def draw_manipulator(self, context):
         glEnd()
 
     if inside_polygon(self.mouse_pos[0], self.mouse_pos[1], location_2d_2):
-        bgR = get_preferences().fidget_button2_color_hover[0]
-        bgG = get_preferences().fidget_button2_color_hover[1]
-        bgB = get_preferences().fidget_button2_color_hover[2]
-        bgA = get_preferences().fidget_button2_color_hover[3]
+        if get_preferences().mode == "MODE1":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button2_color_hover)
+        elif get_preferences().mode == "MODE2":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button2_color_mode2_hover)
+        elif get_preferences().mode == "MODE3":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button2_color_mode3_hover)
         glColor4f(bgR, bgG, bgB, bgA)
         self.button_left = True
     else:
-        bgR = get_preferences().fidget_button2_color[0]
-        bgG = get_preferences().fidget_button2_color[1]
-        bgB = get_preferences().fidget_button2_color[2]
-        bgA = get_preferences().fidget_button2_color[3]
+        if get_preferences().mode == "MODE1":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button2_color)
+        elif get_preferences().mode == "MODE2":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button2_color_mode2)
+        elif get_preferences().mode == "MODE3":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button2_color_mode3)
         glColor4f(bgR, bgG, bgB, bgA)
         self.button_left = False
     glBegin(GL_TRIANGLES)
@@ -119,10 +125,7 @@ def draw_manipulator(self, context):
     glEnd()
 
     if get_preferences().fidget_enable_outline:
-        bgR = get_preferences().fidget_outline[0]
-        bgG = get_preferences().fidget_outline[1]
-        bgB = get_preferences().fidget_outline[2]
-        bgA = get_preferences().fidget_outline[3]
+        bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_outline)
         glColor4f(bgR, bgG, bgB, bgA)
         glBegin(GL_LINE_LOOP)
         for loc_2d in location_2d_2:
@@ -130,17 +133,21 @@ def draw_manipulator(self, context):
         glEnd()
 
     if inside_polygon(self.mouse_pos[0], self.mouse_pos[1], location_2d_3):
-        bgR = get_preferences().fidget_button3_color_hover[0]
-        bgG = get_preferences().fidget_button3_color_hover[1]
-        bgB = get_preferences().fidget_button3_color_hover[2]
-        bgA = get_preferences().fidget_button3_color_hover[3]
+        if get_preferences().mode == "MODE1":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button3_color_hover)
+        elif get_preferences().mode == "MODE2":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button3_color_mode2_hover)
+        elif get_preferences().mode == "MODE3":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button3_color_mode3_hover)
         glColor4f(bgR, bgG, bgB, bgA)
         self.button_right = True
     else:
-        bgR = get_preferences().fidget_button3_color[0]
-        bgG = get_preferences().fidget_button3_color[1]
-        bgB = get_preferences().fidget_button3_color[2]
-        bgA = get_preferences().fidget_button3_color[3]
+        if get_preferences().mode == "MODE1":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button3_color)
+        elif get_preferences().mode == "MODE2":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button3_color_mode2)
+        elif get_preferences().mode == "MODE3":
+            bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_button3_color_mode3)
         glColor4f(bgR, bgG, bgB, bgA)
         self.button_right = False
     glBegin(GL_TRIANGLES)
@@ -151,10 +158,7 @@ def draw_manipulator(self, context):
     glEnd()
 
     if get_preferences().fidget_enable_outline:
-        bgR = get_preferences().fidget_outline[0]
-        bgG = get_preferences().fidget_outline[1]
-        bgB = get_preferences().fidget_outline[2]
-        bgA = get_preferences().fidget_outline[3]
+        bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_outline)
         glColor4f(bgR, bgG, bgB, bgA)
         glBegin(GL_LINE_LOOP)
         for loc_2d in location_2d_3:
