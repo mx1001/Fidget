@@ -286,7 +286,6 @@ class ViewportButtons(bpy.types.Operator):
                 base = get_preferences().fidget_manimulator_rotation_angle
                 cal_angle = int(base * round(float((360 - calculate_angle(ba, ac))/base)))
                 get_preferences().fidget_manimulator_rotation = cal_angle
-                print(cal_angle)
                 return {'RUNNING_MODAL'}
 
             if event.type == 'ESC' and event.value == 'PRESS':
