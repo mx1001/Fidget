@@ -25,12 +25,14 @@ def draw_info(self, context):
     x = self.center[0] + get_preferences().fidget_info_pos_x
     y = self.center[1] + get_preferences().fidget_info_pos_y
     size = get_preferences().fidget_info_font_size
-    if self.button_top:
-        text = "Ssharpen"
-        draw_text(text, x, y, align="LEFT", size=size, color=(1, 1, 1, 1))
-    elif self.button_right:
-        text = "Step"
-        draw_text(text, x, y, align="LEFT", size=size, color=(1, 1, 1, 1))
-    elif self.button_left:
-        text = "Bweight"
-        draw_text(text, x, y, align="LEFT", size=size, color=(1, 1, 1, 1))
+
+    if get_preferences().mode == "MODE3":
+        if self.button_top:
+            text = "Ssharpen"
+            draw_text(text, x, y, align="LEFT", size=size, color=(1, 1, 1, 1))
+        elif self.button_right:
+            text = "Step"
+            draw_text(text, x, y, align="LEFT", size=size, color=(1, 1, 1, 1))
+        elif self.button_left:
+            text = "Bweight"
+            draw_text(text, x, y, align="LEFT", size=size, color=(1, 1, 1, 1))
