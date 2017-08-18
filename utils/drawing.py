@@ -1,5 +1,4 @@
 
-
 def set_color(color_pref):
     bgR = color_pref[0]
     bgG = color_pref[1]
