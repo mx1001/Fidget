@@ -19,7 +19,8 @@ def draw(self, context):
     draw_mode1(self, context)
     draw_mode2(self, context)
     draw_mode3(self, context)
-    draw_info(self, context)
+    if get_preferences().fidget_enable_info:
+        draw_info(self, context)
 
 
 class ViewportButtons(bpy.types.Operator):

@@ -51,14 +51,34 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         default=0, min=0, max=360)
 
     fidget_manimulator_rotation_angle = IntProperty(
-        name="Fidget Manipulator Rotation",
-        description="Fidget manipulator Rotation",
+        name="Fidget Manipulator Rotation Angle",
+        description="Fidget manipulator Rotation Angle",
         default=30, min=1, max=360)
 
     fidget_outline_width = FloatProperty(
-        name="Fidget Manipulator Scale",
-        description="Fidget manipulator Scale",
+        name="Fidget Manipulator Outline Width",
+        description="Fidget manipulator outline width",
         default=1, min=0, max=10)
+
+    fidget_info_pos_x = FloatProperty(
+        name="Fidget Manipulator Info Posx",
+        description="Fidget Manipulator Info Posx",
+        default=52)
+
+    fidget_info_pos_y = FloatProperty(
+        name="Fidget Manipulator Info Posy",
+        description="Fidget Manipulator Info Posy",
+        default=-21)
+
+    fidget_info_font_size = IntProperty(
+        name="Fidget Manipulator Info Font Size",
+        description="Fidget Manipulator Info Font Size",
+        default=11, min=1, max=100)
+
+    fidget_enable_info = BoolProperty(
+        name="Enable Info",
+        description="Enable Info",
+        default=True)
 
     fidget_enable_outline = BoolProperty(
         name="Enable Outline",
@@ -295,14 +315,16 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         row.prop(self, "fidget_manimulator_scale", text="Manipualtor Scale")
         row = box.row(align=True)
         row.prop(self, "fidget_manimulator_dots_scale", text="Manipulator dots scale")
-        row = box.row(align=True)
         row.prop(self, "fidget_manimulator_radius", text="Manipulator dots radius")
         row = box.row(align=True)
         row.prop(self, "fidget_manimulator_rotation", text="Manipulator rotation")
         row = box.row(align=True)
         row.prop(self, "fidget_manimulator_rotation_angle", text="Manipulator rotation angle")
         row = box.row(align=True)
-        row.prop(self, "fidget_outline_width", text="Manipulator rotation angle")
+        row.prop(self, "fidget_enable_info", text="Show info")
+        row.prop(self, "fidget_info_pos_x", text="Info x position")
+        row.prop(self, "fidget_info_pos_y", text="Info y position")
+        row.prop(self, "fidget_info_font_size", text="Info font size")
 
         box = layout.box()
         row = box.row(align=True)
@@ -357,8 +379,9 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         row = box.row(align=True)
         row.label("Manipulator outline")
         row = box.row(align=True)
-        row.prop(self, "fidget_enable_outline", text="Enable Outline")
-        row.prop(self, "fidget_outline", text="outline")
+        row.prop(self, "fidget_enable_outline", text="Enable outline")
+        row.prop(self, "fidget_outline_width", text="Outline width")
+        row.prop(self, "fidget_outline")
 
     def draw_properties_tab(self, layout):
         box = layout.box()

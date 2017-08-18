@@ -1,6 +1,7 @@
 import bpy
 from bgl import *
 import blf
+from .. preferences import get_preferences
 from .. utils.blender_ui import get_dpi_factor
 
 
@@ -21,6 +22,7 @@ def draw_text(text, x, y, align="LEFT", size=12, color=(1, 1, 1, 1)):
 
 
 def draw_info(self, context):
-    x = self.center[0] + 50
-    y = self.center[1] - 12
-    draw_text("info", x, y, align="LEFT", size=12, color=(1, 1, 1, 1))
+    x = self.center[0] + get_preferences().fidget_info_pos_x
+    y = self.center[1] + get_preferences().fidget_info_pos_y
+    size = get_preferences().fidget_info_font_size
+    draw_text("info", x, y, align="LEFT", size=size, color=(1, 1, 1, 1))
