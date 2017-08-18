@@ -56,6 +56,9 @@ def draw_mode1(self, context):
     if get_preferences().fidget_enable_outline:
         bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_outline)
         glColor4f(bgR, bgG, bgB, bgA)
+
+        glLineWidth(get_preferences().fidget_outline_width)
+
         glBegin(GL_LINE_LOOP)
 
         for x, y in zip(self.list[0], self.list[1]):
@@ -115,6 +118,9 @@ def draw_mode2(self, context):
     if get_preferences().fidget_enable_outline:
         bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_outline)
         glColor4f(bgR, bgG, bgB, bgA)
+
+        glLineWidth(get_preferences().fidget_outline_width)
+
         glBegin(GL_LINE_LOOP)
 
         for x, y in zip(self.list[0], self.list[1]):
@@ -174,6 +180,9 @@ def draw_mode3(self, context):
     if get_preferences().fidget_enable_outline:
         bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_outline)
         glColor4f(bgR, bgG, bgB, bgA)
+
+        glLineWidth(get_preferences().fidget_outline_width)
+
         glBegin(GL_LINE_LOOP)
 
         for x, y in zip(self.list[0], self.list[1]):
