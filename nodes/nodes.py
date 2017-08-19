@@ -105,7 +105,7 @@ class FidgetNode(Node, FidgetTreeNode):
     #       a purely internal Python method and unknown to the node system!
 
     def init(self, context):
-        self.inputs.new('FidgetSocket', "input")
+        self.inputs.new('FidgetSocketType', "input")
         #self.inputs.new('NodeSocketFloat', "World")
         #self.inputs.new('NodeSocketVector', "!")
 
