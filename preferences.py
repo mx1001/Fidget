@@ -289,6 +289,14 @@ class FidgetPreferences(bpy.types.AddonPreferences):
             subtype='COLOR'
             )
 
+    fidget_info_color = FloatVectorProperty(
+            name="",
+            default=(0.7, 0.7, 0.7, 0.7),
+            size=4,
+            min=0, max=1,
+            subtype='COLOR'
+            )
+
     def draw(self, context):
         layout = self.layout
 
@@ -325,6 +333,8 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         row.prop(self, "fidget_info_pos_x", text="Info x position")
         row.prop(self, "fidget_info_pos_y", text="Info y position")
         row.prop(self, "fidget_info_font_size", text="Info font size")
+        row = box.row(align=True)
+        row.prop(self, "fidget_info_color", text="Info text color")
 
         box = layout.box()
         row = box.row(align=True)
