@@ -3,6 +3,7 @@ from bgl import *
 import numpy as np
 from .. graphic.manipulator import draw_manipulator
 from .. graphic.modes import draw_mode1, draw_mode2, draw_mode3
+from .. graphic.info import draw_info
 from .. utils.region import region_exists, ui_contexts_under_coord, calculate_angle
 from .. utils.object import get_current_selected_status
 from mathutils import Vector
@@ -18,6 +19,8 @@ def draw(self, context):
     draw_mode1(self, context)
     draw_mode2(self, context)
     draw_mode3(self, context)
+    if get_preferences().fidget_enable_info:
+        draw_info(self, context)
 
 
 class ViewportButtons(bpy.types.Operator):
@@ -286,7 +289,6 @@ class ViewportButtons(bpy.types.Operator):
                 base = get_preferences().fidget_manimulator_rotation_angle
                 cal_angle = int(base * round(float((360 - calculate_angle(ba, ac))/base)))
                 get_preferences().fidget_manimulator_rotation = cal_angle
-                print(cal_angle)
                 return {'RUNNING_MODAL'}
 
             if event.type == 'ESC' and event.value == 'PRESS':

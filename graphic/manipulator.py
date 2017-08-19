@@ -94,6 +94,7 @@ def draw_manipulator(self, context):
     if get_preferences().fidget_enable_outline:
         bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_outline)
         glColor4f(bgR, bgG, bgB, bgA)
+        glLineWidth(get_preferences().fidget_outline_width)
         glBegin(GL_LINE_LOOP)
         for loc_2d in locations_2d:
             glVertex2f(loc_2d[0], loc_2d[1])
@@ -126,6 +127,7 @@ def draw_manipulator(self, context):
 
     if get_preferences().fidget_enable_outline:
         bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_outline)
+        glLineWidth(get_preferences().fidget_outline_width)
         glColor4f(bgR, bgG, bgB, bgA)
         glBegin(GL_LINE_LOOP)
         for loc_2d in location_2d_2:
@@ -159,6 +161,7 @@ def draw_manipulator(self, context):
 
     if get_preferences().fidget_enable_outline:
         bgR, bgG, bgB, bgA = set_color(get_preferences().fidget_outline)
+        glLineWidth(get_preferences().fidget_outline_width)
         glColor4f(bgR, bgG, bgB, bgA)
         glBegin(GL_LINE_LOOP)
         for loc_2d in location_2d_3:
