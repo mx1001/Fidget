@@ -140,10 +140,14 @@ class ViewportButtons(bpy.types.Operator):
             if self.button_top:
                 if event.type == 'LEFTMOUSE':
                     if event.value == 'PRESS':
-                        bpy.ops.mesh.extrude_region_move()
-                        bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
+                        get_preferences().buttonabc = """
+if event.type == 'LEFTMOUSE':
+    if event.value == 'PRESS':
+        bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
+"""
                 return {'RUNNING_MODAL'}
             elif self.button_right:
+                exec(get_preferences().buttonabc, globals(), locals())
                 return {'RUNNING_MODAL'}
             elif self.button_left:
                 return {'RUNNING_MODAL'}
@@ -184,7 +188,3 @@ class ViewportButtons(bpy.types.Operator):
         bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
         if ViewportButtons.running_fidget.get(self._region) is self:
             del ViewportButtons.running_fidget[self._region]
-
-
-def set_button(self, context, event):
-    a

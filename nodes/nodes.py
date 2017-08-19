@@ -2,8 +2,27 @@ import bpy
 from bpy.types import NodeTree, Node, NodeSocket
 import nodeitems_utils
 from nodeitems_utils import NodeCategory, NodeItem
+from .. preferences import get_preferences
+from bpy.props import *
+
 
 # Implementation of Fidget nodes from Python
+
+
+class ViewportSetAbc(bpy.types.Operator):
+    bl_idname = "fidget.steabc"
+    bl_label = "coord get"
+    bl_description = "get vertex coordinates"
+
+    text = StringProperty(
+        name="abc",
+        description="abc",
+        default="")
+
+    def execute(self, context):
+        get_preferences().buttonabc = self.text
+
+        return {'FINISHED'}
 
 
 # Derived from the NodeTree base type, similar to Menu, Operator, Panel, etc.
@@ -35,14 +54,17 @@ class FidgetSocket(NodeSocket):
         ("RIGHT", "Right", "Not left")
     ]
 
-    myEnumProperty = bpy.props.EnumProperty(name="Direction", description="Just an example", items=my_items, default='UP')
+    myStringProperty = bpy.props.StringProperty(
+        name="Direction",
+        description="Just an example",
+        default="Just an example")
 
     # Optional function for drawing the socket input value
     def draw(self, context, layout, node, text):
         if self.is_output or self.is_linked:
             layout.label(text)
         else:
-            layout.prop(self, "myEnumProperty", text=text)
+            layout.prop(self, "myStringProperty", text=text)
 
     # Socket color
     def draw_color(self, context, node):
@@ -73,7 +95,7 @@ class FidgetNode(Node, FidgetTreeNode):
     # These work just like custom properties in ID data blocks
     # Extensive information can be found under
     # http://wiki.blender.org/index.php/Doc:2.6/Manual/Extensions/Python/Properties
-    myStringProperty = bpy.props.StringProperty()
+    # myStringProperty = bpy.props.StringProperty()
     myFloatProperty = bpy.props.FloatProperty(default=3.1415926)
 
     # === Optional Functions ===
@@ -81,39 +103,47 @@ class FidgetNode(Node, FidgetTreeNode):
     # This is the most common place to create the sockets for a node, as shown below.
     # NOTE: this is not the same as the standard __init__ function in Python, which is
     #       a purely internal Python method and unknown to the node system!
-    def init(self, context):
-        self.inputs.new('FidgetSocketType', "Hello")
-        self.inputs.new('NodeSocketFloat', "World")
-        self.inputs.new('NodeSocketVector', "!")
 
-        self.outputs.new('NodeSocketColor', "a")
-        self.outputs.new('NodeSocketColor', "b")
-        self.outputs.new('NodeSocketFloat', "c")
+    def init(self, context):
+        self.inputs.new('FidgetSocket', "input")
+        #self.inputs.new('NodeSocketFloat', "World")
+        #self.inputs.new('NodeSocketVector', "!")
+
+        #self.outputs.new('NodeSocketColor', "a")
+        #self.outputs.new('NodeSocketColor', "b")
+        #self.outputs.new('NodeSocketFloat', "c")
 
     # Copy function to initialize a copied node from an existing one.
-    def copy(self, node):
-        print("Copying from node ", node)
+    # def copy(self, node):
+        # print("Copying from node ", node)
 
     # Free function to clean up on removal.
-    def free(self):
-        print("Removing node ", self, ", Goodbye!")
+    # def free(self):
+        # print("Removing node ", self, ", Goodbye!")
 
     # Additional buttons displayed on the node.
     def draw_buttons(self, context, layout):
         layout.label("Node settings")
-        layout.prop(self, "myFloatProperty")
+        layout.operator("fidget.steabc", text="hit me").text = """
+if event.type == 'LEFTMOUSE':
+    if event.value == 'PRESS':
+        bpy.ops.mesh.extrude_region_move()
+        bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
+"""
+
+        # layout.prop(self, "myFloatProperty")
 
     # Detail buttons in the sidebar.
     # If this function is not defined, the draw_buttons function is used instead
-    def draw_buttons_ext(self, context, layout):
-        layout.prop(self, "myFloatProperty")
+    # def draw_buttons_ext(self, context, layout):
+        # layout.prop(self, "myFloatProperty")
         # myStringProperty button will only be visible in the sidebar
-        layout.prop(self, "myStringProperty")
+        # layout.prop(self, "myStringProperty")
 
     # Optional: Fidget label
     # Explicit user label overrides this, but here we can define a label dynamically
-    def draw_label(self):
-        return "I am a Fidget node"
+    # def draw_label(self):
+        # return "I am a Fidget node"
 
 
 # ## Node Categories ###
