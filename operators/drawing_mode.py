@@ -137,6 +137,8 @@ class ViewportButtons(bpy.types.Operator):
                         get_preferences().mode = "MODE3"
                         return {'RUNNING_MODAL'}
 
+##############################################################################################################
+
             if self.button_top:
                 if get_preferences().mode == "MODE1":
                     if context.active_object is None:
@@ -363,6 +365,8 @@ class ViewportButtons(bpy.types.Operator):
                                         bpy.ops.hops.complex_sharpen()
                                         return {'RUNNING_MODAL'}
                                 self.info_text = "Csharpen"
+
+#########################################################################################################
 
             if self.drag_mode == "MOVE":
                 self.center = self.mouse_pos
