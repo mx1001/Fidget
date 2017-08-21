@@ -138,16 +138,9 @@ class ViewportButtons(bpy.types.Operator):
                         return {'RUNNING_MODAL'}
 
             if self.button_top:
-                if event.type == 'LEFTMOUSE':
-                    if event.value == 'PRESS':
-                        get_preferences().buttonabc = """
-if event.type == 'LEFTMOUSE':
-    if event.value == 'PRESS':
-        bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
-"""
                 return {'RUNNING_MODAL'}
             elif self.button_right:
-                exec(get_preferences().buttonabc, globals(), locals())
+                exec(get_preferences().button_right_code_input, globals(), locals())
                 return {'RUNNING_MODAL'}
             elif self.button_left:
                 return {'RUNNING_MODAL'}

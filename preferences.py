@@ -30,7 +30,17 @@ class FidgetPreferences(bpy.types.AddonPreferences):
     pref_mode = EnumProperty(name="Tab", items=manipulator_modes)
     mode = EnumProperty(name="", options={"SKIP_SAVE"}, items=manipulator_modes)
 
-    buttonabc = StringProperty(
+    button_top_code_input = StringProperty(
+        name="abc",
+        description="abc",
+        default="")
+
+    button_right_code_input = StringProperty(
+        name="abc",
+        description="abc",
+        default="")
+
+    button_left_code_input = StringProperty(
         name="abc",
         description="abc",
         default="")
