@@ -22,11 +22,11 @@ class FidgetTreeNode:
 class FidgetInputNode(Node, FidgetTreeNode):
     bl_idname = "FidgetInputNode"
     bl_label = "Input"
-    bl_icon = "NONE"
+    # bl_icon = "NONE"
 
     def init(self, context):
-        self.inputs.new("FidgetInputNodeSocket", " ")
-        self.outputs.new("NodeSocketString", " ")
+        self.inputs.new("FidgetInputNodeSocket", "hello")
+        self.outputs.new("NodeSocketString", "hello")
 
     def draw_buttons(self, context, layout):
         layout.label("Input Value")
@@ -77,7 +77,7 @@ class FidgetNodeCategory(NodeCategory):
         return context.space_data.tree_type == "FidgetNodeTree"
 
 node_categories = [
-    FidgetNodeCategory("INPUT", "Input", items=[NodeItem("FidgetInputNode")]),
+    FidgetNodeCategory("FIDGETINPUT", "Input", items=[NodeItem("FidgetInputNode")]),
     # FidgetNodeCategory("INPUT", "Input", items=[NodeItem("InputNode"), NodeItem("ScriptNode")]),
     # FidgetNodeCategory("EVENT", "Event", items=[NodeItem("EventNode")]),
     # FidgetNodeCategory("CONDITION", "Condition", items=[NodeItem("ConditionNode")]),
