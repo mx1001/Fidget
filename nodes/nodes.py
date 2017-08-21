@@ -19,21 +19,20 @@ class FidgetTreeNode:
         return ntree.bl_idname == "FidgetNodeTree"
 
 # input node
-class InputNode(Node, FidgetTreeNode):
-    bl_idname = "InputNode"
+class FidgetInputNode(Node, FidgetTreeNode):
+    bl_idname = "FidgetInputNode"
     bl_label = "Input"
     bl_icon = "NONE"
 
     def init(self, context):
-        self.inputs.new("InputNodeSocket", "")
-        self.outputs.new("NodeSocketString", "")
+        self.inputs.new("FidgetInputNodeSocket", " ")
+        self.outputs.new("NodeSocketString", " ")
 
     def draw_buttons(self, context, layout):
         layout.label("Input Value")
 
-
-class InputNodeSocket(NodeSocket):
-    bl_idname = "InputNodeSocket"
+class FidgetInputNodeSocket(NodeSocket):
+    bl_idname = "FidgetInputNodeSocket"
     bl_label = "Input Node Socket"
 
     value = StringProperty(
@@ -78,7 +77,7 @@ class FidgetNodeCategory(NodeCategory):
         return context.space_data.tree_type == "FidgetNodeTree"
 
 node_categories = [
-    FidgetNodeCategory("INPUT", "Input", items=[NodeItem("InputNode")]),
+    FidgetNodeCategory("INPUT", "Input", items=[NodeItem("FidgetInputNode")]),
     # FidgetNodeCategory("INPUT", "Input", items=[NodeItem("InputNode"), NodeItem("ScriptNode")]),
     # FidgetNodeCategory("EVENT", "Event", items=[NodeItem("EventNode")]),
     # FidgetNodeCategory("CONDITION", "Condition", items=[NodeItem("ConditionNode")]),
