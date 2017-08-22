@@ -32,6 +32,13 @@ class NodesUpdateButtons(bpy.types.Operator):
         get_preferences().button_left_code_input = self.left
         get_preferences().button_right_code_input = self.right
 
+        print("")
+        print(get_preferences().button_top_code_input)
+        print("")
+        print(get_preferences().button_left_code_input)
+        print("")
+        print(get_preferences().button_right_code_input)
+
         return {'FINISHED'}
 
 
@@ -119,10 +126,8 @@ if event.type == 'LEFTMOUSE':
             initialcode = self.presscode
 
         if self.inputs[0].is_linked and self.inputs[0].links[0].is_valid:
-            self.code = initialcode + "\n" + "        " + self.inputs[0].links[0].from_socket.code
+            self.code = initialcode + "\n" + "        " + self.inputs[0].links[0].from_socket.code#  + "\n" + "        " + "return {'RUNNING_MODAL'}" #return not in def soit willnot exec yet we need it...
             self.outputs[0].code = self.code
-
-        print(self.code)
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "pressorrelease", text="")
@@ -168,7 +173,6 @@ class FidgetOutputNode(Node, FidgetTreeNode):
         # print(self.inputs[0].default_value)
 
     def update(self):
-        print("Updating node: ", self.name)
         self.code_1 = self.inputs[0].code
         self.code_2 = self.inputs[1].code
         self.code_3 = self.inputs[2].code
@@ -176,17 +180,17 @@ class FidgetOutputNode(Node, FidgetTreeNode):
         if self.inputs[0].is_linked and self.inputs[0].links[0].is_valid:
             self.code_1 = self.inputs[0].links[0].from_socket.code
         else:
-            self.code_1 = self.inputs[0].code
+            self.code_1 = " "
 
         if self.inputs[1].is_linked and self.inputs[1].links[0].is_valid:
             self.code_2 = self.inputs[1].links[0].from_socket.code
         else:
-            self.code_2 = self.inputs[1].code
+            self.code_2 = " "
 
         if self.inputs[2].is_linked and self.inputs[2].links[0].is_valid:
             self.code_3 = self.inputs[2].links[0].from_socket.code
         else:
-            self.code_3 = self.inputs[2].code
+            self.code_3 = " "
 
     def draw_buttons(self, context, layout):
         button = layout.operator("fidget.update_right_button", text="apply setup")
