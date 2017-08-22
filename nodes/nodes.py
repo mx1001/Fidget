@@ -126,7 +126,7 @@ if event.type == 'LEFTMOUSE':
             initialcode = self.presscode
 
         if self.inputs[0].is_linked and self.inputs[0].links[0].is_valid:
-            self.code = initialcode + "\n" + "        " + self.inputs[0].links[0].from_socket.code#  + "\n" + "        " + "return {'RUNNING_MODAL'}" #return not in def soit willnot exec yet we need it...
+            self.code = initialcode + "\n" + "        " + self.inputs[0].links[0].from_socket.code # + "\n" + "        " + "return {'RUNNING_MODAL'}" #return not in def soit willnot exec yet we need it...
             self.outputs[0].code = self.code
 
     def draw_buttons(self, context, layout):
