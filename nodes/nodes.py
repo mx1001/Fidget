@@ -169,7 +169,7 @@ class FidgetOutputNode(Node, FidgetTreeNode):
         layout.prop(self, "value", text="")
         row = layout.row(align=True)
 
-        row.operator("node.fidget_update")
+        op = row.operator("node.fidget_update")
         op.node = self.name
         op.ntree = self.ntree
 
