@@ -32,18 +32,20 @@ bl_info = {
 
 from . import developer_utils
 modules = developer_utils.setup_addon_modules(__path__, __name__, "bpy" in locals())
-
+from . nodes.nodes import nodes_register, nodes_unregister
 import bpy,bgl,blf
 # from . registration import register_all, unregister_all
 
 
 def register():
     bpy.utils.register_module(__name__)
+    nodes_register()
     # register_all()
     print("Registered {} with {} modules".format(bl_info["name"], len(modules)))
 
 
 def unregister():
     bpy.utils.unregister_module(__name__)
+    nodes_unregister()
     # unregister_all()
     print("Unregistered {}".format(bl_info["name"]))
