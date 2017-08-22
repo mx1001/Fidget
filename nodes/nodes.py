@@ -9,18 +9,28 @@ from bpy.props import *
 # Implementation of Fidget nodes from Python
 
 
-class ViewportSetAbc(bpy.types.Operator):
-    bl_idname = "fidget.steabc"
+class NodesUpdateButtons(bpy.types.Operator):
+    bl_idname = "fidget.update_right_button"
     bl_label = "coord get"
     bl_description = "get vertex coordinates"
 
-    text = StringProperty(
+    top = StringProperty(
+        name="abc",
+        description="abc",
+        default="")
+    left = StringProperty(
+        name="abc",
+        description="abc",
+        default="")
+    right = StringProperty(
         name="abc",
         description="abc",
         default="")
 
     def execute(self, context):
-        get_preferences().button_right_code_input = self.text
+        get_preferences().button_top_code_input = self.top
+        get_preferences().button_left_code_input = self.left
+        get_preferences().button_right_code_input = self.right
 
         return {'FINISHED'}
 
@@ -82,7 +92,17 @@ class FidgetPressNode(Node, FidgetTreeNode):
     bl_label = 'Fidget Press Node'
     bl_icon = 'SOUND'
 
-    basecode = """
+    modes = [
+        ("PRESS", "press", ""),
+        ("RELEASE", "release", "")]
+
+    pressorrelease = EnumProperty(name="", options={"SKIP_SAVE"}, items=modes, default="PRESS")
+
+    releasecode = """
+if event.type == 'LEFTMOUSE':
+    if event.value == 'RELEASE':"""
+
+    presscode = """
 if event.type == 'LEFTMOUSE':
     if event.value == 'PRESS':"""
 
@@ -93,15 +113,23 @@ if event.type == 'LEFTMOUSE':
     def update(self):
         self.code = ""
 
+        if self.pressorrelease == "RELEASE":
+            initialcode = self.releasecode
+        else:
+            initialcode = self.presscode
+
         if self.inputs[0].is_linked and self.inputs[0].links[0].is_valid:
-            self.code = self.basecode + "\n" + "        " + self.inputs[0].links[0].from_socket.code
+            self.code = initialcode + "\n" + "        " + self.inputs[0].links[0].from_socket.code
             self.outputs[0].code = self.code
 
         print(self.code)
 
+    def draw_buttons(self, context, layout):
+        layout.prop(self, "pressorrelease", text="")
+
 # bpy.ops.mesh.inset("INVOKE_DEFAULT")
 # bpy.ops.mesh.inset(thickness=0.32192)
-#  bpy.ops.mesh.extrude_region_move("INVOKE_DEFAULT", TRANSFORM_OT_translate={"constraint_axis":(False, False, True), "constraint_orientation":'NORMAL'})
+# bpy.ops.mesh.extrude_region_move("INVOKE_DEFAULT", TRANSFORM_OT_translate={"constraint_axis":(False, False, True), "constraint_orientation":'NORMAL'})
 
 
 class FidgetCodeNode(Node, FidgetTreeNode):
@@ -118,26 +146,53 @@ class FidgetOutputNode(Node, FidgetTreeNode):
     bl_label = 'Fidget Output Node'
     bl_icon = 'SOUND'
 
-    code = bpy.props.StringProperty(
-        name="Direction",
-        description="Just an example",
-        default="")
+    code_1 = bpy.props.StringProperty(
+        name="Top Button",
+        description="Top Button",
+        default="1")
+
+    code_2 = bpy.props.StringProperty(
+        name="Right Button",
+        description="Right Button",
+        default="2")
+
+    code_3 = bpy.props.StringProperty(
+        name="Left Button",
+        description="Left Button",
+        default="3")
 
     def init(self, context):
-        self.inputs.new('FidgetOutputSocketType', "input")
+        self.inputs.new('FidgetOutputSocketType', "top button")
+        self.inputs.new('FidgetOutputSocketType', "right button")
+        self.inputs.new('FidgetOutputSocketType', "left button")
         # print(self.inputs[0].default_value)
 
     def update(self):
         print("Updating node: ", self.name)
-        self.code = self.inputs[0].code
+        self.code_1 = self.inputs[0].code
+        self.code_2 = self.inputs[1].code
+        self.code_3 = self.inputs[2].code
 
         if self.inputs[0].is_linked and self.inputs[0].links[0].is_valid:
-            self.code = self.inputs[0].links[0].from_socket.code
+            self.code_1 = self.inputs[0].links[0].from_socket.code
         else:
-            self.code = self.inputs[0].code
+            self.code_1 = self.inputs[0].code
+
+        if self.inputs[1].is_linked and self.inputs[1].links[0].is_valid:
+            self.code_2 = self.inputs[1].links[0].from_socket.code
+        else:
+            self.code_2 = self.inputs[1].code
+
+        if self.inputs[2].is_linked and self.inputs[2].links[0].is_valid:
+            self.code_3 = self.inputs[2].links[0].from_socket.code
+        else:
+            self.code_3 = self.inputs[2].code
 
     def draw_buttons(self, context, layout):
-        layout.operator("fidget.steabc", text="apply setup").text = self.code
+        button = layout.operator("fidget.update_right_button", text="apply setup")
+        button.top = self.code_1
+        button.right = self.code_2
+        button.left = self.code_3
 
 
 class MyNodeCategory(NodeCategory):

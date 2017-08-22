@@ -138,12 +138,11 @@ class ViewportButtons(bpy.types.Operator):
                         return {'RUNNING_MODAL'}
 
             if self.button_top:
-                return {'RUNNING_MODAL'}
+                exec(get_preferences().button_top_code_input, globals(), locals())
             elif self.button_right:
                 exec(get_preferences().button_right_code_input, globals(), locals())
-                return {'RUNNING_MODAL'}
             elif self.button_left:
-                return {'RUNNING_MODAL'}
+                exec(get_preferences().button_left_code_input, globals(), locals())
 
             if self.drag_mode == "MOVE":
                 self.center = self.mouse_pos
