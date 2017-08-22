@@ -206,8 +206,8 @@ class FidgetUpdate(Operator):
     ntree = StringProperty()
 
     def execute(self, context):
-        # TODO: create save and reset functionality
         print(self.node)
+        print(self.ntree)
         return {'FINISHED'}
 
 # fidget save
