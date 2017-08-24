@@ -216,10 +216,6 @@ class FidgetUpdate(Operator):
         output = self.tree.nodes[output_name]
         links = output.inputs[0].links
 
-        # TODO: node wrangler support
-        # set and check this for proper typing on node input add?
-        # D.node_groups['NodeTree'].nodes['Output'].inputs[0].links[0].from_node.bl_static_type
-
         if len(links):
             input = links[0].from_node
 
@@ -242,18 +238,44 @@ class FidgetUpdate(Operator):
 
         # no inputs
         else:
-            # update function and eval command
-            # print(eval("button.{}.{}".format(output.button.lower(), output.mode.lower())))
-
-            # setattr(getattr(button, "{}".format(output.button.lower())), "{}".format(output.mode.lower()), exec("def f(modal, context, event): {}".format(output.inputs[0].value)))
-
-            pass
-
+            setattr(getattr(button, "{}".format(output.button.lower())), "{}".format(output.mode.lower()), getattr(getattr(assign, "{}".format(output.button.lower())), "{}".format(output.mode.lower())))
 
         return {'FINISHED'}
 
+class assign:
 
+    class top:
 
+        def mode1(modal, context, event):
+            print("replaced top mode 1")
+
+        def mode2(modal, context, event):
+            print("replaced top mode 2")
+
+        def mode3(modal, context, event):
+            print("replaced top mode 3")
+
+    class right:
+
+        def mode1(modal, context, event):
+            print("replaced right mode 1")
+
+        def mode2(modal, context, event):
+            print("replaced right mode 2")
+
+        def mode3(modal, context, event):
+            print("replaced right mode 3")
+
+    class left:
+
+        def mode1(modal, context, event):
+            print("replaced left mode 1")
+
+        def mode2(modal, context, event):
+            print("replaced left mode 2")
+
+        def mode3(modal, context, event):
+            print("replaced left mode 3")
 
 # save
 # class FidgetSave(Operator):
