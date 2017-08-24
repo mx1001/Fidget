@@ -1,238 +1,302 @@
+import os
 import bpy
-from bpy.types import NodeTree, Node, NodeSocket
+from bpy.types import Operator, NodeTree, Node, NodeSocket
 import nodeitems_utils
 from nodeitems_utils import NodeCategory, NodeItem
 from .. preferences import get_preferences
 from bpy.props import *
+from .. operators.drawing_mode import button
 
+# node tree
+class FidgetNodeTree(NodeTree):
+    bl_idname = "FidgetNodeTree"
+    bl_label = "Fidget Node Tree"
+    bl_icon = "NODETREE"
 
-# Implementation of Fidget nodes from Python
+## sockets ##
 
+# eval socket
+class FidgetEvalSocket(NodeSocket):
+    bl_idname = "FidgetEvalSocket"
+    bl_label = "Evaluate Socket"
 
-class NodesUpdateButtons(bpy.types.Operator):
-    bl_idname = "fidget.update_right_button"
-    bl_label = "coord get"
-    bl_description = "get vertex coordinates"
+    value = StringProperty(
+        name = "Input Evaluation Value",
+        description = "Command to execute",
+        default = "")
 
-    top = StringProperty(
-        name="abc",
-        description="abc",
-        default="")
-    left = StringProperty(
-        name="abc",
-        description="abc",
-        default="")
-    right = StringProperty(
-        name="abc",
-        description="abc",
-        default="")
+    def draw(self, context, layout, node, text):
+        if self.is_linked and not self.is_output:
+            layout.label(text=text)
+        elif node.bl_idname == "FidgetCommandNode":
+            row = layout.row()
+            row.scale_x = 5.0 # HACK: forces row to span width
+            row.prop(self, "value", text="")
+        elif self.is_output:
+            layout.label(text="Output")
+        else:
+            row = layout.row()
+            row.scale_x = 5.0
+            row.prop(self, "value", text="")
+
+    def draw_color(self, context, node):
+        return (1.0, 0.4, 0.22, 1.0)
+
+## nodes ##
+
+# node mix-in
+class FidgetTreeNode:
+
+    @classmethod
+    def poll(cls, ntree):
+        return ntree.bl_idname == "FidgetNodeTree"
+
+# command
+class FidgetCommandNode(Node, FidgetTreeNode):
+    bl_idname = "FidgetCommandNode"
+    bl_label = "Command"
+    bl_width_min = 150
+
+    def init(self, context):
+        self.outputs.new("FidgetEvalSocket", "")
+
+    def draw_buttons(self, context, layout):
+        layout.separator()
+
+# script
+class FidgetScriptNode(Node, FidgetTreeNode):
+    bl_idname = "FidgetScriptNode"
+    bl_label = "Script"
+
+    def init(self, context):
+        self.outputs.new("FidgetEvalSocket", "")
+
+    def draw_buttons(self, context, layout):
+        layout.separator()
+
+# is mode
+class FidgetIsModeNode(Node, FidgetTreeNode):
+    bl_idname = "FidgetIsModeNode"
+    bl_label = "Is Mode"
+
+    mode = EnumProperty(
+        name = "Object Mode",
+        description = "Mode requirements to allow executing",
+        items = [
+            ("PARTICLE_EDIT", "Particle Edit", ""),
+            ("TEXTURE_PAINT", "Texture Paint", ""),
+            ("WEIGHT_PAINT", "Weight Paint", ""),
+            ("VERTEX_PAINT", "Vertex Paint", ""),
+            ("SCULPT", "Sculpt", ""),
+            ("EDIT", "Edit", ""),
+            ("OBJECT", "Object", "")],
+        default = "OBJECT")
+
+    def init(self, context):
+        self.outputs.new("NodeSocketBool", "")
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, 'mode', text="")
+
+# switch
+class FidgetSwitchNode(Node, FidgetTreeNode):
+    bl_idname = "FidgetSwitchNode"
+    bl_label = "Switch"
+
+    def init(self, context):
+        self.inputs.new("NodeSocketBool", "Use Last")
+        self.inputs.new("FidgetEvalSocket", "")
+        self.inputs.new("FidgetEvalSocket", "")
+        self.outputs.new("FidgetEvalSocket", "")
+
+# compare
+class FidgetCompareNode(Node, FidgetTreeNode):
+    bl_idname = "FidgetCompareNode"
+    bl_label = "Compare"
+
+    logic = EnumProperty(
+        name = "Logic",
+        description = "Type of logic to use for comparison",
+        items = [
+            ("XNOR", "Xnor", ""),
+            ("XOR", "Xor", ""),
+            ("NOR", "Nor", ""),
+            ("NAND", "Nand", ""),
+            ("OR", "Or", ""),
+            ("AND", "And", "")],
+        default = "AND")
+
+    def init(self, context):
+        self.inputs.new("NodeSocketBool", "Boolean")
+        self.inputs.new("NodeSocketBool", "Boolean")
+        self.outputs.new("NodeSocketBool", "")
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, "logic", text="")
+
+# output
+class FidgetOutputNode(Node, FidgetTreeNode):
+    bl_idname = "FidgetOutputNode"
+    bl_label = "Output"
+
+    mode = EnumProperty(
+        name = "Fidget Mode",
+        description = "The fidget mode to target",
+        items = [
+            ("MODE3", "Mode 3", ""),
+            ("MODE2", "Mode 2", ""),
+            ("MODE1", "Mode 1", "")],
+        default = "MODE1")
+
+    button = EnumProperty(
+        name = "Fidget Button",
+        description = "The fidget button to target",
+        items = [
+            ("LEFT", "Left Button", ""),
+            ("RIGHT", "Right Button", ""),
+            ("TOP", "Top Button", "")],
+        default = "TOP")
+
+    # XXX: is there a need?
+    # value = EnumProperty(
+    #     name = "Event Value",
+    #     description = "Event value",
+    #     items = [
+    #         ("PRESS", "Press", ""),
+    #         ("RELEASE", "Release", "")],
+    #     default = "PRESS")
+
+    def init(self, context):
+        self.inputs.new("FidgetEvalSocket", "")
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, "mode", text="")
+        layout.prop(self, "button", text="")
+        # layout.prop(self, "value", text="")
+
+        row = layout.row(align=True)
+        op = row.operator("node.fidget_update")
+        op.output_id = str(self.toID())
+
+        # TODO
+        # row.operator("node.fidget_save", text="", icon="FILE_TICK")
+        # row.operator("node.fidget_reset", text="", icon="LOAD_FACTORY")
+
+# categories
+class FidgetNodeCategory(NodeCategory):
+
+    @classmethod
+    def poll(cls, context):
+        return context.space_data.tree_type == "FidgetNodeTree"
+
+node_categories = [
+    FidgetNodeCategory("FIDGETINPUT", "Input", items=[
+        NodeItem("FidgetCommandNode"),
+        NodeItem("FidgetScriptNode")]),
+    FidgetNodeCategory("FIDGETLOGIC", "Logic", items=[
+        NodeItem("FidgetIsModeNode"), NodeItem("FidgetSwitchNode"), NodeItem("FidgetCompareNode")]),
+    FidgetNodeCategory("FIDGETOUTPUT", "Output", items=[
+        NodeItem("FidgetOutputNode")]),
+    FidgetNodeCategory("LAYOUT", "Layout", items=[
+        NodeItem("NodeFrame"),
+        NodeItem("NodeReroute")])]
+
+# update
+class FidgetUpdate(Operator):
+    bl_idname = "node.fidget_update"
+    bl_label = "Update"
+    bl_description = "Update this fidget button"
+
+    output_id = StringProperty()
 
     def execute(self, context):
-        get_preferences().button_top_code_input = self.top
-        get_preferences().button_left_code_input = self.left
-        get_preferences().button_right_code_input = self.right
+        tree_name, output_name = eval(self.output_id)
+        self.tree = bpy.data.node_groups[tree_name]
 
-        print("")
-        print(get_preferences().button_top_code_input)
-        print("")
-        print(get_preferences().button_left_code_input)
-        print("")
-        print(get_preferences().button_right_code_input)
+        output = self.tree.nodes[output_name]
+        links = output.inputs[0].links
+
+        if len(links):
+            input = links[0].from_node
+
+            # command
+            if input.bl_idname == "FidgetCommandNode":
+                pass
+
+            # script
+            elif input.bl_idname == "FidgetScriptNode":
+                pass
+
+            # switch
+            elif input.bl_idname == "FidgetSwitchNode":
+                pass
+
+            # if not valid link
+            else:
+                self.report({'WARNING'}, "Invalid input")
+                return {'CANCELLED'}
+
+        # no inputs
+        else:
+            setattr(getattr(button, "{}".format(output.button.lower())), "{}".format(output.mode.lower()), getattr(getattr(assign, "{}".format(output.button.lower())), "{}".format(output.mode.lower())))
 
         return {'FINISHED'}
 
+class assign:
 
-class FidgetTree(NodeTree):
-    bl_idname = 'FidgetTreeType'
-    bl_label = 'Fidget Node Tree'
-    bl_icon = 'NODETREE'
+    class top:
 
+        def mode1(modal, context, event):
+            print("replaced top mode 1")
 
-# Fidget socket type
-class FidgetOutputSocket(NodeSocket):
-    bl_idname = 'FidgetOutputSocketType'
-    bl_label = 'Fidget Output Node Socket'
+        def mode2(modal, context, event):
+            print("replaced top mode 2")
 
-    code = bpy.props.StringProperty(
-        name="Direction",
-        description="Just an example",
-        default="")
+        def mode3(modal, context, event):
+            print("replaced top mode 3")
 
-    # Optional function for drawing the socket input value
-    def draw(self, context, layout, node, text):
-        layout.label(text)
+    class right:
 
-    # Socket color
-    def draw_color(self, context, node):
-        return (1.0, 0.4, 0.216, 0.5)
+        def mode1(modal, context, event):
+            print("replaced right mode 1")
 
+        def mode2(modal, context, event):
+            print("replaced right mode 2")
 
-class FidgetStringSocket(NodeSocket):
-    bl_idname = 'FidgetStringSocketType'
-    bl_label = 'Fidget Node Socket'
+        def mode3(modal, context, event):
+            print("replaced right mode 3")
 
-    code = bpy.props.StringProperty(
-        name="Direction",
-        description="Just an example",
-        default="bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')")
+    class left:
 
-    # Optional function for drawing the socket input value
-    def draw(self, context, layout, node, text):
-        if self.is_linked:
-            layout.label(text)
-        else:
-            layout.prop(self, "code", text=text)
+        def mode1(modal, context, event):
+            print("replaced left mode 1")
 
-    # Socket color
-    def draw_color(self, context, node):
-        return (1.0, 0.4, 0.216, 0.5)
+        def mode2(modal, context, event):
+            print("replaced left mode 2")
 
+        def mode3(modal, context, event):
+            print("replaced left mode 3")
 
-class FidgetTreeNode:
-    @classmethod
-    def poll(cls, ntree):
-        return ntree.bl_idname == 'FidgetTreeType'
+# save
+# class FidgetSave(Operator):
+#     bl_idname = "node.fidget_save"
+#     bl_label = "Save"
+#     bl_description = "Permantly save this node behavior as the default for this fidget button"
+#
+#     def execute(self, context):
+#         return {'FINISHED'}
 
-
-class FidgetPressNode(Node, FidgetTreeNode):
-    bl_idname = 'FidgetPressNodeType'
-    bl_label = 'Fidget Press Node'
-    bl_icon = 'SOUND'
-
-    modes = [
-        ("PRESS", "press", ""),
-        ("RELEASE", "release", "")]
-
-    pressorrelease = EnumProperty(name="", options={"SKIP_SAVE"}, items=modes, default="PRESS")
-
-    releasecode = """
-if event.type == 'LEFTMOUSE':
-    if event.value == 'RELEASE':"""
-
-    presscode = """
-if event.type == 'LEFTMOUSE':
-    if event.value == 'PRESS':"""
-
-    def init(self, context):
-        self.inputs.new('FidgetOutputSocketType', "input")
-        self.outputs.new('FidgetOutputSocketType', "output")
-
-    def update(self):
-        self.code = ""
-
-        if self.pressorrelease == "RELEASE":
-            initialcode = self.releasecode
-        else:
-            initialcode = self.presscode
-
-        if self.inputs[0].is_linked and self.inputs[0].links[0].is_valid:
-            self.code = initialcode + "\n" + "        " + self.inputs[0].links[0].from_socket.code # + "\n" + "        " + "return {'RUNNING_MODAL'}" #return not in def soit willnot exec yet we need it...
-            self.outputs[0].code = self.code
-
-    def draw_buttons(self, context, layout):
-        layout.prop(self, "pressorrelease", text="")
-
-# bpy.ops.mesh.inset("INVOKE_DEFAULT")
-# bpy.ops.mesh.inset(thickness=0.32192)
-# bpy.ops.mesh.extrude_region_move("INVOKE_DEFAULT", TRANSFORM_OT_translate={"constraint_axis":(False, False, True), "constraint_orientation":'NORMAL'})
-
-
-class FidgetCodeNode(Node, FidgetTreeNode):
-    bl_idname = 'FidgetCodeNodeType'
-    bl_label = 'Fidget Code Node'
-    bl_icon = 'SOUND'
-
-    def init(self, context):
-        self.outputs.new('FidgetStringSocketType', "output")
-
-
-class FidgetOutputNode(Node, FidgetTreeNode):
-    bl_idname = 'FidgetOutputNodeType'
-    bl_label = 'Fidget Output Node'
-    bl_icon = 'SOUND'
-
-    code_1 = bpy.props.StringProperty(
-        name="Top Button",
-        description="Top Button",
-        default="1")
-
-    code_2 = bpy.props.StringProperty(
-        name="Right Button",
-        description="Right Button",
-        default="2")
-
-    code_3 = bpy.props.StringProperty(
-        name="Left Button",
-        description="Left Button",
-        default="3")
-
-    def init(self, context):
-        self.inputs.new('FidgetOutputSocketType', "top button")
-        self.inputs.new('FidgetOutputSocketType', "right button")
-        self.inputs.new('FidgetOutputSocketType', "left button")
-        # print(self.inputs[0].default_value)
-
-    def update(self):
-        self.code_1 = self.inputs[0].code
-        self.code_2 = self.inputs[1].code
-        self.code_3 = self.inputs[2].code
-
-        if self.inputs[0].is_linked and self.inputs[0].links[0].is_valid:
-            self.code_1 = self.inputs[0].links[0].from_socket.code
-        else:
-            self.code_1 = " "
-
-        if self.inputs[1].is_linked and self.inputs[1].links[0].is_valid:
-            self.code_2 = self.inputs[1].links[0].from_socket.code
-        else:
-            self.code_2 = " "
-
-        if self.inputs[2].is_linked and self.inputs[2].links[0].is_valid:
-            self.code_3 = self.inputs[2].links[0].from_socket.code
-        else:
-            self.code_3 = " "
-
-    def draw_buttons(self, context, layout):
-        button = layout.operator("fidget.update_right_button", text="apply setup")
-        button.top = self.code_1
-        button.right = self.code_2
-        button.left = self.code_3
-
-
-class MyNodeCategory(NodeCategory):
-    @classmethod
-    def poll(cls, context):
-        return context.space_data.tree_type == 'FidgetTreeType'
-
-# all categories in a list
-node_categories = [
-    # identifier, label, items list
-    MyNodeCategory("SOMENODES", "Some Nodes", items=[
-        # our basic node
-        NodeItem("FidgetOutputNodeType"),
-        NodeItem("FidgetPressNodeType"),
-        NodeItem("FidgetCodeNodeType")
-        ]),
-    MyNodeCategory("OTHERNODES", "Other Nodes", items=[
-        # the node item can have additional settings,
-        # which are applied to new nodes
-        # NB: settings values are stored as string expressions,
-        # for this reason they should be converted to strings using repr()
-        NodeItem("FidgetOutputNodeType", label="Node A", settings={
-            "StringProperty": repr("Lorem ipsum dolor sit amet"),
-            "myFloatProperty": repr(1.0),
-            }),
-        NodeItem("FidgetOutputNodeType", label="Node B", settings={
-            "myStringProperty": repr("consectetur adipisicing elit"),
-            "myFloatProperty": repr(2.0),
-            }),
-        ]),
-    ]
-
+# reset
+# class FidgetReset(Operator):
+#     bl_idname = "node.fidget_reset"
+#     bl_label = "Reset"
+#     bl_description = "Reset this fidget button to defaults"
+#
+#     def execute(self, context):
+#         return {'FINISHED'}
 
 def nodes_register():
     nodeitems_utils.register_node_categories("FIDGET_NODES", node_categories)
-
 
 def nodes_unregister():
     nodeitems_utils.unregister_node_categories("FIDGET_NODES")

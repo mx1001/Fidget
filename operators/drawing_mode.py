@@ -9,6 +9,264 @@ from .. utils.object import get_current_selected_status
 from mathutils import Vector
 from .. preferences import get_preferences
 
+class button:
+
+    class top:
+
+    # if get_preferences().mode == "MODE1":
+    #     if context.active_object is None:
+    #         pass
+    #     else:
+    #         if bpy.context.active_object.mode == 'EDIT':
+    #             if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'PRESS':
+    #                         bpy.ops.mesh.extrude_region_move()
+    #                         bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Extrude"
+    #             elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, True, False):
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'PRESS':
+    #                         bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Clean"
+    #             elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'PRESS':
+    #                         bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Clean"
+    #             else:
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'PRESS':
+    #                         bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Clean"
+    #
+    #         if bpy.context.active_object.mode == 'OBJECT':
+    #             if len(bpy.context.selected_objects) == 2:
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'RELEASE':
+    #                         bpy.ops.wm.call_menu(name='hops.bool_menu')
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "hardops menu"
+    #             elif len(bpy.context.selected_objects) == 1:
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'RELEASE':
+    #                         bpy.ops.wm.call_menu(name='INFO_MT_mesh_add')
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Add Menu"
+    #             else:
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'RELEASE':
+    #                         bpy.ops.mesh.primitive_cube_add()
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Add Cube"
+    #
+    # # hardops
+    # if get_preferences().mode == "MODE3":
+    #     if context.active_object is None:
+    #         pass
+    #     else:
+    #         active_object, other_objects, other_object = get_current_selected_status()
+    #         only_meshes_selected = all(object.type == "MESH" for object in bpy.context.selected_objects)
+    #         object = context.active_object
+    #
+    #         if object.hops.status in ("CSHARP", "CSTEP"):
+    #             if active_object is not None and other_object is None and only_meshes_selected:
+    #                 if object.hops.is_pending_boolean:
+    #                     if event.type == 'LEFTMOUSE':
+    #                         if event.value == 'PRESS':
+    #                             bpy.ops.hops.complex_sharpen()
+    #                             return {'RUNNING_MODAL'}
+    #                     self.info_text = "Csharpen"
+    #                 else:
+    #                     if event.type == 'LEFTMOUSE':
+    #                         if event.value == 'PRESS':
+    #                             bpy.ops.hops.soft_sharpen()
+    #                             return {'RUNNING_MODAL'}
+    #                     self.info_text = "Ssharpen"
+    #
+    #         elif object.hops.status == "UNDEFINED":
+    #             if active_object is not None and other_object is None and only_meshes_selected:
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'PRESS':
+    #                         bpy.ops.hops.soft_sharpen()
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Ssharpen"
+
+        def mode1(modal, context, event):
+            print("top mode 1")
+
+        def mode2(modal, context, event):
+            print("top mode 2")
+
+        def mode3(modal, context, event):
+            print("top mode 3")
+
+    class right:
+
+    # if get_preferences().mode == "MODE1":
+    #     if context.active_object is None:
+    #         pass
+    #     else:
+    #         if bpy.context.active_object.mode == 'EDIT':
+    #             if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'PRESS':
+    #                         bpy.ops.mesh.inset('INVOKE_DEFAULT')
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Inset"
+    #             elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, True, False):
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'PRESS':
+    #                         bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Set Sharpen"
+    #             elif tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (True, False, False):
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'PRESS':
+    #                         bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Set Sharpen"
+    #             else:
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'PRESS':
+    #                         bpy.ops.hops.set_edit_sharpen('INVOKE_DEFAULT')
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Set Sharpen"
+    #
+    #         if bpy.context.active_object.mode == 'OBJECT':
+    #             if len(bpy.context.selected_objects) > 1:
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'RELEASE':
+    #                         bpy.ops.hops.bool_difference('INVOKE_DEFAULT')
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Bool -"
+    #             else:
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'RELEASE':
+    #                         bpy.ops.wm.call_menu(name='hops_main_menu')
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Hardops Menu"
+    #
+    # # hardops
+    # if get_preferences().mode == "MODE3":
+    #     if context.active_object is None:
+    #         pass
+    #     else:
+    #         active_object, other_objects, other_object = get_current_selected_status()
+    #         only_meshes_selected = all(object.type == "MESH" for object in bpy.context.selected_objects)
+    #         object = context.active_object
+    #
+    #         if object.hops.status in ("CSHARP", "CSTEP"):
+    #             if active_object is not None and other_object is None and only_meshes_selected:
+    #                 if object.hops.is_pending_boolean:
+    #                     if event.type == 'LEFTMOUSE':
+    #                         if event.value == 'PRESS':
+    #                             bpy.ops.hops.slash()
+    #                             return {'RUNNING_MODAL'}
+    #                     self.info_text = "Slash"
+    #                 else:
+    #                     if event.type == 'LEFTMOUSE':
+    #                         if event.value == 'PRESS':
+    #                             bpy.ops.hops.step()
+    #                             return {'RUNNING_MODAL'}
+    #                     self.info_text = "Step"
+    #
+    #         elif object.hops.status == "UNDEFINED":
+    #             if active_object is not None and other_object is None and only_meshes_selected:
+    #                 if object.hops.is_pending_boolean:
+    #                     if event.type == 'LEFTMOUSE':
+    #                         if event.value == 'PRESS':
+    #                             bpy.ops.hops.slash()
+    #                             return {'RUNNING_MODAL'}
+    #                     self.info_text = "Cslash"
+    #                 else:
+    #                     if event.type == 'LEFTMOUSE':
+    #                         if event.value == 'PRESS':
+    #                             bpy.ops.hops.adjust_tthick('INVOKE_DEFAULT')
+    #                             return {'RUNNING_MODAL'}
+    #                     self.info_text = "Tthick"
+
+        def mode1(modal, context, event):
+            print("right mode 1")
+
+        def mode2(modal, context, event):
+            print("right mode 2")
+
+        def mode3(modal, context, event):
+            print("right mode 3")
+
+    class left:
+
+    # if get_preferences().mode == "MODE1":
+    #     if context.active_object is None:
+    #         pass
+    #     else:
+    #         if bpy.context.active_object.mode == 'EDIT':
+    #             if event.type == 'LEFTMOUSE':
+    #                 if event.value == 'PRESS':
+    #                     bpy.ops.clean1.objects('INVOKE_DEFAULT', clearsharps=False)
+    #                     bpy.ops.mesh.bevel('INVOKE_DEFAULT')
+    #                     return {'RUNNING_MODAL'}
+    #             self.info_text = "Bevel"
+    #
+    #         if bpy.context.active_object.mode == 'OBJECT':
+    #             if len(bpy.context.selected_objects) > 1:
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'RELEASE':
+    #                         bpy.ops.hops.slash('INVOKE_DEFAULT')
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Cslash"
+    #             else:
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'RELEASE':
+    #                         bpy.ops.wm.call_menu(name='hops.symetry_submenu')
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Symmetry Menu"
+    #
+    # # hardops
+    # if get_preferences().mode == "MODE3":
+    #     if context.active_object is None:
+    #         pass
+    #     else:
+    #         active_object, other_objects, other_object = get_current_selected_status()
+    #         only_meshes_selected = all(object.type == "MESH" for object in bpy.context.selected_objects)
+    #         object = context.active_object
+    #
+    #         if object.hops.status in ("CSHARP", "CSTEP"):
+    #             if active_object is not None and other_object is None and only_meshes_selected:
+    #                 if object.hops.is_pending_boolean:
+    #                     if event.type == 'LEFTMOUSE':
+    #                         if event.value == 'PRESS':
+    #                             bpy.ops.hops.adjust_bevel('INVOKE_DEFAULT')
+    #                             return {'RUNNING_MODAL'}
+    #                     self.info_text = "Bwidth"
+    #                 else:
+    #                     if event.type == 'LEFTMOUSE':
+    #                         if event.value == 'PRESS':
+    #                             bpy.ops.hops.adjust_bevel('INVOKE_DEFAULT')
+    #                             return {'RUNNING_MODAL'}
+    #                     self.info_text = "Bwidth"
+    #
+    #         elif object.hops.status == "UNDEFINED":
+    #             if active_object is not None and other_object is None and only_meshes_selected:
+    #                 if event.type == 'LEFTMOUSE':
+    #                     if event.value == 'PRESS':
+    #                         bpy.ops.hops.complex_sharpen()
+    #                         return {'RUNNING_MODAL'}
+    #                 self.info_text = "Csharpen"
+
+        def mode1(modal, context, event):
+            print("left mode 1")
+
+        def mode2(modal, context, event):
+            print("left mode 2")
+
+        def mode3(modal, context, event):
+            print("left mode 3")
 
 def draw(self, context):
 
@@ -125,7 +383,6 @@ class ViewportButtons(bpy.types.Operator):
                     self.drag_mode = None
 
             elif event.type == 'LEFTMOUSE':
-
                 if event.value == 'PRESS':
                     if self.is_over_mode1:
                         get_preferences().mode = "MODE1"
@@ -136,13 +393,15 @@ class ViewportButtons(bpy.types.Operator):
                     elif self.is_over_mode3:
                         get_preferences().mode = "MODE3"
                         return {'RUNNING_MODAL'}
-
-            if self.button_top:
-                exec(get_preferences().button_top_code_input, globals(), locals())
-            elif self.button_right:
-                exec(get_preferences().button_right_code_input, globals(), locals())
-            elif self.button_left:
-                exec(get_preferences().button_left_code_input, globals(), locals())
+                    elif self.button_top:
+                        getattr(button.top, get_preferences().mode.lower())(self, context, event)
+                        return {'RUNNING_MODAL'}
+                    elif self.button_right:
+                        getattr(button.right, get_preferences().mode.lower())(self, context, event)
+                        return {'RUNNING_MODAL'}
+                    elif self.button_left:
+                        getattr(button.left, get_preferences().mode.lower())(self, context, event)
+                        return {'RUNNING_MODAL'}
 
             if self.drag_mode == "MOVE":
                 self.center = self.mouse_pos
