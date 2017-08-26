@@ -238,44 +238,44 @@ class FidgetUpdate(Operator):
 
         # no inputs
         else:
-            setattr(getattr(button, "{}".format(output.button.lower())), "{}".format(output.mode.lower()), getattr(getattr(assign, "{}".format(output.button.lower())), "{}".format(output.mode.lower())))
+            setattr(getattr(button, "{}".format(output.button.lower())), "{}".format(output.mode.lower()), getattr(getattr(self.assign, "{}".format(output.button.lower())), "{}".format(output.mode.lower())))
 
         return {'FINISHED'}
 
-class assign:
+    class assign:
 
-    class top:
+        class top:
 
-        def mode1(modal, context, event):
-            print("replaced top mode 1")
+            def mode1(modal, context, event):
+                print("replaced top mode 1")
 
-        def mode2(modal, context, event):
-            print("replaced top mode 2")
+            def mode2(modal, context, event):
+                print("replaced top mode 2")
 
-        def mode3(modal, context, event):
-            print("replaced top mode 3")
+            def mode3(modal, context, event):
+                print("replaced top mode 3")
 
-    class right:
+        class right:
 
-        def mode1(modal, context, event):
-            print("replaced right mode 1")
+            def mode1(modal, context, event):
+                print("replaced right mode 1")
 
-        def mode2(modal, context, event):
-            print("replaced right mode 2")
+            def mode2(modal, context, event):
+                print("replaced right mode 2")
 
-        def mode3(modal, context, event):
-            print("replaced right mode 3")
+            def mode3(modal, context, event):
+                print("replaced right mode 3")
 
-    class left:
+        class left:
 
-        def mode1(modal, context, event):
-            print("replaced left mode 1")
+            def mode1(modal, context, event):
+                print("replaced left mode 1")
 
-        def mode2(modal, context, event):
-            print("replaced left mode 2")
+            def mode2(modal, context, event):
+                print("replaced left mode 2")
 
-        def mode3(modal, context, event):
-            print("replaced left mode 3")
+            def mode3(modal, context, event):
+                print("replaced left mode 3")
 
 # save
 # class FidgetSave(Operator):

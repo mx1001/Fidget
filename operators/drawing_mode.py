@@ -292,6 +292,7 @@ class ViewportButtons(bpy.types.Operator):
 
         if context.area.type == 'VIEW_3D':
             ViewportButtons.running_fidget = {}
+            self.mouse_pos = Vector((event.mouse_region_x, event.mouse_region_y))
             self._region_mouse = [context.region]
             self._region = context.region
             ViewportButtons.running_fidget[self._region] = self
