@@ -1,4 +1,3 @@
-import os
 import bpy
 from bpy.types import Operator, NodeTree, Node, NodeSocket
 import nodeitems_utils
@@ -20,8 +19,8 @@ class FidgetEvalSocket(NodeSocket):
     bl_idname = "FidgetEvalSocket"
     bl_label = "Evaluate Socket"
 
-    value = StringProperty(
-        name = "Input Evaluation Value",
+    command = StringProperty(
+        name = "Command",
         description = "Command to execute",
         default = "")
 
@@ -31,13 +30,13 @@ class FidgetEvalSocket(NodeSocket):
         elif node.bl_idname == "FidgetCommandNode":
             row = layout.row()
             row.scale_x = 5.0 # HACK: forces row to span width
-            row.prop(self, "value", text="")
+            row.prop(self, "command", text="")
         elif self.is_output:
             layout.label(text="Output")
         else:
             row = layout.row()
             row.scale_x = 5.0
-            row.prop(self, "value", text="")
+            row.prop(self, "command", text="")
 
     def draw_color(self, context, node):
         return (1.0, 0.4, 0.22, 1.0)
@@ -118,12 +117,12 @@ class FidgetCompareNode(Node, FidgetTreeNode):
         name = "Logic",
         description = "Type of logic to use for comparison",
         items = [
-            ("XNOR", "Xnor", ""),
-            ("XOR", "Xor", ""),
-            ("NOR", "Nor", ""),
-            ("NAND", "Nand", ""),
-            ("OR", "Or", ""),
-            ("AND", "And", "")],
+            ("XNOR", "Xnor", "If neither or both"),
+            ("XOR", "Xor", "If only 1 or 2"),
+            ("NOR", "Nor", "If neither"),
+            ("NAND", "Nand", "If not both"),
+            ("OR", "Or", "If 1 or 2"),
+            ("AND", "And", "If 1 and 2")],
         default = "AND")
 
     def init(self, context):
@@ -157,6 +156,11 @@ class FidgetOutputNode(Node, FidgetTreeNode):
             ("TOP", "Top Button", "")],
         default = "TOP")
 
+    lable = StringProperty(
+        name = "Label Text",
+        description = "Label to use when this button is highlighted",
+        default = "")
+
     # XXX: is there a need?
     # value = EnumProperty(
     #     name = "Event Value",
@@ -172,6 +176,7 @@ class FidgetOutputNode(Node, FidgetTreeNode):
     def draw_buttons(self, context, layout):
         layout.prop(self, "mode", text="")
         layout.prop(self, "button", text="")
+        layout.prop(self, "label", text="")
         # layout.prop(self, "value", text="")
 
         row = layout.row(align=True)
@@ -201,6 +206,100 @@ node_categories = [
         NodeItem("NodeFrame"),
         NodeItem("NodeReroute")])]
 
+
+# TODO: safe compile
+# limit the __locals__ and globals to bpy, context and event
+# should be default for any command
+# toggle option for script node
+# TODO: write_file and reset behavior
+# TODO: info_text behavior
+class build:
+    # example output
+    # # switch 1
+    # if istexture or ispaint: # compare, if there is not switch command 1 would be ran
+    #     run last # command
+    # else: # command 2 would be ran if there is not another switch
+    #     # switch 2
+    #     if isedit: # ismode
+    #         run last # command
+    #     else: # command 3 would be ran if there is not another switch
+    #         # switch 3
+    #         if isobject: # ismode
+    #             run last # command
+    #         else:
+    #             run everything else # command
+
+    # compare
+    # if is_node compare is_node:
+    #   run last
+    # else:
+    #   run first
+
+    # switch
+    # if is_node:
+    #   run last
+    # else:
+    #   run first
+    error = ""
+
+    def __init__(self, operator, context, input_id="", write_memory=False, write_file=False, reset=False): # TODO: implement write_file, write_memory and reset
+        self.error = ""
+        self.compiled = None
+
+        if input_id:
+            if input_id == "FidgetCommandNode":
+                self.command()
+            elif input_id == "FidgetScriptNode":
+                self.script()
+            elif input_id == "FidgetSwitchNode":
+                self.switch()
+
+        # no links
+        else:
+            self.no_links()
+
+        if not self.error():
+            self.assign(operator, write_memory, write_file, reset)
+
+    ## assign ##
+    def assign(self, operator, write_memory, write_file, reset):
+
+        if write_memory:
+            setattr(getattr(getattr(button, operator.output.button.lower()), operator.output.mode.lower()), self.compiled)
+        if write_file:
+            pass
+        if reset:
+            pass
+
+    ## none ##
+    def no_links(self):
+        pass
+
+    ## command ##
+    def command(self):
+        pass
+
+    def script(self):
+        pass
+
+    ## logic ##
+    def switch(self):
+        pass
+
+    def ismode(self):
+        pass
+
+    def compare(self, type, a, b):
+        logic = {
+            'AND': lambda a, b: "if {} and {}:".format(a, b),
+            'OR': lambda a, b: "if {} or {}:".format(a, b),
+            'NAND': lambda a, b: "if not ({} and {}):".format(a, b),
+            'NOR': lambda a, b: "if not ({} or {}):".format(a, b),
+            'XOR': lambda a, b: "if {} ^ {}:".format(a, b),
+            'XNOR': lambda a, b: "if not ({} ^ {}):".format(a, b)}
+
+        return logic[type](a, b)
+
 # update
 class FidgetUpdate(Operator):
     bl_idname = "node.fidget_update"
@@ -213,69 +312,40 @@ class FidgetUpdate(Operator):
         tree_name, output_name = eval(self.output_id)
         self.tree = bpy.data.node_groups[tree_name]
 
-        output = self.tree.nodes[output_name]
-        links = output.inputs[0].links
+        self.output = self.tree.nodes[output_name]
+        # self.output_button = self.output.button.lower()
+        # self.output_mode = self.output.mode.lower()
+        links = self.output.inputs[0].links
 
         if len(links):
-            input = links[0].from_node
+            self.input = links[0].from_node
 
-            # command
-            if input.bl_idname == "FidgetCommandNode":
-                pass
+            if self.input.bl_idname in {'FidgetCommandNode', 'FidgetScriptNode', 'FidgetSwitchNode'}:
+                self.build(self, context, self.input.bl_idname, write_memory=True)
 
-            # script
-            elif input.bl_idname == "FidgetScriptNode":
-                pass
-
-            # switch
-            elif input.bl_idname == "FidgetSwitchNode":
-                pass
+                if self.build.error:
+                    self.report({'WARNING'}, self.build.error)
+                    return {'CANCELLED'}
 
             # if not valid link
             else:
-                self.report({'WARNING'}, "Invalid input")
+                self.report({'WARNING'}, "{} node is an invalid input command for {}".format(self.input.bl_label.capitalize(), self.output.bl_label.lower()))
                 return {'CANCELLED'}
 
         # no inputs
         else:
-            setattr(getattr(button, "{}".format(output.button.lower())), "{}".format(output.mode.lower()), getattr(getattr(self.assign, "{}".format(output.button.lower())), "{}".format(output.mode.lower())))
+            if self.output.inputs[0].command:
+                self.build(self, context, self.input.bl_idname, write_memory=True)
+
+                if self.build.error:
+                    self.report({'WARNING'}, self.build.error)
+                    return {'CANCELLED'}
+
+            else:
+                self.report({'WARNING'}, "Must have a command for output")
+                return {'CANCELLED'}
 
         return {'FINISHED'}
-
-    class assign:
-
-        class top:
-
-            def mode1(modal, context, event):
-                print("replaced top mode 1")
-
-            def mode2(modal, context, event):
-                print("replaced top mode 2")
-
-            def mode3(modal, context, event):
-                print("replaced top mode 3")
-
-        class right:
-
-            def mode1(modal, context, event):
-                print("replaced right mode 1")
-
-            def mode2(modal, context, event):
-                print("replaced right mode 2")
-
-            def mode3(modal, context, event):
-                print("replaced right mode 3")
-
-        class left:
-
-            def mode1(modal, context, event):
-                print("replaced left mode 1")
-
-            def mode2(modal, context, event):
-                print("replaced left mode 2")
-
-            def mode3(modal, context, event):
-                print("replaced left mode 3")
 
 # save
 # class FidgetSave(Operator):
