@@ -1,9 +1,10 @@
 import bpy
+from bpy.props import *
 from bpy.types import Operator, NodeTree, Node, NodeSocket
 import nodeitems_utils
 from nodeitems_utils import NodeCategory, NodeItem
+from . import button
 from .. preferences import get_preferences
-from bpy.props import *
 from .. operators.drawing_mode import button
 
 # node tree
@@ -118,11 +119,11 @@ class FidgetCompareNode(Node, FidgetTreeNode):
         description = "Type of logic to use for comparison",
         items = [
             ("XNOR", "Xnor", "If neither or both"),
-            ("XOR", "Xor", "If only 1 or 2"),
+            ("XOR", "Xor", "If either"),
             ("NOR", "Nor", "If neither"),
             ("NAND", "Nand", "If not both"),
-            ("OR", "Or", "If 1 or 2"),
-            ("AND", "And", "If 1 and 2")],
+            ("OR", "Or", "If either or both"),
+            ("AND", "And", "If both")],
         default = "AND")
 
     def init(self, context):
@@ -244,6 +245,8 @@ class build:
 
     def __init__(self, operator, context, input_id="", write_memory=False, write_file=False, reset=False): # TODO: implement write_file, write_memory and reset
         self.error = ""
+        self.indentation_level = ""
+        self.command = "def command(modal, context, event):\n\t"
         self.compiled = None
 
         if input_id:
@@ -264,8 +267,10 @@ class build:
     ## assign ##
     def assign(self, operator, write_memory, write_file, reset):
 
+        self.command = self.command.expandtabs(tabsize=4)
+
         if write_memory:
-            setattr(getattr(getattr(button, operator.output.button.lower()), operator.output.mode.lower()), self.compiled)
+            pass
         if write_file:
             pass
         if reset:
@@ -291,12 +296,12 @@ class build:
 
     def compare(self, type, a, b):
         logic = {
-            'AND': lambda a, b: "if {} and {}:".format(a, b),
-            'OR': lambda a, b: "if {} or {}:".format(a, b),
-            'NAND': lambda a, b: "if not ({} and {}):".format(a, b),
-            'NOR': lambda a, b: "if not ({} or {}):".format(a, b),
-            'XOR': lambda a, b: "if {} ^ {}:".format(a, b),
-            'XNOR': lambda a, b: "if not ({} ^ {}):".format(a, b)}
+            'AND': lambda a, b: "{}if {} and {}:".format(self.indentation_level, a, b),
+            'OR': lambda a, b: "{}if {} or {}:".format(self.indentation_level, a, b),
+            'NAND': lambda a, b: "{}if not ({} and {}):".format(self.indentation_level, a, b),
+            'NOR': lambda a, b: "{}if not ({} or {}):".format(self.indentation_level, a, b),
+            'XOR': lambda a, b: "{}if {} ^ {}:".format(self.indentation_level, a, b),
+            'XNOR': lambda a, b: "{}if not ({} ^ {}):".format(self.indentation_level, a, b)}
 
         return logic[type](a, b)
 

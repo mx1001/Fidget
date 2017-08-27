@@ -1,7 +1,7 @@
 import bpy
 from bgl import *
 import numpy as np
-from .. import nodes
+from .. nodes import button
 from .. graphic.manipulator import draw_manipulator
 from .. graphic.modes import draw_mode1, draw_mode2, draw_mode3
 from .. graphic.info import draw_info
@@ -9,41 +9,6 @@ from .. utils.region import region_exists, ui_contexts_under_coord, calculate_an
 from .. utils.object import get_current_selected_status
 from mathutils import Vector
 from .. preferences import get_preferences
-
-# class button:
-#
-#     class top:
-#
-#         def mode1(modal, context, event):
-#             print("top mode 1")
-#
-#         def mode2(modal, context, event):
-#             print("top mode 2")
-#
-#         def mode3(modal, context, event):
-#             print("top mode 3")
-#
-#     class right:
-#
-#         def mode1(modal, context, event):
-#             print("right mode 1")
-#
-#         def mode2(modal, context, event):
-#             print("right mode 2")
-#
-#         def mode3(modal, context, event):
-#             print("right mode 3")
-#
-#     class left:
-#
-#         def mode1(modal, context, event):
-#             print("left mode 1")
-#
-#         def mode2(modal, context, event):
-#             print("left mode 2")
-#
-#         def mode3(modal, context, event):
-#             print("left mode 3")
 
 def draw(self, context):
 
@@ -172,13 +137,13 @@ class ViewportButtons(bpy.types.Operator):
                         get_preferences().mode = "MODE3"
                         return {'RUNNING_MODAL'}
                     elif self.button_top:
-                        getattr(nodes, "button_top_{}".format(get_preferences().mode.lower()))(self, context, event)
+                        getattr(button, "top_{}".format(get_preferences().mode.lower()))(self, context, event)
                         return {'RUNNING_MODAL'}
                     elif self.button_right:
-                        getattr(nodes, "button_right_{}".format(get_preferences().mode.lower()))(self, context, event)
+                        getattr(button, "right_{}".format(get_preferences().mode.lower()))(self, context, event)
                         return {'RUNNING_MODAL'}
                     elif self.button_left:
-                        getattr(nodes, "button_left_{}".format(get_preferences().mode.lower()))(self, context, event)
+                        getattr(button, "left_{}".format(get_preferences().mode.lower()))(self, context, event)
                         return {'RUNNING_MODAL'}
 
             if self.drag_mode == "MOVE":
