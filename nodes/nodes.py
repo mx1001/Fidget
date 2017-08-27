@@ -16,8 +16,8 @@ class FidgetNodeTree(NodeTree):
 ## sockets ##
 
 # eval socket
-class FidgetEvalSocket(NodeSocket):
-    bl_idname = "FidgetEvalSocket"
+class FidgetCommandSocket(NodeSocket):
+    bl_idname = "FidgetCommandSocket"
     bl_label = "Evaluate Socket"
 
     command = StringProperty(
@@ -58,7 +58,7 @@ class FidgetCommandNode(Node, FidgetTreeNode):
     bl_width_min = 150
 
     def init(self, context):
-        self.outputs.new("FidgetEvalSocket", "")
+        self.outputs.new("FidgetCommandSocket", "")
 
     def draw_buttons(self, context, layout):
         layout.separator()
@@ -69,7 +69,7 @@ class FidgetScriptNode(Node, FidgetTreeNode):
     bl_label = "Script"
 
     def init(self, context):
-        self.outputs.new("FidgetEvalSocket", "")
+        self.outputs.new("FidgetCommandSocket", "")
 
     def draw_buttons(self, context, layout):
         layout.separator()
@@ -105,9 +105,9 @@ class FidgetSwitchNode(Node, FidgetTreeNode):
 
     def init(self, context):
         self.inputs.new("NodeSocketBool", "Use Last")
-        self.inputs.new("FidgetEvalSocket", "")
-        self.inputs.new("FidgetEvalSocket", "")
-        self.outputs.new("FidgetEvalSocket", "")
+        self.inputs.new("FidgetCommandSocket", "")
+        self.inputs.new("FidgetCommandSocket", "")
+        self.outputs.new("FidgetCommandSocket", "")
 
 # compare
 class FidgetCompareNode(Node, FidgetTreeNode):
@@ -172,7 +172,7 @@ class FidgetOutputNode(Node, FidgetTreeNode):
     #     default = "PRESS")
 
     def init(self, context):
-        self.inputs.new("FidgetEvalSocket", "")
+        self.inputs.new("FidgetCommandSocket", "")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "mode", text="")
@@ -245,29 +245,42 @@ class build:
 
     def __init__(self, operator, context, input_id="", write_memory=False, write_file=False, reset=False): # TODO: implement write_file, write_memory and reset
         self.error = ""
-        self.indentation_level = ""
-        self.command = "def command(modal, context, event):\n\t"
-        self.compiled = None
+        self.indentation_level = "\t"
+        self.command_value = "import bpy\n\ndef command(modal, context, event):\n\t"
+
+        # tree_name, output_name = eval(self.output_id)
+        # self.tree = bpy.data.node_groups[tree_name]
+        # self.output = self.tree.nodes[output_name]
+        # links = self.output.inputs[0].links
+        # self.input = links[0].from_node
 
         if input_id:
             if input_id == "FidgetCommandNode":
-                self.command()
+                self.command(self.get_linked_node(operator.output))
             elif input_id == "FidgetScriptNode":
-                self.script()
+                pass
             elif input_id == "FidgetSwitchNode":
-                self.switch()
+                bool_node = self.get_linked_node(operator.input, index=0)
+                command1_node = self.get_linked_node(operator.input, index=1)
+                command2_node = self.get_linked_node(operator.input, index=2)
+                self.switch(bool_node, command1_node, command2_node)
 
         # no links
         else:
-            self.no_links()
+            self.no_input_link_command(operator.output)
 
-        if not self.error():
+        if not self.error:
             self.assign(operator, write_memory, write_file, reset)
+
+    @staticmethod
+    def validate_sockets(node):
+        pass
 
     ## assign ##
     def assign(self, operator, write_memory, write_file, reset):
 
-        self.command = self.command.expandtabs(tabsize=4)
+        print(self.command_value)
+        self.command_value = self.command.expandtabs(tabsize=4)
 
         if write_memory:
             pass
@@ -276,34 +289,86 @@ class build:
         if reset:
             pass
 
-    ## none ##
-    def no_links(self):
-        pass
+    ## no links ##
+    def no_input_link_command(self, node):
+        self.command_value += get_no_input_link_command_logic(node)
+        self.indentation_level = self.indentation_level[:-1]
 
     ## command ##
-    def command(self):
-        pass
+    def command(self, node):
+        self.command_value += get_command_logic(node)
+        self.indentation_level = self.indentation_level[:-1]
 
     def script(self):
         pass
 
     ## logic ##
-    def switch(self):
-        pass
+    def switch(self, bool_node, command1_node, command2_node):
+        if bool_node.bl_idname == "FidgetCompareNode":
+            pass
+
+        elif bool_node.bl_idname == "FidgetIsModeNode":
+            self.ismode()
+
+            if command2_node.bl_idname == "FidgetCommandNode":
+                self.command(command2_node)
+
+            elif command2_node.bl_idname == "FidgetScriptNode":
+                self.script()
+
+            elif command2_node.bl_idname == "FidgetSwitchNode":
+                pass
+
+            if command1_node.bl_idname == "FidgetCommandNode":
+                self.command(command1_node)
+
+            elif command1_node.bl_idname == "FidgetScriptNode":
+                self.script()
+
+            elif command1_node.bl_idname == "FidgetSwitchNode":
+                pass
 
     def ismode(self):
+        self.command_value += get_ismode_logic(bool_node)
+        self.indentation_level += "\t"
+
+    def compare(self):
         pass
 
-    def compare(self, type, a, b):
-        logic = {
-            'AND': lambda a, b: "{}if {} and {}:".format(self.indentation_level, a, b),
-            'OR': lambda a, b: "{}if {} or {}:".format(self.indentation_level, a, b),
-            'NAND': lambda a, b: "{}if not ({} and {}):".format(self.indentation_level, a, b),
-            'NOR': lambda a, b: "{}if not ({} or {}):".format(self.indentation_level, a, b),
-            'XOR': lambda a, b: "{}if {} ^ {}:".format(self.indentation_level, a, b),
-            'XNOR': lambda a, b: "{}if not ({} ^ {}):".format(self.indentation_level, a, b)}
+    ## get ##
 
-        return logic[type](a, b)
+    @staticmethod
+    def get_linked_node(node, index=0):
+        return node.inputs[index].links[0].from_node
+
+    def get_no_input_link_command_logic(self, node, index=0):
+        return "{}{}\n".format(self.indentation_level, node.inputs[index].command)
+
+    def get_command_logic(self, node):
+        return "{}{}\n".format(self.indentation_level, node.outputs[0].command)
+
+    def get_ismode_logic(self, node):
+        logic = {
+            'OBJECT': "{}if context.active_object.mode == 'OBJECT':\n".format(self.indentation_level),
+            'EDIT': "{}if context.active_object.mode == 'EDIT':\n".format(self.indentation_level),
+            'SCULPT': "{}if context.active_object.mode == 'SCULPT':\n".format(self.indentation_level),
+            'VERTEX_PAINT': "{}if context.active_object.mode == 'VERTEX_PAINT':\n".format(self.indentation_level),
+            'WEIGHT_PAINT': "{}if context.active_object.mode == 'WEIGHT_PAINT':\n".format(self.indentation_level),
+            'TEXTURE_PAINT': "{}if context.active_object.mode == 'TEXTURE_PAINT':\n".format(self.indentation_level),
+            'PARTICLE_EDIT': "{}if context.active_object.mode == 'PARTICLE_EDIT':\n".format(self.indentation_level)}
+
+        return logic[node.mode.lower()]
+
+    def get_compare_logic(self, node, a, b):
+        logic = {
+            'AND': lambda a, b: "{}if {} and {}:\n".format(self.indentation_level, a, b),
+            'OR': lambda a, b: "{}if {} or {}:\n".format(self.indentation_level, a, b),
+            'NAND': lambda a, b: "{}if not ({} and {}):\n".format(self.indentation_level, a, b),
+            'NOR': lambda a, b: "{}if not ({} or {}):\n".format(self.indentation_level, a, b),
+            'XOR': lambda a, b: "{}if {} ^ {}:\n".format(self.indentation_level, a, b),
+            'XNOR': lambda a, b: "{}if not ({} ^ {}):\n".format(self.indentation_level, a, b)}
+
+        return logic[node.logic.lower()](a, b)
 
 # update
 class FidgetUpdate(Operator):
@@ -316,13 +381,11 @@ class FidgetUpdate(Operator):
     def execute(self, context):
         tree_name, output_name = eval(self.output_id)
         self.tree = bpy.data.node_groups[tree_name]
-
         self.output = self.tree.nodes[output_name]
-        # self.output_button = self.output.button.lower()
-        # self.output_mode = self.output.mode.lower()
+
         links = self.output.inputs[0].links
 
-        if len(links):
+        if len(self.links):
             self.input = links[0].from_node
 
             if self.input.bl_idname in {'FidgetCommandNode', 'FidgetScriptNode', 'FidgetSwitchNode'}:
