@@ -246,7 +246,7 @@ class build:
     def __init__(self, operator, context, input_id="", write_memory=False, write_file=False, reset=False): # TODO: implement write_file, write_memory and reset
         self.error = ""
         self.indentation_level = "\t"
-        self.command_value = "import bpy\n\ndef command(modal, context, event):\n\t"
+        self.command_value = "import bpy\n\ndef command(modal, context, event):\n"
 
         # tree_name, output_name = eval(self.output_id)
         # self.tree = bpy.data.node_groups[tree_name]
@@ -279,8 +279,8 @@ class build:
     ## assign ##
     def assign(self, operator, write_memory, write_file, reset):
 
+        self.command_value = self.command_value.expandtabs(tabsize=4)
         print(self.command_value)
-        self.command_value = self.command.expandtabs(tabsize=4)
 
         if write_memory:
             pass
@@ -291,12 +291,14 @@ class build:
 
     ## no links ##
     def no_input_link_command(self, node):
-        self.command_value += get_no_input_link_command_logic(node)
+        command = self.get_no_input_link_command_logic(node)
+        self.command_value += command
         self.indentation_level = self.indentation_level[:-1]
 
     ## command ##
     def command(self, node):
-        self.command_value += get_command_logic(node)
+        command = self.get_command_logic(node)
+        self.command_value += command
         self.indentation_level = self.indentation_level[:-1]
 
     def script(self):
@@ -328,8 +330,9 @@ class build:
             elif command1_node.bl_idname == "FidgetSwitchNode":
                 pass
 
-    def ismode(self):
-        self.command_value += get_ismode_logic(bool_node)
+    def ismode(self, node):
+        logic = self.get_ismode_logic(node)
+        self.command_value += logic
         self.indentation_level += "\t"
 
     def compare(self):
@@ -385,13 +388,13 @@ class FidgetUpdate(Operator):
 
         links = self.output.inputs[0].links
 
-        if len(self.links):
+        if len(links):
             self.input = links[0].from_node
 
             if self.input.bl_idname in {'FidgetCommandNode', 'FidgetScriptNode', 'FidgetSwitchNode'}:
-                self.build(self, context, self.input.bl_idname, write_memory=True)
+                build(self, context, self.input.bl_idname, write_memory=True)
 
-                if self.build.error:
+                if build.error:
                     self.report({'WARNING'}, self.build.error)
                     return {'CANCELLED'}
 
@@ -403,9 +406,9 @@ class FidgetUpdate(Operator):
         # no inputs
         else:
             if self.output.inputs[0].command:
-                self.build(self, context, self.input.bl_idname, write_memory=True)
+                build(self, context, write_memory=True)
 
-                if self.build.error:
+                if build.error:
                     self.report({'WARNING'}, self.build.error)
                     return {'CANCELLED'}
 
