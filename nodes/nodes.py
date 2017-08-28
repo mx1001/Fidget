@@ -242,7 +242,7 @@ class build:
     #   run last
     # else:
     #   run first
-    error = ""
+    error = "" # TODO
 
     def __init__(self, operator, context, input_id="", write_memory=False, write_file=False, reset=False): # TODO: implement write_file, write_memory and reset
         self.error = ""
@@ -289,8 +289,8 @@ class build:
             pass
 
     ## no links ##
-    def no_input_link_command(self, node):
-        command = self.get_no_input_link_command_logic(node)
+    def no_input_link_command(self, node, index=0):
+        command = self.get_no_input_link_command_logic(node, index)
         self.command_value += command
         self.indentation_level = self.indentation_level[:-1]
 
@@ -305,42 +305,55 @@ class build:
 
     ## logic ##
     def switch(self, node, bool_node, command1_node, command2_node):
-        if bool_node.bl_idname == "FidgetCompareNode":
-            pass
-
-        elif bool_node.bl_idname == "FidgetIsModeNode":
-            self.ismode(bool_node)
-
-            if command2_node.bl_idname == "FidgetCommandNode":
-                self.command(command2_node)
-
-            elif command2_node.bl_idname == "FidgetScriptNode":
-                self.script()
-
-            elif command2_node.bl_idname == "FidgetSwitchNode":
+        if bool_node:
+            if bool_node.bl_idname == "FidgetCompareNode":
                 pass
-                # node = command2_node
-                # bool_node = self.get_linked_input_node(node, index=0)
-                # command1_node = self.get_linked_input_node(node, index=1)
-                # command2_node = self.get_linked_input_node(node, index=2)
-                # self.switches(node, bool_node, command1_node, command2_node)
 
-            self.command_value += "{}else:\n".format(self.indentation_level)
-            self.indentation_level += "\t"
+            elif bool_node.bl_idname == "FidgetIsModeNode":
+                self.ismode(bool_node)
 
-            if command1_node.bl_idname == "FidgetCommandNode":
-                self.command(command1_node)
+                if command2_node:
+                    if command2_node.bl_idname == "FidgetCommandNode":
+                        self.command(command2_node)
 
-            elif command1_node.bl_idname == "FidgetScriptNode":
-                self.script()
+                    elif command2_node.bl_idname == "FidgetScriptNode":
+                        self.script()
 
-            elif command1_node.bl_idname == "FidgetSwitchNode":
-                pass
-                # node = command2_node
-                # bool_node = self.get_linked_input_node(node, index=0)
-                # command1_node = self.get_linked_input_node(node, index=1)
-                # command2_node = self.get_linked_input_node(node, index=2)
-                # self.switches(node, bool_node, command1_node, command2_node)
+                    elif command2_node.bl_idname == "FidgetSwitchNode":
+                        pass
+                        # node = command2_node
+                        # bool_node = self.get_linked_input_node(node, index=0)
+                        # command1_node = self.get_linked_input_node(node, index=1)
+                        # command2_node = self.get_linked_input_node(node, index=2)
+                        # self.switches(node, bool_node, command1_node, command2_node)
+                    else:
+                        pass # invalid input update build error
+                else:
+                    self.no_input_link_command(node, index=2)
+
+                self.command_value += "{}else:\n".format(self.indentation_level)
+                self.indentation_level += "\t"
+
+                if command1_node:
+                    if command1_node.bl_idname == "FidgetCommandNode":
+                        self.command(command1_node)
+
+                    elif command1_node.bl_idname == "FidgetScriptNode":
+                        self.script()
+
+                    elif command1_node.bl_idname == "FidgetSwitchNode":
+                        pass
+                        # node = command2_node
+                        # bool_node = self.get_linked_input_node(node, index=0)
+                        # command1_node = self.get_linked_input_node(node, index=1)
+                        # command2_node = self.get_linked_input_node(node, index=2)
+                        # self.switches(node, bool_node, command1_node, command2_node)
+                    else:
+                        pass # invalid input update build error
+                else:
+                    self.no_input_link_command(node, index=1)
+        else:
+            pass # update build error here
 
     def ismode(self, node):
         logic = self.get_ismode_logic(node)
