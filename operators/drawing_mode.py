@@ -88,7 +88,7 @@ class ViewportButtons(bpy.types.Operator):
 
     def modal(self, context, event):
 
-        # try:
+        try:
             if not self.validate_region():
                 self.cancel(context)
                 return {'CANCELLED'}
@@ -158,6 +158,7 @@ class ViewportButtons(bpy.types.Operator):
                         return {'RUNNING_MODAL'}
                     elif event.value == 'PRESS':
                         return {'RUNNING_MODAL'}
+                        pass
 
             if self.drag_mode == "MOVE":
                 self.center = self.mouse_pos
@@ -186,10 +187,10 @@ class ViewportButtons(bpy.types.Operator):
 
             return {'PASS_THROUGH'}
 
-        # except Exception as exc:
-        #     print(exc)
-        #     self.cancel(context)
-        #     return {'CANCELLED'}
+        except Exception as exc:
+            print(exc)
+            self.cancel(context)
+            return {'CANCELLED'}
 
     def cancel(self, context):
         bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
