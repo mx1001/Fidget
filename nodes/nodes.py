@@ -249,12 +249,6 @@ class build:
         self.indentation_level = "\t"
         self.command_value = "import bpy\n\ndef command(modal, context, event):\n"
 
-        # tree_name, output_name = eval(self.output_id)
-        # self.tree = bpy.data.node_groups[tree_name]
-        # self.output = self.tree.nodes[output_name]
-        # links = self.output.inputs[0].links
-        # self.input = links[0].from_node
-
         if input_id:
             if input_id == "FidgetCommandNode":
                 self.command(self.get_linked_input_node(operator.output))
@@ -265,7 +259,7 @@ class build:
                 bool_node = self.get_linked_input_node(operator.input, index=0)
                 command1_node = self.get_linked_input_node(operator.input, index=1)
                 command2_node = self.get_linked_input_node(operator.input, index=2)
-                self.switch(bool_node, command1_node, command2_node)
+                self.switch(node, bool_node, command1_node, command2_node)
 
         # no links
         else:
@@ -281,9 +275,8 @@ class build:
     ## assign ##
     def assign(self, operator, write_memory, write_file, reset):
 
-        self.command_value += "\t"
         self.command_value = self.command_value.expandtabs(tabsize=4)
-        print(self.command_value)
+        print("\n" + self.command_value + "\n")
 
         if write_memory:
             code = compile(self.command_value, '', 'exec')
@@ -355,10 +348,11 @@ class build:
         pass
 
     ## get ##
-
-    @staticmethod
-    def get_linked_input_node(node, index=0):
-        return node.inputs[index].links[0].from_node
+    def get_linked_input_node(self, node, index=0):
+        if len(node.inputs[index].links):
+            return node.inputs[index].links[0].from_node
+        else:
+            return None
 
     def get_no_input_link_command_logic(self, node, index=0):
         return "{}{}\n".format(self.indentation_level, node.inputs[index].command)
