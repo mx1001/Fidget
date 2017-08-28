@@ -257,13 +257,14 @@ class build:
 
         if input_id:
             if input_id == "FidgetCommandNode":
-                self.command(self.get_linked_node(operator.output))
+                self.command(self.get_linked_input_node(operator.output))
             elif input_id == "FidgetScriptNode":
                 pass
             elif input_id == "FidgetSwitchNode":
-                bool_node = self.get_linked_node(operator.input, index=0)
-                command1_node = self.get_linked_node(operator.input, index=1)
-                command2_node = self.get_linked_node(operator.input, index=2)
+                node = self.get_linked_input_node(operator.output)
+                bool_node = self.get_linked_input_node(operator.input, index=0)
+                command1_node = self.get_linked_input_node(operator.input, index=1)
+                command2_node = self.get_linked_input_node(operator.input, index=2)
                 self.switch(bool_node, command1_node, command2_node)
 
         # no links
@@ -280,6 +281,7 @@ class build:
     ## assign ##
     def assign(self, operator, write_memory, write_file, reset):
 
+        self.command_value += "\t"
         self.command_value = self.command_value.expandtabs(tabsize=4)
         print(self.command_value)
 
@@ -309,7 +311,7 @@ class build:
         pass
 
     ## logic ##
-    def switch(self, bool_node, command1_node, command2_node):
+    def switch(self, node, bool_node, command1_node, command2_node):
         if bool_node.bl_idname == "FidgetCompareNode":
             pass
 
@@ -323,7 +325,12 @@ class build:
                 self.script()
 
             elif command2_node.bl_idname == "FidgetSwitchNode":
-                pass
+
+                node = command2_node
+                bool_node = self.get_linked_input_node(node, index=0)
+                command1_node = self.get_linked_input_node(node, index=1)
+                command2_node = self.get_linked_input_node(node, index=2)
+                self.switches(node, bool_node, command1_node, command2_node)
 
             if command1_node.bl_idname == "FidgetCommandNode":
                 self.command(command1_node)
@@ -332,7 +339,12 @@ class build:
                 self.script()
 
             elif command1_node.bl_idname == "FidgetSwitchNode":
-                pass
+
+                node = command2_node
+                bool_node = self.get_linked_input_node(node, index=0)
+                command1_node = self.get_linked_input_node(node, index=1)
+                command2_node = self.get_linked_input_node(node, index=2)
+                self.switches(node, bool_node, command1_node, command2_node)
 
     def ismode(self, node):
         logic = self.get_ismode_logic(node)
@@ -345,7 +357,7 @@ class build:
     ## get ##
 
     @staticmethod
-    def get_linked_node(node, index=0):
+    def get_linked_input_node(node, index=0):
         return node.inputs[index].links[0].from_node
 
     def get_no_input_link_command_logic(self, node, index=0):
