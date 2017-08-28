@@ -309,7 +309,7 @@ class build:
             pass
 
         elif bool_node.bl_idname == "FidgetIsModeNode":
-            self.ismode()
+            self.ismode(bool_node)
 
             if command2_node.bl_idname == "FidgetCommandNode":
                 self.command(command2_node)
@@ -318,12 +318,15 @@ class build:
                 self.script()
 
             elif command2_node.bl_idname == "FidgetSwitchNode":
+                pass
+                # node = command2_node
+                # bool_node = self.get_linked_input_node(node, index=0)
+                # command1_node = self.get_linked_input_node(node, index=1)
+                # command2_node = self.get_linked_input_node(node, index=2)
+                # self.switches(node, bool_node, command1_node, command2_node)
 
-                node = command2_node
-                bool_node = self.get_linked_input_node(node, index=0)
-                command1_node = self.get_linked_input_node(node, index=1)
-                command2_node = self.get_linked_input_node(node, index=2)
-                self.switches(node, bool_node, command1_node, command2_node)
+            self.command_value += "{}else:\n".format(self.indentation_level)
+            self.indentation_level += "\t"
 
             if command1_node.bl_idname == "FidgetCommandNode":
                 self.command(command1_node)
@@ -332,12 +335,12 @@ class build:
                 self.script()
 
             elif command1_node.bl_idname == "FidgetSwitchNode":
-
-                node = command2_node
-                bool_node = self.get_linked_input_node(node, index=0)
-                command1_node = self.get_linked_input_node(node, index=1)
-                command2_node = self.get_linked_input_node(node, index=2)
-                self.switches(node, bool_node, command1_node, command2_node)
+                pass
+                # node = command2_node
+                # bool_node = self.get_linked_input_node(node, index=0)
+                # command1_node = self.get_linked_input_node(node, index=1)
+                # command2_node = self.get_linked_input_node(node, index=2)
+                # self.switches(node, bool_node, command1_node, command2_node)
 
     def ismode(self, node):
         logic = self.get_ismode_logic(node)
@@ -370,7 +373,7 @@ class build:
             'TEXTURE_PAINT': "{}if context.active_object.mode == 'TEXTURE_PAINT':\n".format(self.indentation_level),
             'PARTICLE_EDIT': "{}if context.active_object.mode == 'PARTICLE_EDIT':\n".format(self.indentation_level)}
 
-        return logic[node.mode.lower()]
+        return logic[node.mode]
 
     def get_compare_logic(self, node, a, b):
         logic = {
@@ -381,7 +384,7 @@ class build:
             'XOR': lambda a, b: "{}if {} ^ {}:\n".format(self.indentation_level, a, b),
             'XNOR': lambda a, b: "{}if not ({} ^ {}):\n".format(self.indentation_level, a, b)}
 
-        return logic[node.logic.lower()](a, b)
+        return logic[node.logic](a, b)
 
 # update
 class FidgetUpdate(Operator):
