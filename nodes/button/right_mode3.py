@@ -1,7 +1,7 @@
 import bpy
+from ... utils.object import get_current_selected_status
 
 def command(modal, context, event):
-    # hardops
     if context.active_object is None:
         pass
     else:
@@ -13,16 +13,12 @@ def command(modal, context, event):
             if active_object is not None and other_object is None and only_meshes_selected:
                 if object.hops.is_pending_boolean:
                     bpy.ops.hops.slash()
-                    self.info_text = "Slash"
                 else:
                     bpy.ops.hops.step()
-                    self.info_text = "Step"
 
         elif object.hops.status == "UNDEFINED":
             if active_object is not None and other_object is None and only_meshes_selected:
                 if object.hops.is_pending_boolean:
                     bpy.ops.hops.slash()
-                    self.info_text = "Cslash"
                 else:
                     bpy.ops.hops.adjust_tthick('INVOKE_DEFAULT')
-                    self.info_text = "Tthick"

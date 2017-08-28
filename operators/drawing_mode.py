@@ -2,11 +2,11 @@ import bpy
 from bgl import *
 import numpy as np
 from .. nodes import button
+# from .. nodes.button import left_mode1, left_mode2, left_mode3, right_mode1, right_mode2, right_mode3, top_mode1, top_mode2, top_mode3
 from .. graphic.manipulator import draw_manipulator
 from .. graphic.modes import draw_mode1, draw_mode2, draw_mode3
 from .. graphic.info import draw_info
 from .. utils.region import region_exists, ui_contexts_under_coord, calculate_angle
-from .. utils.object import get_current_selected_status
 from mathutils import Vector
 from .. preferences import get_preferences
 
@@ -88,7 +88,7 @@ class ViewportButtons(bpy.types.Operator):
 
     def modal(self, context, event):
 
-        try:
+        # try:
             if not self.validate_region():
                 self.cancel(context)
                 return {'CANCELLED'}
@@ -137,13 +137,13 @@ class ViewportButtons(bpy.types.Operator):
                         get_preferences().mode = "MODE3"
                         return {'RUNNING_MODAL'}
                     elif self.button_top:
-                        getattr(button, "top_{}".format(get_preferences().mode.lower()))(self, context, event)
+                        getattr(getattr(button, "top_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
                         return {'RUNNING_MODAL'}
                     elif self.button_right:
-                        getattr(button, "right_{}".format(get_preferences().mode.lower()))(self, context, event)
+                        getattr(getattr(button, "right_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
                         return {'RUNNING_MODAL'}
                     elif self.button_left:
-                        getattr(button, "left_{}".format(get_preferences().mode.lower()))(self, context, event)
+                        getattr(getattr(button, "left_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
                         return {'RUNNING_MODAL'}
 
             if self.drag_mode == "MOVE":
@@ -173,10 +173,10 @@ class ViewportButtons(bpy.types.Operator):
 
             return {'PASS_THROUGH'}
 
-        except Exception as exc:
-            print(exc)
-            self.cancel(context)
-            return {'CANCELLED'}
+        # except Exception as exc:
+        #     print(exc)
+        #     self.cancel(context)
+        #     return {'CANCELLED'}
 
     def cancel(self, context):
         bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')

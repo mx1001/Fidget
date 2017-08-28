@@ -5,7 +5,6 @@ import nodeitems_utils
 from nodeitems_utils import NodeCategory, NodeItem
 from . import button
 from .. preferences import get_preferences
-from .. operators.drawing_mode import button
 
 # node tree
 class FidgetNodeTree(NodeTree):
@@ -157,13 +156,13 @@ class FidgetOutputNode(Node, FidgetTreeNode):
             ("TOP", "Top Button", "")],
         default = "TOP")
 
-    lable = StringProperty(
-        name = "Label Text",
-        description = "Label to use when this button is highlighted",
+    info_text = StringProperty(
+        name = "Info Text",
+        description = "Info text to use when this button is highlighted",
         default = "")
 
-    # XXX: is there a need?
-    # value = EnumProperty(
+    # TODO
+    # event_value = EnumProperty(
     #     name = "Event Value",
     #     description = "Event value",
     #     items = [
@@ -177,8 +176,8 @@ class FidgetOutputNode(Node, FidgetTreeNode):
     def draw_buttons(self, context, layout):
         layout.prop(self, "mode", text="")
         layout.prop(self, "button", text="")
-        layout.prop(self, "label", text="")
-        # layout.prop(self, "value", text="")
+        # layout.prop(self, "info_text", text="")
+        # layout.prop(self, "event_value", text="")
 
         row = layout.row(align=True)
         op = row.operator("node.fidget_update")
@@ -214,6 +213,8 @@ node_categories = [
 # toggle option for script node
 # TODO: write_file and reset behavior
 # TODO: info_text behavior
+# TODO: event value handling
+# need to use node assigned event value and pass on the other to prevent click-through
 class build:
     # example output
     # # switch 1
@@ -283,7 +284,10 @@ class build:
         print(self.command_value)
 
         if write_memory:
-            pass
+            code = compile(self.command_value, '', 'exec')
+            new_command = {}
+            exec(code, new_command)
+            setattr(getattr(button, "{}_{}".format(operator.output.button.lower(), operator.output.mode.lower())), "command", new_command['command'])
         if write_file:
             pass
         if reset:
