@@ -1,5 +1,5 @@
 import bpy
-from ... utils.object import get_current_selected_status
+from .... utils.object import get_current_selected_status
 
 def command(modal, context, event):
     if context.active_object is None:
