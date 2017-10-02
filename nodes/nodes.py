@@ -183,6 +183,7 @@ class FidgetOutputNode(Node, FidgetTreeNode):
         row = layout.row(align=True)
         op = row.operator("node.fidget_update")
         op.output_id = str(self.toID())
+        op.write_memory = True
 
         # TODO
         # row.operator("node.fidget_save", text="", icon="FILE_TICK")
@@ -322,20 +323,20 @@ class build:
     ## logic ##
     def switch(self, node, bool_node, command1_node, command2_node):
         if bool_node:
-            if node_type(bool_node) == "compare":
+            if self.node_type(bool_node) == "compare":
                 pass
 
-            elif node_type(bool_node) == "mode":
+            elif self.node_type(bool_node) == "mode":
                 self.ismode(bool_node)
 
                 if command2_node:
-                    if node_type(command2_node) == "command":
+                    if self.node_type(command2_node) == "command":
                         self.command(command2_node)
 
-                    elif node_type(command2_node) == "script":
+                    elif self.node_type(command2_node) == "script":
                         self.script()
 
-                    elif node_type(command2_node) == "switch":
+                    elif self.node_type(command2_node) == "switch":
                         node = command2_node
                         bool_node = self.get_linked_input_node(node, index=0)
                         command1_node = self.get_linked_input_node(node, index=1)
@@ -350,14 +351,14 @@ class build:
                 self.indentation_level += "\t"
 
                 if command1_node:
-                    if node_type(command1_node) == "command":
+                    if self.node_type(command1_node) == "command":
                         self.command(command1_node)
 
-                    elif node_type(command1_node) == "script":
+                    elif self.node_type(command1_node) == "script":
                         self.script()
 
-                    elif node_type(command1_node) == "switch":
-                        node = command2_node
+                    elif self.node_type(command1_node) == "switch":
+                        node = command1_node
                         bool_node = self.get_linked_input_node(node, index=0)
                         command1_node = self.get_linked_input_node(node, index=1)
                         command2_node = self.get_linked_input_node(node, index=2)
