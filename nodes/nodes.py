@@ -4,6 +4,7 @@ from bpy.types import Operator, NodeTree, Node, NodeSocket
 import nodeitems_utils
 from nodeitems_utils import NodeCategory, NodeItem
 from . import button
+from .button import reset
 from .. preferences import get_preferences
 
 # node tree
@@ -242,12 +243,14 @@ class build:
     #   run last
     # else:
     #   run first
-    error = "" # TODO
+    error = False
 
     def __init__(self, operator, context, input_id="", write_memory=False, write_file=False, reset=False): # TODO: implement write_file, write_memory and reset
-        self.error = ""
+        self.error = False
+        self.error_message = "" # TODO make sure that python error gets printed to console only
         self.indentation_level = "\t"
         self.command_value = "import bpy\n\ndef command(modal, context, event):\n"
+        self.tree_data = {}
 
         if input_id:
             if input_id == "FidgetCommandNode":
@@ -271,6 +274,18 @@ class build:
     @staticmethod
     def validate_sockets(node):
         pass
+
+    @staticmethod
+    def node_type(node):
+        types = {
+            'FidgetCommandNode': 'command',
+            'FidgetScriptNode': 'script',
+            'FidgetSwitchNode': 'switch',
+            'FidgetCompareNode': 'compare',
+            'FidgetIsModeNode': 'mode',
+        }
+
+        return types[node.bl_idname]
 
     ## assign ##
     def assign(self, operator, write_memory, write_file, reset):
@@ -300,32 +315,32 @@ class build:
         self.command_value += command
         self.indentation_level = self.indentation_level[:-1]
 
+    ## script ##
     def script(self):
         pass
 
     ## logic ##
     def switch(self, node, bool_node, command1_node, command2_node):
         if bool_node:
-            if bool_node.bl_idname == "FidgetCompareNode":
+            if node_type(bool_node) == "compare":
                 pass
 
-            elif bool_node.bl_idname == "FidgetIsModeNode":
+            elif node_type(bool_node) == "mode":
                 self.ismode(bool_node)
 
                 if command2_node:
-                    if command2_node.bl_idname == "FidgetCommandNode":
+                    if node_type(command2_node) == "command":
                         self.command(command2_node)
 
-                    elif command2_node.bl_idname == "FidgetScriptNode":
+                    elif node_type(command2_node) == "script":
                         self.script()
 
-                    elif command2_node.bl_idname == "FidgetSwitchNode":
-                        pass
-                        # node = command2_node
-                        # bool_node = self.get_linked_input_node(node, index=0)
-                        # command1_node = self.get_linked_input_node(node, index=1)
-                        # command2_node = self.get_linked_input_node(node, index=2)
-                        # self.switches(node, bool_node, command1_node, command2_node)
+                    elif node_type(command2_node) == "switch":
+                        node = command2_node
+                        bool_node = self.get_linked_input_node(node, index=0)
+                        command1_node = self.get_linked_input_node(node, index=1)
+                        command2_node = self.get_linked_input_node(node, index=2)
+                        self.switch(node, bool_node, command1_node, command2_node)
                     else:
                         pass # invalid input update build error
                 else:
@@ -335,19 +350,18 @@ class build:
                 self.indentation_level += "\t"
 
                 if command1_node:
-                    if command1_node.bl_idname == "FidgetCommandNode":
+                    if node_type(command1_node) == "command":
                         self.command(command1_node)
 
-                    elif command1_node.bl_idname == "FidgetScriptNode":
+                    elif node_type(command1_node) == "script":
                         self.script()
 
-                    elif command1_node.bl_idname == "FidgetSwitchNode":
-                        pass
-                        # node = command2_node
-                        # bool_node = self.get_linked_input_node(node, index=0)
-                        # command1_node = self.get_linked_input_node(node, index=1)
-                        # command2_node = self.get_linked_input_node(node, index=2)
-                        # self.switches(node, bool_node, command1_node, command2_node)
+                    elif node_type(command1_node) == "switch":
+                        node = command2_node
+                        bool_node = self.get_linked_input_node(node, index=0)
+                        command1_node = self.get_linked_input_node(node, index=1)
+                        command2_node = self.get_linked_input_node(node, index=2)
+                        self.switch(node, bool_node, command1_node, command2_node)
                     else:
                         pass # invalid input update build error
                 else:
@@ -355,6 +369,7 @@ class build:
         else:
             pass # update build error here
 
+    ## bools ##
     def ismode(self, node):
         logic = self.get_ismode_logic(node)
         self.command_value += logic
@@ -399,6 +414,7 @@ class build:
 
         return logic[node.logic](a, b)
 
+
 # update
 class FidgetUpdate(Operator):
     bl_idname = "node.fidget_update"
@@ -406,6 +422,9 @@ class FidgetUpdate(Operator):
     bl_description = "Update this fidget button"
 
     output_id = StringProperty()
+    write_memory = BoolProperty()
+    write_file = BoolProperty()
+    reset = BoolProperty()
 
     def execute(self, context):
         tree_name, output_name = eval(self.output_id)
@@ -418,10 +437,10 @@ class FidgetUpdate(Operator):
             self.input = links[0].from_node
 
             if self.input.bl_idname in {'FidgetCommandNode', 'FidgetScriptNode', 'FidgetSwitchNode'}:
-                build(self, context, self.input.bl_idname, write_memory=True)
+                build(self, context, self.input.bl_idname, write_memory=self.write_memory, write_file=self.write_file, reset=self.reset)
 
                 if build.error:
-                    self.report({'WARNING'}, self.build.error)
+                    self.report({'WARNING'}, build.error_message)
                     return {'CANCELLED'}
 
             # if not valid link
@@ -432,10 +451,10 @@ class FidgetUpdate(Operator):
         # no inputs
         else:
             if self.output.inputs[0].command:
-                build(self, context, write_memory=True)
+                build(self, context, write_memory=self.write_memory, write_file=self.write_file, reset=self.reset)
 
                 if build.error:
-                    self.report({'WARNING'}, self.build.error)
+                    self.report({'WARNING'}, build.error_message)
                     return {'CANCELLED'}
 
             else:
