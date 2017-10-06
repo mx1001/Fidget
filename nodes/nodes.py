@@ -157,12 +157,12 @@ class FidgetOutputNode(Node, FidgetTreeNode):
             ("TOP", "Top Button", "")],
         default = "TOP")
 
-    info_text = StringProperty(
-        name = "Info Text",
-        description = "Info text to use when this button is highlighted",
-        default = "")
-
-    # TODO
+    # TODO: add in command,script,switch node, hide/disable if linked
+    # info_text = StringProperty(
+    #     name = "Info Text",
+    #     description = "Info text to use when this button is highlighted",
+    #     default = "")
+    #
     # event_value = EnumProperty(
     #     name = "Event Value",
     #     description = "Event value",
@@ -210,71 +210,42 @@ node_categories = [
 
 
 # TODO: safe compile
-# limit the __locals__ and globals to bpy, context and event
-# should be default for any command
-# toggle option for script node
+    # limit the __locals__ and globals to bpy, context and event?
+    # should be default for any command
+    # toggle option for script node
 # TODO: write_file and reset behavior
 # TODO: info_text behavior
 # TODO: event value handling
-# need to use node assigned event value and pass on the other to prevent click-through
+    # need to use node assigned event value and pass on the other to prevent click-through
 class build:
-    # example output
-    # # switch 1
-    # if istexture or ispaint: # compare, if there is not switch command 1 would be ran
-    #     run last # command
-    # else: # command 2 would be ran if there is not another switch
-    #     # switch 2
-    #     if isedit: # ismode
-    #         run last # command
-    #     else: # command 3 would be ran if there is not another switch
-    #         # switch 3
-    #         if isobject: # ismode
-    #             run last # command
-    #         else:
-    #             run everything else # command
-
-    # compare
-    # if is_node compare is_node:
-    #   run last
-    # else:
-    #   run first
-
-    # switch
-    # if is_node:
-    #   run last
-    # else:
-    #   run first
     error = False
 
     def __init__(self, operator, context, input_id="", write_memory=False, write_file=False, reset=False): # TODO: implement write_file, write_memory and reset
         self.error = False
-        self.error_message = "" # TODO make sure that python error gets printed to console only
+        self.error_message = "" # TODO
         self.indentation_level = "\t"
         self.command_value = "import bpy\n\ndef command(modal, context, event):\n"
-        self.tree_data = {}
 
         if input_id:
             if input_id == "FidgetCommandNode":
                 self.command(self.get_linked_input_node(operator.output))
+
             elif input_id == "FidgetScriptNode":
-                pass
+                self.script()
+
             elif input_id == "FidgetSwitchNode":
-                node = self.get_linked_input_node(operator.output)
-                bool_node = self.get_linked_input_node(operator.input, index=0)
-                command1_node = self.get_linked_input_node(operator.input, index=1)
-                command2_node = self.get_linked_input_node(operator.input, index=2)
-                self.switch(node, bool_node, command1_node, command2_node)
+                node, bool_node, command1, command2 = self.get_switch_input_nodes(operator.input)
+                self.base_switch = node
+                self.switch_data = [node]
+                self.switch(*self.get_switch_input_nodes(node))
+                self.get_switch_nodes(node, command1, command2)
 
         # no links
         else:
             self.no_input_link_command(operator.output)
 
         if not self.error:
-            self.assign(operator, write_memory, write_file, reset)
-
-    @staticmethod
-    def validate_sockets(node):
-        pass
+            self.set_output(operator, write_memory, write_file, reset)
 
     @staticmethod
     def node_type(node):
@@ -283,103 +254,50 @@ class build:
             'FidgetScriptNode': 'script',
             'FidgetSwitchNode': 'switch',
             'FidgetCompareNode': 'compare',
-            'FidgetIsModeNode': 'mode',
-        }
+            'FidgetIsModeNode': 'mode'}
 
         return types[node.bl_idname]
 
-    ## assign ##
-    def assign(self, operator, write_memory, write_file, reset):
-
+    ## set ##
+    def set_output(self, operator, write_memory, write_file, reset):
         self.command_value = self.command_value.expandtabs(tabsize=4)
         print("\n" + self.command_value + "\n")
 
         if write_memory:
-            code = compile(self.command_value, '', 'exec')
-            new_command = {}
-            exec(code, new_command)
-            setattr(getattr(button, "{}_{}".format(operator.output.button.lower(), operator.output.mode.lower())), "command", new_command['command'])
+            self.replace_command(operator)
         if write_file:
             pass
         if reset:
             pass
 
-    ## no links ##
-    def no_input_link_command(self, node, index=0):
-        command = self.get_no_input_link_command_logic(node, index)
-        self.command_value += command
-        self.indentation_level = self.indentation_level[:-1]
-
-    ## command ##
-    def command(self, node):
-        command = self.get_command_logic(node)
-        self.command_value += command
-        self.indentation_level = self.indentation_level[:-1]
-
-    ## script ##
-    def script(self):
-        pass
-
-    ## logic ##
-    def switch(self, node, bool_node, command1_node, command2_node):
-        if bool_node:
-            if self.node_type(bool_node) == "compare":
-                pass
-
-            elif self.node_type(bool_node) == "mode":
-                self.ismode(bool_node)
-
-                if command2_node:
-                    if self.node_type(command2_node) == "command":
-                        self.command(command2_node)
-
-                    elif self.node_type(command2_node) == "script":
-                        self.script()
-
-                    elif self.node_type(command2_node) == "switch":
-                        node = command2_node
-                        bool_node = self.get_linked_input_node(node, index=0)
-                        command1_node = self.get_linked_input_node(node, index=1)
-                        command2_node = self.get_linked_input_node(node, index=2)
-                        self.switch(node, bool_node, command1_node, command2_node)
-                    else:
-                        pass # invalid input update build error
-                else:
-                    self.no_input_link_command(node, index=2)
-
-                self.command_value += "{}else:\n".format(self.indentation_level)
-                self.indentation_level += "\t"
-
-                if command1_node:
-                    if self.node_type(command1_node) == "command":
-                        self.command(command1_node)
-
-                    elif self.node_type(command1_node) == "script":
-                        self.script()
-
-                    elif self.node_type(command1_node) == "switch":
-                        node = command1_node
-                        bool_node = self.get_linked_input_node(node, index=0)
-                        command1_node = self.get_linked_input_node(node, index=1)
-                        command2_node = self.get_linked_input_node(node, index=2)
-                        self.switch(node, bool_node, command1_node, command2_node)
-                    else:
-                        pass # invalid input update build error
-                else:
-                    self.no_input_link_command(node, index=1)
-        else:
-            pass # update build error here
-
-    ## bools ##
-    def ismode(self, node):
-        logic = self.get_ismode_logic(node)
-        self.command_value += logic
-        self.indentation_level += "\t"
-
-    def compare(self):
-        pass
+    ## replace ##
+    def replace_command(self, operator):
+        code = compile(self.command_value, '', 'exec')
+        new_command = {}
+        exec(code, new_command)
+        setattr(getattr(button, "{}_{}".format(operator.output.button.lower(), operator.output.mode.lower())), "command", new_command['command'])
 
     ## get ##
+    def get_switch_nodes(self, node, command1, command2):
+        self.get_switch_logic(command2)
+
+        if self.node_type(command2) != "switch":
+            getattr(self, self.node_type(command2))(command2)
+
+        if node == self.base_switch and len(self.switch_data) > 1:
+            self.indentation_level = "\t"
+        self.command_value += "{}else:\n".format(self.indentation_level)
+        self.indentation_level += "\t"
+
+        self.get_switch_logic(command1)
+
+        if self.node_type(command1) != "switch":
+            getattr(self, self.node_type(command1))(command1)
+            self.indentation_level = self.indentation_level[:-1]
+
+    def get_switch_input_nodes(self, node):
+        return (node, self.get_linked_input_node(node, index=0), self.get_linked_input_node(node, index=1), self.get_linked_input_node(node, index=2))
+
     def get_linked_input_node(self, node, index=0):
         if len(node.inputs[index].links):
             return node.inputs[index].links[0].from_node
@@ -391,6 +309,17 @@ class build:
 
     def get_command_logic(self, node):
         return "{}{}\n".format(self.indentation_level, node.outputs[0].command)
+
+    def get_switch_logic(self, node):
+        if self.node_type(node) == "switch" and node not in self.switch_data:
+
+            node, bool_node, command1, command2 = self.get_switch_input_nodes(node)
+            self.switch_data.append(node)
+            self.switch(*self.get_switch_input_nodes(node))
+            self.get_switch_nodes(node, command1, command2)
+
+    def get_script_logic(self, node):
+        pass
 
     def get_ismode_logic(self, node):
         logic = {
@@ -415,6 +344,45 @@ class build:
 
         return logic[node.logic](a, b)
 
+    ## nodes ##
+    def command(self, node):
+        command = self.get_command_logic(node)
+        self.command_value += command
+        self.indentation_level = self.indentation_level[:-1]
+
+    def script(self, node):
+        pass
+
+    def switch(self, node, bool_node, command1, command2):
+        if bool_node:
+            if self.node_type(bool_node) == "compare":
+                self.compare(bool_node)
+
+            elif self.node_type(bool_node) == "mode":
+                self.ismode(bool_node)
+
+        else:
+            pass # update build error here
+
+    ## bool nodes ##
+    def ismode(self, node):
+        logic = self.get_ismode_logic(node)
+        self.command_value += logic
+        self.indentation_level += "\t"
+
+    def compare(self, node):
+        # need to recursion check here; a and/or b could also be compare nodes
+        bool1 = self.get_linked_input_node(node, index=0)
+        bool2 = self.get_linked_input_node(node, index=1)
+        logic = self.get_compare_logic(node, bool1, bool2)
+        self.command_value += logic
+        self.indentation_level += "\t"
+
+    ## no links ##
+    def no_input_link_command(self, node, index=0):
+        command = self.get_no_input_link_command_logic(node, index)
+        self.command_value += command
+        self.indentation_level = self.indentation_level[:-1]
 
 # update
 class FidgetUpdate(Operator):
