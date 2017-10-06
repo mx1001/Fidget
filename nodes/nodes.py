@@ -157,7 +157,7 @@ class FidgetOutputNode(Node, FidgetTreeNode):
             ("TOP", "Top Button", "")],
         default = "TOP")
 
-    # TODO: add in command,script,switch node, hide/disable if linked
+    # TODO: add in command,script,switch node
     # info_text = StringProperty(
     #     name = "Info Text",
     #     description = "Info text to use when this button is highlighted",
@@ -216,7 +216,7 @@ node_categories = [
 # TODO: write_file and reset behavior
 # TODO: info_text behavior
 # TODO: event value handling
-    # need to use node assigned event value and pass on the other to prevent click-through
+    # need to use node assigned event value and return RUNNING_MODAL on the other to prevent click-through
 class build:
     error = False
 
@@ -279,21 +279,28 @@ class build:
 
     ## get ##
     def get_switch_nodes(self, node, command1, command2):
-        self.get_switch_logic(command2)
+        if command2:
+            self.get_switch_logic(command2)
 
-        if self.node_type(command2) != "switch":
-            getattr(self, self.node_type(command2))(command2)
+            if self.node_type(command2) != "switch":
+                getattr(self, self.node_type(command2))(command2)
+        else:
+            self.no_input_link_command(node, index=2)
 
         if node == self.base_switch and len(self.switch_data) > 1:
             self.indentation_level = "\t"
+
         self.command_value += "{}else:\n".format(self.indentation_level)
         self.indentation_level += "\t"
 
-        self.get_switch_logic(command1)
+        if command1:
+            self.get_switch_logic(command1)
 
-        if self.node_type(command1) != "switch":
-            getattr(self, self.node_type(command1))(command1)
-            self.indentation_level = self.indentation_level[:-1]
+            if self.node_type(command1) != "switch":
+                getattr(self, self.node_type(command1))(command1)
+                self.indentation_level = self.indentation_level[:-1]
+        else:
+            self.no_input_link_command(node, index=1)
 
     def get_switch_input_nodes(self, node):
         return (node, self.get_linked_input_node(node, index=0), self.get_linked_input_node(node, index=1), self.get_linked_input_node(node, index=2))
