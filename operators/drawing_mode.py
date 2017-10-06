@@ -137,26 +137,26 @@ class ViewportButtons(bpy.types.Operator):
                         get_preferences().mode = "MODE3"
                         return {'RUNNING_MODAL'}
 
-            if self.button_top:
+            if self.button_top: # TODO: add up/down option to the output node
                 if event.type == 'LEFTMOUSE':
                     if event.value == 'RELEASE':
-                        getattr(getattr(button, "top_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
                         return {'RUNNING_MODAL'}
                     elif event.value == 'PRESS':
+                        getattr(getattr(button, "top_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
                         return {'RUNNING_MODAL'}
             elif self.button_right:
                 if event.type == 'LEFTMOUSE':
                     if event.value == 'RELEASE':
-                        getattr(getattr(button, "right_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
                         return {'RUNNING_MODAL'}
                     elif event.value == 'PRESS':
+                        getattr(getattr(button, "right_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
                         return {'RUNNING_MODAL'}
             elif self.button_left:
                 if event.type == 'LEFTMOUSE':
                     if event.value == 'RELEASE':
-                        getattr(getattr(button, "left_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
                         return {'RUNNING_MODAL'}
                     elif event.value == 'PRESS':
+                        getattr(getattr(button, "left_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
                         return {'RUNNING_MODAL'}
                         pass
 
