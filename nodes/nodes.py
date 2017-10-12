@@ -403,7 +403,11 @@ class FidgetUpdate(Operator):
     reset = BoolProperty()
 
     def execute(self, context):
-        tree_name, output_name = eval(self.output_id)
+        try: tree_name, output_name = eval(self.output_id)
+        except Exception:
+            print(Exception)
+            tree_name, output_name = ('NodeTree', 'Output')
+
         self.tree = bpy.data.node_groups[tree_name]
         self.output = self.tree.nodes[output_name]
 
