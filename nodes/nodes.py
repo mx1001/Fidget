@@ -52,7 +52,7 @@ class FidgetTreeNode:
         return ntree.bl_idname == "FidgetNodeTree"
 
 # command
-class FidgetCommandNode(Node, FidgetTreeNode):
+class FidgetCommandNode(FidgetTreeNode, Node):
     bl_idname = "FidgetCommandNode"
     bl_label = "Command"
     bl_width_min = 150
@@ -64,7 +64,7 @@ class FidgetCommandNode(Node, FidgetTreeNode):
         layout.separator()
 
 # script
-class FidgetScriptNode(Node, FidgetTreeNode):
+class FidgetScriptNode(FidgetTreeNode, Node):
     bl_idname = "FidgetScriptNode"
     bl_label = "Script"
 
@@ -75,7 +75,7 @@ class FidgetScriptNode(Node, FidgetTreeNode):
         layout.separator()
 
 # is mode
-class FidgetIsModeNode(Node, FidgetTreeNode):
+class FidgetIsModeNode(FidgetTreeNode, Node):
     bl_idname = "FidgetIsModeNode"
     bl_label = "Is Mode"
 
@@ -99,7 +99,7 @@ class FidgetIsModeNode(Node, FidgetTreeNode):
         layout.prop(self, 'mode', text="")
 
 # switch
-class FidgetSwitchNode(Node, FidgetTreeNode):
+class FidgetSwitchNode(FidgetTreeNode, Node):
     bl_idname = "FidgetSwitchNode"
     bl_label = "Switch"
 
@@ -110,7 +110,7 @@ class FidgetSwitchNode(Node, FidgetTreeNode):
         self.outputs.new("FidgetCommandSocket", "")
 
 # compare
-class FidgetCompareNode(Node, FidgetTreeNode):
+class FidgetCompareNode(FidgetTreeNode, Node):
     bl_idname = "FidgetCompareNode"
     bl_label = "Compare"
 
@@ -135,7 +135,7 @@ class FidgetCompareNode(Node, FidgetTreeNode):
         layout.prop(self, "logic", text="")
 
 # output
-class FidgetOutputNode(Node, FidgetTreeNode):
+class FidgetOutputNode(FidgetTreeNode, Node):
     bl_idname = "FidgetOutputNode"
     bl_label = "Output"
 
@@ -182,7 +182,7 @@ class FidgetOutputNode(Node, FidgetTreeNode):
 
         row = layout.row(align=True)
         op = row.operator("node.fidget_update")
-        op.output_id = str(self.toID())
+        op.output_id = str((self.id_data.name, self.name))
         op.write_memory = True
 
         # TODO
