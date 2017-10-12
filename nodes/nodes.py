@@ -404,8 +404,8 @@ class FidgetUpdate(Operator):
 
     def execute(self, context):
         try: tree_name, output_name = eval(self.output_id)
-        except Exception:
-            print(Exception)
+        except Exception as e:
+            print(e)
             tree_name, output_name = ('NodeTree', 'Output')
 
         self.tree = bpy.data.node_groups[tree_name]
