@@ -4,7 +4,6 @@ from bpy.types import Operator, NodeTree, Node, NodeSocket
 import nodeitems_utils
 from nodeitems_utils import NodeCategory, NodeItem
 from . import button
-from .button import reset
 from .. preferences import get_preferences
 
 # node tree
@@ -20,6 +19,19 @@ class FidgetCommandSocket(NodeSocket):
     bl_idname = "FidgetCommandSocket"
     bl_label = "Evaluate Socket"
 
+    display_text = StringProperty(
+        name = "Display Text",
+        description = "The text to display while hovering over the button",
+        default = "Display Text")
+
+    event_value = EnumProperty(
+        name = "Event Value",
+        description = "Execute this command on either press or release of the LMB",
+        items = [
+            ("PRESS", "Press", ""),
+            ("RELEASE", "Release", "")],
+        default = "PRESS")
+
     command = StringProperty(
         name = "Command",
         description = "Command to execute",
@@ -27,20 +39,27 @@ class FidgetCommandSocket(NodeSocket):
 
     def draw(self, context, layout, node, text):
         if self.is_linked and not self.is_output:
-            layout.label(text=text)
+            pass
         elif node.bl_idname == "FidgetCommandNode":
-            row = layout.row()
-            row.scale_x = 5.0 # HACK: forces row to span width
-            row.prop(self, "command", text="")
+            self.row(context, layout, node, specials=False)
         elif self.is_output:
             layout.label(text="Output")
         else:
-            row = layout.row()
-            row.scale_x = 5.0
-            row.prop(self, "command", text="")
+            self.row(context, layout, node)
 
     def draw_color(self, context, node):
         return (1.0, 0.4, 0.22, 1.0)
+
+    def row(self, context, layout, node, specials=True):
+        col = layout.column() # HACK: forces row to span width
+        col.scale_x = 10.0
+        row = col.row(align=True)
+        row.prop(self, "command", text="")
+        if specials:
+            op = row.operator("fidget.command_options", text="", icon="COLLAPSEMENU")
+            op.tree = node.id_data.name
+            op.node = node.name
+            op.socket = self.name
 
 ## nodes ##
 
@@ -61,7 +80,47 @@ class FidgetCommandNode(FidgetTreeNode, Node):
         self.outputs.new("FidgetCommandSocket", "")
 
     def draw_buttons(self, context, layout):
-        layout.separator()
+        col = layout.column(align=True)
+        row = col.row(align=True)
+        row.prop(self.outputs[0], "display_text", text="")
+        row = col.row(align=True)
+        row.prop(self.outputs[0], "event_value", expand=True)
+
+# command options
+class FidgetCommandOptions(Operator):
+    bl_idname = "fidget.command_options"
+    bl_label = "Command Options"
+    bl_description = "Adjust command options"
+
+    tree = StringProperty()
+    node = StringProperty()
+    socket = StringProperty()
+
+    def draw(self, context):
+        layout = self.layout
+        tree = bpy.data.node_groups[self.tree]
+        node = tree.nodes[self.node]
+        if node.bl_idname == "FidgetCommandNode":
+            socket = node.outputs[0]
+        else:
+            socket = node.inputs[self.socket]
+        col = layout.column(align=True)
+        row = col.row(align=True)
+        row.prop(socket, "display_text", text="")
+        row = col.row(align=True)
+        row.prop(socket, "event_value", expand=True)
+
+    def execute(self, context):
+
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+
+        context.window_manager.invoke_popup(self, width=200)
+
+        return {'RUNNING_MODAL'}
+
+
 
 # script
 class FidgetScriptNode(FidgetTreeNode, Node):
@@ -105,8 +164,8 @@ class FidgetSwitchNode(FidgetTreeNode, Node):
 
     def init(self, context):
         self.inputs.new("NodeSocketBool", "Use Last")
-        self.inputs.new("FidgetCommandSocket", "")
-        self.inputs.new("FidgetCommandSocket", "")
+        self.inputs.new("FidgetCommandSocket", "Command 1")
+        self.inputs.new("FidgetCommandSocket", "Command 2")
         self.outputs.new("FidgetCommandSocket", "")
 
 # compare
@@ -157,20 +216,6 @@ class FidgetOutputNode(FidgetTreeNode, Node):
             ("TOP", "Top Button", "")],
         default = "TOP")
 
-    # TODO: add in command,script,switch node
-    # info_text = StringProperty(
-    #     name = "Info Text",
-    #     description = "Info text to use when this button is highlighted",
-    #     default = "")
-    #
-    # event_value = EnumProperty(
-    #     name = "Event Value",
-    #     description = "Event value",
-    #     items = [
-    #         ("PRESS", "Press", ""),
-    #         ("RELEASE", "Release", "")],
-    #     default = "PRESS")
-
     def init(self, context):
         self.inputs.new("FidgetCommandSocket", "")
 
@@ -181,13 +226,13 @@ class FidgetOutputNode(FidgetTreeNode, Node):
         # layout.prop(self, "event_value", text="")
 
         row = layout.row(align=True)
-        op = row.operator("node.fidget_update")
+        op = row.operator("fidget.update")
         op.output_id = str((self.id_data.name, self.name))
         op.write_memory = True
 
         # TODO
-        # row.operator("node.fidget_save", text="", icon="FILE_TICK")
-        # row.operator("node.fidget_reset", text="", icon="LOAD_FACTORY")
+        # row.operator("fidget.save", text="", icon="FILE_TICK")
+        # row.operator("fidget.reset", text="", icon="LOAD_FACTORY")
 
 # categories
 class FidgetNodeCategory(NodeCategory):
@@ -352,8 +397,9 @@ class build:
         return logic[node.logic](a, b)
 
     ## nodes ##
-    def command(self, node):
+    def command(self, node, socket_id=""):
         command = self.get_command_logic(node)
+        # in theory should be able to handle event value and display text here
         self.command_value += command
         self.indentation_level = self.indentation_level[:-1]
 
@@ -393,7 +439,7 @@ class build:
 
 # update
 class FidgetUpdate(Operator):
-    bl_idname = "node.fidget_update"
+    bl_idname = "fidget.update"
     bl_label = "Update"
     bl_description = "Update this fidget button"
 
@@ -444,22 +490,22 @@ class FidgetUpdate(Operator):
         return {'FINISHED'}
 
 # save
-# class FidgetSave(Operator):
-#     bl_idname = "node.fidget_save"
-#     bl_label = "Save"
-#     bl_description = "Permantly save this node behavior as the default for this fidget button"
-#
-#     def execute(self, context):
-#         return {'FINISHED'}
+class FidgetSave(Operator):
+    bl_idname = "fidget.save"
+    bl_label = "Save"
+    bl_description = "Permantly save this node behavior as the default for this fidget button"
+
+    def execute(self, context):
+        return {'FINISHED'}
 
 # reset
-# class FidgetReset(Operator):
-#     bl_idname = "node.fidget_reset"
-#     bl_label = "Reset"
-#     bl_description = "Reset this fidget button to defaults"
-#
-#     def execute(self, context):
-#         return {'FINISHED'}
+class FidgetReset(Operator):
+    bl_idname = "fidget.reset"
+    bl_label = "Reset"
+    bl_description = "Reset this fidget button to its default behavior"
+
+    def execute(self, context):
+        return {'FINISHED'}
 
 def nodes_register():
     nodeitems_utils.register_node_categories("FIDGET_NODES", node_categories)
