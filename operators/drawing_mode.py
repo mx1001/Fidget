@@ -137,28 +137,18 @@ class ViewportButtons(bpy.types.Operator):
                         get_preferences().mode = "MODE3"
                         return {'RUNNING_MODAL'}
 
-            if self.button_top: # TODO: add up/down option to the output node
+            if self.button_top:
                 if event.type == 'LEFTMOUSE':
-                    if event.value == 'RELEASE':
-                        return {'RUNNING_MODAL'}
-                    elif event.value == 'PRESS':
-                        getattr(getattr(button, "top_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
-                        return {'RUNNING_MODAL'}
+                    getattr(getattr(button, "top_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
+                    return {'RUNNING_MODAL'}
             elif self.button_right:
                 if event.type == 'LEFTMOUSE':
-                    if event.value == 'RELEASE':
-                        return {'RUNNING_MODAL'}
-                    elif event.value == 'PRESS':
-                        getattr(getattr(button, "right_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
-                        return {'RUNNING_MODAL'}
+                    getattr(getattr(button, "right_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
+                    return {'RUNNING_MODAL'}
             elif self.button_left:
                 if event.type == 'LEFTMOUSE':
-                    if event.value == 'RELEASE':
-                        return {'RUNNING_MODAL'}
-                    elif event.value == 'PRESS':
-                        getattr(getattr(button, "left_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
-                        return {'RUNNING_MODAL'}
-                        pass
+                    getattr(getattr(button, "left_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
+                    return {'RUNNING_MODAL'}
 
             if self.drag_mode == "MOVE":
                 self.center = self.mouse_pos
