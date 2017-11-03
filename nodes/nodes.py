@@ -6,15 +6,11 @@ from nodeitems_utils import NodeCategory, NodeItem
 from . import button
 from .. preferences import get_preferences
 
-# node tree
 class FidgetNodeTree(NodeTree):
     bl_idname = "FidgetNodeTree"
     bl_label = "Fidget Node Tree"
     bl_icon = "NODETREE"
 
-## sockets ##
-
-# eval socket
 class FidgetCommandSocket(NodeSocket):
     bl_idname = "FidgetCommandSocket"
     bl_label = "Evaluate Socket"
@@ -61,16 +57,12 @@ class FidgetCommandSocket(NodeSocket):
             op.node = node.name
             op.socket = self.name
 
-## nodes ##
-
-# node mix-in
 class FidgetTreeNode:
 
     @classmethod
     def poll(cls, ntree):
         return ntree.bl_idname == "FidgetNodeTree"
 
-# command
 class FidgetCommandNode(FidgetTreeNode, Node):
     bl_idname = "FidgetCommandNode"
     bl_label = "Command"
@@ -86,7 +78,6 @@ class FidgetCommandNode(FidgetTreeNode, Node):
         row = col.row(align=True)
         row.prop(self.outputs[0], "event_value", expand=True)
 
-# command options
 class FidgetCommandOptions(Operator):
     bl_idname = "fidget.command_options"
     bl_label = "Command Options"
@@ -120,9 +111,6 @@ class FidgetCommandOptions(Operator):
 
         return {'RUNNING_MODAL'}
 
-
-
-# script
 class FidgetScriptNode(FidgetTreeNode, Node):
     bl_idname = "FidgetScriptNode"
     bl_label = "Script"
@@ -133,7 +121,6 @@ class FidgetScriptNode(FidgetTreeNode, Node):
     def draw_buttons(self, context, layout):
         layout.separator()
 
-# is mode
 class FidgetIsModeNode(FidgetTreeNode, Node):
     bl_idname = "FidgetIsModeNode"
     bl_label = "Is Mode"
@@ -157,7 +144,6 @@ class FidgetIsModeNode(FidgetTreeNode, Node):
     def draw_buttons(self, context, layout):
         layout.prop(self, 'mode', text="")
 
-# switch
 class FidgetSwitchNode(FidgetTreeNode, Node):
     bl_idname = "FidgetSwitchNode"
     bl_label = "Switch"
@@ -168,7 +154,6 @@ class FidgetSwitchNode(FidgetTreeNode, Node):
         self.inputs.new("FidgetCommandSocket", "Command 2")
         self.outputs.new("FidgetCommandSocket", "")
 
-# compare
 class FidgetCompareNode(FidgetTreeNode, Node):
     bl_idname = "FidgetCompareNode"
     bl_label = "Compare"
@@ -193,7 +178,6 @@ class FidgetCompareNode(FidgetTreeNode, Node):
     def draw_buttons(self, context, layout):
         layout.prop(self, "logic", text="")
 
-# output
 class FidgetOutputNode(FidgetTreeNode, Node):
     bl_idname = "FidgetOutputNode"
     bl_label = "Output"
@@ -222,19 +206,16 @@ class FidgetOutputNode(FidgetTreeNode, Node):
     def draw_buttons(self, context, layout):
         layout.prop(self, "mode", text="")
         layout.prop(self, "button", text="")
-        # layout.prop(self, "info_text", text="")
-        # layout.prop(self, "event_value", text="")
 
         row = layout.row(align=True)
         op = row.operator("fidget.update")
         op.output_id = str((self.id_data.name, self.name))
         op.write_memory = True
 
-        # TODO
+        # TODO: write_file and reset behavior
         # row.operator("fidget.save", text="", icon="FILE_TICK")
         # row.operator("fidget.reset", text="", icon="LOAD_FACTORY")
 
-# categories
 class FidgetNodeCategory(NodeCategory):
 
     @classmethod
@@ -254,18 +235,14 @@ node_categories = [
         NodeItem("NodeReroute")])]
 
 
-# TODO: safe compile
+# TODO: safe compile?
     # limit the __locals__ and globals to bpy, context and event?
-    # should be default for any command
-    # toggle option for script node
-# TODO: write_file and reset behavior
-# TODO: info_text behavior
-# TODO: event value handling
-    # need to use node assigned event value and return RUNNING_MODAL on the other to prevent click-through
+    # should be default for command?
+    # toggle option for script
 class build:
     error = False
 
-    def __init__(self, operator, context, input_id="", write_memory=False, write_file=False, reset=False): # TODO: implement write_file, write_memory and reset
+    def __init__(self, operator, context, input_id="", write_memory=False, write_file=False, reset=False):
         self.error = False
         self.error_message = "" # TODO
         self.indentation_level = "\t"
@@ -285,7 +262,6 @@ class build:
                 self.switch(*self.get_switch_input_nodes(node))
                 self.get_switch_nodes(node, command1, command2)
 
-        # no links
         else:
             self.no_input_link_command(operator.output)
 
@@ -303,7 +279,6 @@ class build:
 
         return types[node.bl_idname]
 
-    ## set ##
     def set_output(self, operator, write_memory, write_file, reset):
         self.command_value = self.command_value.expandtabs(tabsize=4)
         print("\n" + self.command_value + "\n")
@@ -315,14 +290,12 @@ class build:
         if reset:
             pass
 
-    ## replace ##
     def replace_command(self, operator):
         code = compile(self.command_value, '', 'exec')
         new_command = {}
         exec(code, new_command)
         setattr(getattr(button, "{}_{}".format(operator.output.button.lower(), operator.output.mode.lower())), "command", new_command['command'])
 
-    ## get ##
     def get_switch_nodes(self, node, command1, command2):
         if command2:
             self.get_switch_logic(command2)
@@ -396,11 +369,9 @@ class build:
 
         return logic[node.logic](a, b)
 
-    ## nodes ##
-    def command(self, node, socket_id=""):
-        command = self.get_command_logic(node)
-        # in theory should be able to handle event value and display text here
-        self.command_value += command
+    def command(self, node):
+        # if check the node to find the sockets, update command value with event and display text, -> function
+        self.command_value += self.get_command_logic(node)
         self.indentation_level = self.indentation_level[:-1]
 
     def script(self, node):
@@ -417,27 +388,21 @@ class build:
         else:
             pass # update build error here
 
-    ## bool nodes ##
     def ismode(self, node):
-        logic = self.get_ismode_logic(node)
-        self.command_value += logic
+        self.command_value += self.get_ismode_logic(node)
         self.indentation_level += "\t"
 
     def compare(self, node):
-        # need to recursion check here; a and/or b could also be compare nodes
+        # TODO: need to recursion check here; a and/or b could also be compare nodes
         bool1 = self.get_linked_input_node(node, index=0)
         bool2 = self.get_linked_input_node(node, index=1)
-        logic = self.get_compare_logic(node, bool1, bool2)
-        self.command_value += logic
+        self.command_value += self.get_compare_logic(node, bool1, bool2)
         self.indentation_level += "\t"
 
-    ## no links ##
     def no_input_link_command(self, node, index=0):
-        command = self.get_no_input_link_command_logic(node, index)
-        self.command_value += command
+        self.command_value += self.get_no_input_link_command_logic(node, index)
         self.indentation_level = self.indentation_level[:-1]
 
-# update
 class FidgetUpdate(Operator):
     bl_idname = "fidget.update"
     bl_label = "Update"
@@ -469,12 +434,10 @@ class FidgetUpdate(Operator):
                     self.report({'WARNING'}, build.error_message)
                     return {'CANCELLED'}
 
-            # if not valid link
             else:
                 self.report({'WARNING'}, "{} node is an invalid input command for {}".format(self.input.bl_label.capitalize(), self.output.bl_label.lower()))
                 return {'CANCELLED'}
 
-        # no inputs
         else:
             if self.output.inputs[0].command:
                 build(self, context, write_memory=self.write_memory, write_file=self.write_file, reset=self.reset)
@@ -489,7 +452,6 @@ class FidgetUpdate(Operator):
 
         return {'FINISHED'}
 
-# save
 class FidgetSave(Operator):
     bl_idname = "fidget.save"
     bl_label = "Save"
@@ -498,7 +460,6 @@ class FidgetSave(Operator):
     def execute(self, context):
         return {'FINISHED'}
 
-# reset
 class FidgetReset(Operator):
     bl_idname = "fidget.reset"
     bl_label = "Reset"
