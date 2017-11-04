@@ -1,4 +1,4 @@
 import bpy
 
-def command(modal, context, event):
+def command(self, context, event):
     pass
