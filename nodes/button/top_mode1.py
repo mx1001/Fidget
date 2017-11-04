@@ -7,7 +7,7 @@ def command(self, context, event):
     else:
         if bpy.context.active_object.mode == 'EDIT':
             if tuple(bpy.context.scene.tool_settings.mesh_select_mode) == (False, False, True):
-                self.info_text = "Z Transform"
+                self.info_text = "Extrude"
                 if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
                     bpy.ops.mesh.extrude_region_move()
                     bpy.ops.transform.translate('INVOKE_DEFAULT', constraint_axis=(False, False, True), constraint_orientation='NORMAL')
