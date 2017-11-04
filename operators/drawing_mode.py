@@ -138,17 +138,14 @@ class ViewportButtons(bpy.types.Operator):
                         return {'RUNNING_MODAL'}
 
             if self.button_top:
-                if event.type == 'LEFTMOUSE':
-                    getattr(getattr(button, "top_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
-                    return {'RUNNING_MODAL'}
+                getattr(getattr(button, "top_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
+                return {'RUNNING_MODAL'}
             elif self.button_right:
-                if event.type == 'LEFTMOUSE':
-                    getattr(getattr(button, "right_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
-                    return {'RUNNING_MODAL'}
+                getattr(getattr(button, "right_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
+                return {'RUNNING_MODAL'}
             elif self.button_left:
-                if event.type == 'LEFTMOUSE':
-                    getattr(getattr(button, "left_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
-                    return {'RUNNING_MODAL'}
+                getattr(getattr(button, "left_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
+                return {'RUNNING_MODAL'}
 
             if self.drag_mode == "MOVE":
                 self.center = self.mouse_pos
