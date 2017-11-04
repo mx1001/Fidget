@@ -66,6 +66,23 @@ class FidgetCommandSocket(NodeSocket):
             op.node = node.name
             op.socket = self.name
 
+class FidgetStatementSocket(NodeSocket):
+    bl_idname = "FidgetStatementSocket"
+    bl_label = "Evaluate Socket"
+
+    statement = StringProperty(
+        name = "Statement",
+        description = "Statement to evaluate",
+        default = "")
+
+    def draw(self, context, layout, node, text):
+        row = layout.row(align=True)
+        row.scale_x = 10.0
+        row.prop(self, "statement", text="")
+
+    def draw_color(self, context, node):
+        return (0.698, 0.651, 0.188, 1.0)
+
 class FidgetTreeNode:
 
     @classmethod
@@ -83,7 +100,7 @@ class FidgetCommandNode(FidgetTreeNode, Node):
     def draw_buttons(self, context, layout):
         col = layout.column(align=True)
         row = col.row(align=True)
-        row.prop(self.outputs[0], "display_text", text="")
+        row.prop(self.outputs[0], "info_text", text="")
         row = col.row(align=True)
         row.prop(self.outputs[0], "event_value", expand=True)
 
@@ -140,29 +157,6 @@ class FidgetScriptNode(FidgetTreeNode, Node):
     def draw_buttons(self, context, layout):
         layout.separator()
 
-class FidgetIsModeNode(FidgetTreeNode, Node):
-    bl_idname = "FidgetIsModeNode"
-    bl_label = "Is Mode"
-
-    mode = EnumProperty(
-        name = "Object Mode",
-        description = "Mode requirements to allow executing",
-        items = [
-            ("PARTICLE_EDIT", "Particle Edit", ""),
-            ("TEXTURE_PAINT", "Texture Paint", ""),
-            ("WEIGHT_PAINT", "Weight Paint", ""),
-            ("VERTEX_PAINT", "Vertex Paint", ""),
-            ("SCULPT", "Sculpt", ""),
-            ("EDIT", "Edit", ""),
-            ("OBJECT", "Object", "")],
-        default = "OBJECT")
-
-    def init(self, context):
-        self.outputs.new("NodeSocketBool", "")
-
-    def draw_buttons(self, context, layout):
-        layout.prop(self, 'mode', text="")
-
 class FidgetCompareNode(FidgetTreeNode, Node):
     bl_idname = "FidgetCompareNode"
     bl_label = "Compare"
@@ -186,6 +180,39 @@ class FidgetCompareNode(FidgetTreeNode, Node):
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "logic", text="")
+
+class FidgetIsModeNode(FidgetTreeNode, Node):
+    bl_idname = "FidgetIsModeNode"
+    bl_label = "Is Mode"
+
+    mode = EnumProperty(
+        name = "Object Mode",
+        description = "Mode requirements to allow executing",
+        items = [
+            ("PARTICLE_EDIT", "Particle Edit", ""),
+            ("TEXTURE_PAINT", "Texture Paint", ""),
+            ("WEIGHT_PAINT", "Weight Paint", ""),
+            ("VERTEX_PAINT", "Vertex Paint", ""),
+            ("SCULPT", "Sculpt", ""),
+            ("EDIT", "Edit", ""),
+            ("OBJECT", "Object", "")],
+        default = "OBJECT")
+
+    def init(self, context):
+        self.outputs.new("NodeSocketBool", "")
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, 'mode', text="")
+
+class FidgetStatementNode(FidgetTreeNode, Node):
+    bl_idname = "FidgetStatementNode"
+    bl_label = "Statement"
+
+    def init(self, context):
+        self.outputs.new("FidgetStatementSocket", "")
+
+    def draw_buttons(self, context, layout):
+        layout.separator()
 
 class FidgetOutputNode(FidgetTreeNode, Node):
     bl_idname = "FidgetOutputNode"
@@ -237,8 +264,9 @@ node_categories = [
         NodeItem("FidgetSwitchNode"),
         NodeItem("FidgetScriptNode")]),
     FidgetNodeCategory("FIDGETLOGIC", "Logic", items=[
-        NodeItem("FidgetIsModeNode"),
-        NodeItem("FidgetCompareNode")]),
+        NodeItem("FidgetCompareNode"),
+        NodeItem("FidgetStatementNode"),
+        NodeItem("FidgetIsModeNode")]),
     FidgetNodeCategory("FIDGETOUTPUT", "Output", items=[
         NodeItem("FidgetOutputNode")]),
     FidgetNodeCategory("LAYOUT", "Layout", items=[
@@ -276,7 +304,8 @@ class build:
             'FidgetScriptNode': 'script',
             'FidgetSwitchNode': 'switch',
             'FidgetCompareNode': 'compare',
-            'FidgetIsModeNode': 'ismode'}
+            'FidgetIsModeNode': 'ismode',
+            'FidgetStatementNode': 'statement'}
 
         return types[node.bl_idname]
 
@@ -337,7 +366,7 @@ class build:
         return "{0}self.info_text = '{1}'\n{0}if event.type == 'LEFTMOUSE' and event.value == '{2}':\n{0}\t{3}\n".format(self.indentation_level, node.inputs[index].info_text, node.inputs[index].event_value, node.inputs[index].command)
 
     def get_command_logic(self, node):
-        return "{0}self.info_text = '{1}'\n{0}if event.type == 'LEFTMOUSE' and event.value == '{2}':\n{0}\t{3}\n".format(self.indentation_level, node.inputs[index].info_text, node.inputs[index].event_value, node.inputs[index].command)
+        return "{0}self.info_text = '{1}'\n{0}if event.type == 'LEFTMOUSE' and event.value == '{2}':\n{0}\t{3}\n".format(self.indentation_level, node.outputs[0].info_text, node.outputs[0].event_value, node.outputs[0].command)
 
     def get_switch_logic(self, node):
         if self.node_type(node) == "switch" and node not in self.switch_data:
@@ -345,6 +374,18 @@ class build:
 
     def get_script_logic(self, node):
         pass
+
+    def get_compare_logic(self, node):
+        logic = {
+            'AND': lambda a, b: "{} and {}".format(a, b),
+            'OR': lambda a, b: "{} or {}".format(a, b),
+            'NAND': lambda a, b: "not ({} and {})".format(a, b),
+            'NOR': lambda a, b: "not ({} or {})".format(a, b),
+            'XOR': lambda a, b: "{} ^ {}".format(a, b),
+            'XNOR': lambda a, b: "not ({} ^ {})".format(a, b)}
+
+        node, bool1, bool2 = self.get_compare_input_nodes(node)
+        return logic[node.logic](getattr(self, "get_{}_logic".format(self.node_type(bool1)))(bool1), getattr(self, "get_{}_logic".format(self.node_type(bool2)))(bool2))
 
     def get_ismode_logic(self, node):
         logic = {
@@ -358,17 +399,8 @@ class build:
 
         return "(context.active_object and {})".format(logic[node.mode])
 
-    def get_compare_logic(self, node):
-        logic = {
-            'AND': lambda a, b: "{} and {}".format(a, b),
-            'OR': lambda a, b: "{} or {}".format(a, b),
-            'NAND': lambda a, b: "not ({} and {})".format(a, b),
-            'NOR': lambda a, b: "not ({} or {})".format(a, b),
-            'XOR': lambda a, b: "{} ^ {}".format(a, b),
-            'XNOR': lambda a, b: "not ({} ^ {})".format(a, b)}
-
-        node, bool1, bool2 = self.get_compare_input_nodes(node)
-        return logic[node.logic](getattr(self, "get_{}_logic".format(self.node_type(bool1)))(bool1), getattr(self, "get_{}_logic".format(self.node_type(bool2)))(bool2))
+    def get_statement_logic(self, node):
+        return node.outputs[0].statement
 
     def command(self, node):
         self.command_value += self.get_command_logic(node)
@@ -383,12 +415,16 @@ class build:
         getattr(self, self.node_type(bool))(bool)
         self.get_switch_nodes(node, command1, command2)
 
+    def compare(self, node):
+        self.command_value += "{}if {}:\n".format(self.indentation_level, self.get_compare_logic(node))
+        self.indentation_level += "\t"
+
     def ismode(self, node):
         self.command_value += "{}if {}:\n".format(self.indentation_level, self.get_ismode_logic(node))
         self.indentation_level += "\t"
 
-    def compare(self, node):
-        self.command_value += "{}if {}:\n".format(self.indentation_level, self.get_compare_logic(node))
+    def statement(self, node):
+        self.command_value += "{}if {}:\n".format(self.indentation_level, self.get_statement_logic(node))
         self.indentation_level += "\t"
 
     def no_input_link_command(self, node, index=0):
