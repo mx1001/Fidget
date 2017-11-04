@@ -84,6 +84,7 @@ class FidgetStatementSocket(NodeSocket):
         return (0.698, 0.651, 0.188, 1.0)
 
 class FidgetTreeNode:
+    bl_width_min = 150
 
     @classmethod
     def poll(cls, ntree):
@@ -92,7 +93,6 @@ class FidgetTreeNode:
 class FidgetCommandNode(FidgetTreeNode, Node):
     bl_idname = "FidgetCommandNode"
     bl_label = "Command"
-    bl_width_min = 150
 
     def init(self, context):
         self.outputs.new("FidgetCommandSocket", "")
@@ -218,15 +218,6 @@ class FidgetOutputNode(FidgetTreeNode, Node):
     bl_idname = "FidgetOutputNode"
     bl_label = "Output"
 
-    mode = EnumProperty(
-        name = "Fidget Mode",
-        description = "The fidget mode to target",
-        items = [
-            ("MODE3", "Mode 3", ""),
-            ("MODE2", "Mode 2", ""),
-            ("MODE1", "Mode 1", "")],
-        default = "MODE1")
-
     button = EnumProperty(
         name = "Fidget Button",
         description = "The fidget button to target",
@@ -236,12 +227,21 @@ class FidgetOutputNode(FidgetTreeNode, Node):
             ("TOP", "Top Button", "")],
         default = "TOP")
 
+    mode = EnumProperty(
+        name = "Fidget Mode",
+        description = "The fidget mode to target",
+        items = [
+            ("MODE3", "Mode 3", ""),
+            ("MODE2", "Mode 2", ""),
+            ("MODE1", "Mode 1", "")],
+        default = "MODE1")
+
     def init(self, context):
         self.inputs.new("FidgetCommandSocket", "")
 
     def draw_buttons(self, context, layout):
-        layout.prop(self, "mode", text="")
         layout.prop(self, "button", text="")
+        layout.prop(self, "mode", text="")
 
         row = layout.row(align=True)
         op = row.operator("fidget.update")
@@ -284,6 +284,7 @@ class build:
         self.error = False
         self.error_message = "" # TODO: error message
         self.indentation_level = "\t"
+        self.indent_count = 1
         self.command_value = "import bpy\n\ndef command(self, context, event):\n"
 
         if input_id:
@@ -336,7 +337,11 @@ class build:
             self.no_input_link_command(node, index=2)
 
         if node == self.base_switch and len(self.switch_data) > 1:
-            self.indentation_level = "\t"
+            self.indentation_level = "\t"*self.indent_count
+            if command1:
+                if self.node_type(command1) == "switch":
+                    self.base_switch = command1
+                    self.indent_count += 1
 
         self.command_value += "{}else:\n".format(self.indentation_level)
         self.indentation_level += "\t"
@@ -377,12 +382,12 @@ class build:
 
     def get_compare_logic(self, node):
         logic = {
-            'AND': lambda a, b: "{} and {}".format(a, b),
-            'OR': lambda a, b: "{} or {}".format(a, b),
-            'NAND': lambda a, b: "not ({} and {})".format(a, b),
-            'NOR': lambda a, b: "not ({} or {})".format(a, b),
-            'XOR': lambda a, b: "{} ^ {}".format(a, b),
-            'XNOR': lambda a, b: "not ({} ^ {})".format(a, b)}
+            'AND': lambda a, b: "({} and {})".format(a, b),
+            'OR': lambda a, b: "({} or {})".format(a, b),
+            'NAND': lambda a, b: "(not ({} and {}))".format(a, b),
+            'NOR': lambda a, b: "(not ({} or {}))".format(a, b),
+            'XOR': lambda a, b: "(({} and not {}) or (not {} and {}))".format(a, b),
+            'XNOR': lambda a, b: "(not (({} and not {}) or (not {} and {})))".format(a, b)}
 
         node, bool1, bool2 = self.get_compare_input_nodes(node)
         return logic[node.logic](getattr(self, "get_{}_logic".format(self.node_type(bool1)))(bool1), getattr(self, "get_{}_logic".format(self.node_type(bool2)))(bool2))
