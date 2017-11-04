@@ -341,7 +341,7 @@ class build:
 
     def get_switch_logic(self, node):
         if self.node_type(node) == "switch" and node not in self.switch_data:
-            self.switch(node, bool, command1, command2)
+            self.switch(node)
 
     def get_script_logic(self, node):
         pass
@@ -382,7 +382,6 @@ class build:
         self.switch_data.append(node)
         getattr(self, self.node_type(bool))(bool)
         self.get_switch_nodes(node, command1, command2)
-        del self.switch_data
 
     def ismode(self, node):
         self.command_value += "{}if {}:\n".format(self.indentation_level, self.get_ismode_logic(node))
