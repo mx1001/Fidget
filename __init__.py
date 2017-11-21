@@ -37,15 +37,25 @@ from . nodes.nodes import nodes_register, nodes_unregister
 # from . registration import register_all, unregister_all
 
 
+def draw_header(cls, context):
+    if "Fidget" in context.user_preferences.addons:
+        cls.layout.operator("wm.addon_disable", text="Disable Fidget", icon="CHECKBOX_HLT", emboss=False).module = "Fidget"
+    else:
+        cls.layout.operator("wm.addon_enable", text="Enable Fidget", icon="CHECKBOX_DEHLT", emboss=False).module = "Fidget"
+bpy.types.NODE_HT_header.append(draw_header)
+
 def register():
     bpy.utils.register_module(__name__)
     nodes_register()
+    # bpy.types.NODE_HT_header.append(draw_header)
     # register_all()
     print("Registered {} with {} modules".format(bl_info["name"], len(modules)))
 
 
 def unregister():
     bpy.utils.unregister_module(__name__)
+    # remove commands
     nodes_unregister()
+    # bpy.types.NODE_HT_header.remove(draw_header)
     # unregister_all()
     print("Unregistered {}".format(bl_info["name"]))
