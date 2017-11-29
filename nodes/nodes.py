@@ -1,3 +1,7 @@
+# THIS SESSION TODO:
+# get switch working using switch data dic
+# add node properties that are fed into socket properties on init (allow for calling node with filled in params)
+
 import traceback
 
 import bpy
@@ -403,19 +407,13 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
 
         tree = bpy.data.node_groups[tree_name]
         self.output = tree.nodes[output_name]
+        self.input = self.output.inputs[0].links[0].from_node if len(self.output.inputs[0].links) else None
 
         links = self.output.inputs[0].links
 
-        if len(links):
-            self.input = links[0].from_node
-
+        if self.input:
             if self.input.bl_idname in {'FidgetCommandNode', 'FidgetScriptNode', 'FidgetSwitchNode'}:
                 self.build(context)
-
-                if self.error_message:
-                    self.report({'WARNING'}, self.error_message)
-
-                    return {'CANCELLED'}
 
             else:
                 self.report({'WARNING'}, "{} node is an invalid input command for {}".format(self.input.bl_label.capitalize(), self.output.bl_label.lower()))
@@ -425,11 +423,6 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
         elif self.output.inputs[0].command:
             self.build(context)
 
-            if self.error_message:
-                self.report({'WARNING'}, self.error_message)
-
-                return {'CANCELLED'}
-
         else:
             self.report({'WARNING'}, "Must have a command for output")
 
@@ -438,18 +431,100 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
         return {'FINISHED'}
 
     def build(self, context):
-        self.error_message = ""
         self.command_value = "import bpy\n\ndef command(self, context, event):\n"
         self.indent = 1
+        self.base_switch = self.input if self.input and self.input.bl_idname == "FidgetSwitchNode" else None
 
-        if hasattr(self, "input"):
-            self.command_value += self.node_logic(self.input)
+        if self.base_switch:
+            # TODO: place into functions, optimize
+            self.switches = []
+            self.switch_data = {}
+            self.node_logic(self.input)
 
+            self.base_switch = None
+            self.switches = self.switches[::-1]
+
+            # update nested switches
+            for node in self.switches:
+                for index in range(len(self.switch_data[node.name]['bool'])):
+
+                    if not isinstance(self.switch_data[node.name]['bool'][index], str):
+                        bool_node = self.switch_data[node.name]['bool'][index]
+                        self.switch_data[node.name]['bool'][index] = "if {bool}:".format(bool=self.node_logic(bool_node))
+
+                    if not isinstance(self.switch_data[node.name]['command'][index], str):
+                        command_node = self.switch_data[node.name]['command'][index]
+                        self.switch_data[node.name]['command'][index] = self.node_logic(command_node)
+
+                else:
+                    self.switch_data[node.name]['bool'].append("else:")
+
+                    if not isinstance(self.switch_data[node.name]['command'][-1], str):
+                        command_node = self.switch_data[node.name]['command'][-1]
+                        self.switch_data[node.name]['command'][-1] = self.node_logic(command_node)
+
+            # replace switch nodes with indented switch data
+            for node_index, node in enumerate(self.switches):
+
+                self.indent = len(self.switches) - node_index
+
+                for index, bool in enumerate(self.switch_data[node.name]['bool']):
+
+                    self.switch_data[node.name]['bool'][index] = self.insert_indentation(bool)
+                    self.indent += 1
+
+                    command = self.switch_data[node.name]['command'][index]
+                    if isinstance(command, str):
+                        self.switch_data[node.name]['command'][index] = self.insert_indentation(command)
+
+                    self.indent -= 1
+
+            # add in switch data to other switches
+            for node_index, node in enumerate(self.switches):
+
+                command = ""
+
+                for index, bool in enumerate(self.switch_data[node.name]['bool']):
+                    command += bool
+                    command += self.switch_data[node.name]['command'][index]
+
+                if node_index < len(self.switches) - 1:
+                    next_node = self.switches[node_index+1]
+                    switch_index = self.switch_data[next_node.name]['command'].index(node)
+
+                    self.switch_data[next_node.name]['command'][switch_index] = command
+
+            # output last switch to command value
+            node = self.switches[-1]
+
+            for index, bool in enumerate(self.switch_data[node.name]['bool']):
+                self.command_value += bool
+                self.command_value += self.switch_data[node.name]['command'][index]
+
+        elif self.input:
+            self.command_value += "{command}\n".format(
+                tab="\t"*self.indent,
+                command=self.insert_indentation(self.node_logic(self.input)))
         else:
-            self.command_value += self.socket_logic(self.output.inputs[0])
+            self.command_value += "{command}\n".format(
+                tab="\t"*self.indent,
+                command=self.insert_indentation(self.socket_logic(self.output.inputs[0])))
 
-        if not self.error_message:
-            self.set_output()
+        # debug
+        print("")
+        print("----command value----")
+        print(self.command_value.replace("\t", "    "))
+        print(self.command_value)
+
+        self.replace_command()
+
+    def insert_indentation(self, string):
+        logic_split = string.split("\n")
+
+        for split_index in range(len(logic_split)):
+            logic_split[split_index] = "{tab}{logic}".format(tab="\t"*self.indent, logic=logic_split[split_index])
+
+        return "{logic_joined}\n".format(logic_joined="\n".join(logic_split))
 
     def node_logic(self, node):
         return getattr(self, node.bl_idname[6:-4].lower())(node)
@@ -460,16 +535,19 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
 
     def no_input(self, socket):
         # TODO: handle boolean socket type
-        return socket.command
+        return self.command_output(socket)
+
+    def command_output(self, socket):
+        return "self.info_text = '{info_text}'\nif event.type == 'LEFTMOUSE' and event.value == '{event_value}':\n\t{command}".format(
+            info_text=socket.info_text,
+            event_value=socket.event_value,
+            command=socket.command)
 
     def set_output(self):
-        self.command_value.expandtabs(tabsize=1)
-        print("\n" + self.command_value + "\n")
-
-        # if self.write:
-        #     self.replace_command()
-        # if self.reset:
-        #     pass
+        if self.write:
+            self.replace_command()
+        if self.reset:
+            pass
 
     def replace_command(self):
         code = compile(self.command_value, "", "exec")
@@ -481,48 +559,75 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
         setattr(getattr(button, "{}_{}".format(self.output.button.lower(), self.output.mode.lower())), "command", new_command['command'])
 
     def command(self, node):
-        return node.outputs[0].command
+        if self.base_switch:
+            return node
+        else:
+            return self.command_output(node.outputs[0])
 
     def script(self, node):
-        return ""
+        if self.base_switch:
+            return node
+        else:
+            return ""
 
     def switch(self, node):
-        return node.name
+        if self.base_switch:
+
+            self.switches.append(node)
+
+            split = len(node.inputs)//2
+            self.switch_data[node.name] = {
+                'bool': [self.socket_logic(bool) for bool in node.inputs[:split]],
+                'command': [self.socket_logic(command) for command in node.inputs[split:]]}
+
+        return node
 
     def compare(self, node):
-        logic = {
-            'AND': lambda a, b: "{bool1} and {bool2}".format(bool1=a, bool2=b),
-            'OR': lambda a, b: "{bool1} or {bool2}".format(bool1=a, bool2=b),
-            'NAND': lambda a, b: "(not ({bool1} and {bool2}))".format(bool1=a, bool2=b),
-            'NOR': lambda a, b: "(not ({bool1} or {bool2}))".format(bool1=a, bool2=b),
-            'XOR': lambda a, b: "(({bool1} and not {bool2}) or (not {bool1} and {bool2}))".format(bool1=a, bool2=b),
-            'XNOR': lambda a, b: "(not (({bool1} and not {bool2}) or (not {bool1} and {bool2})))".format(bool1=a, bool2=b)}
+        if self.base_switch:
+            return node
+        else:
+            logic = {
+                'AND': lambda a, b: "{bool1} and {bool2}".format(bool1=a, bool2=b),
+                'OR': lambda a, b: "{bool1} or {bool2}".format(bool1=a, bool2=b),
+                'NAND': lambda a, b: "(not ({bool1} and {bool2}))".format(bool1=a, bool2=b),
+                'NOR': lambda a, b: "(not ({bool1} or {bool2}))".format(bool1=a, bool2=b),
+                'XOR': lambda a, b: "(({bool1} and not {bool2}) or (not {bool1} and {bool2}))".format(bool1=a, bool2=b),
+                'XNOR': lambda a, b: "(not (({bool1} and not {bool2}) or (not {bool1} and {bool2})))".format(bool1=a, bool2=b)}
 
-        bool1 = self.socket_logic(node.inputs[0])
-        bool2 = self.socket_logic(node.inputs[1])
+            bool1 = self.socket_logic(node.inputs[0])
+            bool2 = self.socket_logic(node.inputs[1])
 
-        return logic[node.outputs[0].logic](bool1, bool2)
+            return logic[node.outputs[0].logic](bool1, bool2)
 
     def objectmode(self, node):
-        logic = {
-            'OBJECT': "context.active_object.mode == 'OBJECT'",
-            'EDIT': "context.active_object.mode == 'EDIT'",
-            'SCULPT': "context.active_object.mode == 'SCULPT'",
-            'VERTEX_PAINT': "context.active_object.mode == 'VERTEX_PAINT'",
-            'WEIGHT_PAINT': "context.active_object.mode == 'WEIGHT_PAINT'",
-            'TEXTURE_PAINT': "context.active_object.mode == 'TEXTURE_PAINT'",
-            'PARTICLE_EDIT': "context.active_object.mode == 'PARTICLE_EDIT'"}
+        if self.base_switch:
+            return node
+        else:
+            logic = {
+                'OBJECT': "context.active_object.mode == 'OBJECT'",
+                'EDIT': "context.active_object.mode == 'EDIT'",
+                'SCULPT': "context.active_object.mode == 'SCULPT'",
+                'VERTEX_PAINT': "context.active_object.mode == 'VERTEX_PAINT'",
+                'WEIGHT_PAINT': "context.active_object.mode == 'WEIGHT_PAINT'",
+                'TEXTURE_PAINT': "context.active_object.mode == 'TEXTURE_PAINT'",
+                'PARTICLE_EDIT': "context.active_object.mode == 'PARTICLE_EDIT'"}
 
-        return logic[node.outputs[0].mode]
+            return logic[node.outputs[0].mode]
 
     def activeobject(self, node):
-        if node.outputs['Object'].value:
-            return "context.active_object"
+        if self.base_switch:
+            return node
         else:
-            return "(not context.active_object)"
+            if node.outputs['Object'].value:
+                return "context.active_object"
+            else:
+                return "(not context.active_object)"
 
     def statement(self, node):
-        return node.outputs[0].statement
+        if self.base_switch:
+            return node
+        else:
+            return node.outputs[0].statement
 
 def nodes_register():
     nodeitems_utils.register_node_categories("FIDGET_NODES", node_categories)
