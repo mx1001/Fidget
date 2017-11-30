@@ -502,28 +502,29 @@ node_categories = [
 
     FidgetNodeCategory('FIDGETCOMMAND', "Command", items=[
         NodeItem('FidgetCommandNode'),
+        NodeItem('FidgetSwitchNode'),
+        NodeItem('FidgetScriptNode')]),
+
+    FidgetNodeCategory('FIDGETPRESETCOMMAND', "Preset Command", items=[
+        # NodeItem('FidgetCommandNode', # make sure we match the node type we are after
+        #     label="", # Menu entry display text
+        #     settings={ # use repr() to convert to string if it is not already (doesn't hurt to use it anyways)
+        #         'info_text': repr(""),
+        #         'event_value': repr(""),
+        #         'command': repr("")}),
         NodeItem('FidgetCommandNode',
             label="Transform",
             settings={
                 'info_text': repr("Transform"),
                 'event_value': repr("RELEASE"),
                 'command': repr("bpy.ops.transform.translate('INVOKE_DEFAULT')")}),
-        NodeItem('FidgetSwitchNode'),
-        NodeItem('FidgetScriptNode')]),
-
-    FidgetNodeCategory('FIDGETPRESET', "Preset", items=[
-        # NodeItem('FidgetCommandNode',
-        #     label="",
-        #     settings={
-        #         'info_text': repr(""),
-        #         'event_value': repr(""),
-        #         'command': repr("")}),
         NodeItem('FidgetCommandNode',
             label="HOps Bool Menu",
             settings={
                 'info_text': repr("HOps Bool Menu"),
                 'event_value': repr("RELEASE"),
-                'command': repr("bpy.ops.wm.call_menu(name='hops.bool_menu')")})]),
+                'command': repr("bpy.ops.wm.call_menu(name='hops.bool_menu')")}),
+    ]),
 
     FidgetNodeCategory('FIDGETOUTPUT', "Output", items=[
         NodeItem('FidgetOutputNode')]),
