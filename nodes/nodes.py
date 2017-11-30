@@ -62,8 +62,8 @@ class FidgetCommandSocket(NodeSocket):
     def draw(self, context, layout, node, text):
         if self.is_linked and not self.is_output:
             pass
-        elif node.bl_idname == "FidgetCommandNode":
-            self.row(context, layout, node, specials=False)
+        # elif node.bl_idname == "FidgetCommandNode":
+        #     self.row(context, layout, node, specials=False)
         elif self.is_output:
             layout.label(text="Output")
         else:
@@ -198,15 +198,35 @@ class FidgetCommandNode(FidgetTreeNode, Node):
     bl_idname = "FidgetCommandNode"
     bl_label = "Command"
 
+    info_text = StringProperty(
+        name = "Info Text",
+        description = "The text to display while hovering over the button",
+        default = "Info Text")
+
+    event_value = EnumProperty(
+        name = "Event Value",
+        description = "Execute this command on either press or release of the LMB",
+        items = [
+            ("PRESS", "Press", ""),
+            ("RELEASE", "Release", "Most things behave better with this value")],
+        default = "RELEASE")
+
+    command = StringProperty(
+        name = "Command",
+        description = "Command to execute",
+        default = "")
+
     def init(self, context):
         self.outputs.new("FidgetCommandSocket", "")
 
     def draw_buttons(self, context, layout):
+        col = layout.column()
+        col.prop(self, "command", text="")
         col = layout.column(align=True)
         row = col.row(align=True)
-        row.prop(self.outputs[0], "info_text", text="")
+        row.prop(self, "info_text", text="")
         row = col.row(align=True)
-        row.prop(self.outputs[0], "event_value", expand=True)
+        row.prop(self, "event_value", expand=True)
 
 class FidgetNodeOperators:
 
@@ -463,20 +483,44 @@ class FidgetNodeCategory(NodeCategory):
         return context.space_data.tree_type == "FidgetNodeTree"
 
 node_categories = [
-    FidgetNodeCategory("FIDGETINPUT", "Boolean", items=[
-        NodeItem("FidgetCompareNode"),
-        NodeItem("FidgetActiveObjectNode"),
-        NodeItem("FidgetActiveObjectModeNode"),
-        NodeItem("FidgetActiveObjectTypeNode"),
-        NodeItem("FidgetObjectsSelectedNode"),
-        NodeItem("FidgetStatementNode")]),
-    FidgetNodeCategory("FIDGETLOGIC", "Command", items=[
-        NodeItem("FidgetCommandNode"),
-        NodeItem("FidgetSwitchNode"),
-        NodeItem("FidgetScriptNode")]),
-    FidgetNodeCategory("FIDGETOUTPUT", "Output", items=[
-        NodeItem("FidgetOutputNode")]),
-    FidgetNodeCategory("LAYOUT", "Layout", items=[
+
+    FidgetNodeCategory('FIDGETBOOLEAN', "Boolean", items=[
+        NodeItem('FidgetCompareNode'),
+        NodeItem('FidgetActiveObjectNode'),
+        NodeItem('FidgetActiveObjectModeNode'),
+        NodeItem('FidgetActiveObjectTypeNode'),
+        NodeItem('FidgetObjectsSelectedNode'),
+        NodeItem('FidgetStatementNode')]),
+
+    FidgetNodeCategory('FIDGETCOMMAND', "Command", items=[
+        NodeItem('FidgetCommandNode'),
+        NodeItem('FidgetCommandNode',
+            label="Transform",
+            settings={
+                'info_text': repr("Transform"),
+                'event_value': repr("RELEASE"),
+                'command': repr("bpy.ops.transform.translate('INVOKE_DEFAULT')")}),
+        NodeItem('FidgetSwitchNode'),
+        NodeItem('FidgetScriptNode')]),
+
+    FidgetNodeCategory('FIDGETPRESET', "Preset", items=[
+        # NodeItem('FidgetCommandNode',
+        #     label="",
+        #     settings={
+        #         'info_text': repr(""),
+        #         'event_value': repr(""),
+        #         'command': repr("")}),
+        NodeItem('FidgetCommandNode',
+            label="HOps Bool Menu",
+            settings={
+                'info_text': repr("HOps Bool Menu"),
+                'event_value': repr("RELEASE"),
+                'command': repr("bpy.ops.wm.call_menu(name='hops.bool_menu')")})]),
+
+    FidgetNodeCategory('FIDGETOUTPUT', "Output", items=[
+        NodeItem('FidgetOutputNode')]),
+
+    FidgetNodeCategory('LAYOUT', "Layout", items=[
         NodeItem("NodeFrame"),
         NodeItem("NodeReroute")])]
 
@@ -488,14 +532,6 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
     output_id = StringProperty()
     write = BoolProperty()
     reset = BoolProperty()
-
-    @staticmethod
-    def socket_type(socket):
-        types = {
-            'FidgetBoolSocket': 'bool',
-            'FidgetCommandSocket': 'command'}
-
-        return types[socket.bl_idname]
 
     @staticmethod
     def get_input(socket):
@@ -641,9 +677,9 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
 
     def command_output(self, socket):
         return "self.info_text = '{info_text}'\nif event.type == 'LEFTMOUSE' and event.value == '{event_value}':\n\t{command}".format(
-            info_text=socket.info_text,
-            event_value=socket.event_value,
-            command=socket.command)
+            info_text=socket.info_text if socket.node.bl_idname != 'FidgetCommandNode' else socket.node.info_text,
+            event_value=socket.event_value if socket.node.bl_idname != 'FidgetCommandNode' else socket.node.event_value,
+            command=socket.command if socket.node.bl_idname != 'FidgetCommandNode' else socket.node.command)
 
     def set_output(self):
         if self.write:
