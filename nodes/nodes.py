@@ -1,6 +1,23 @@
-# THIS SESSION TODO:
-# get switch working using switch data dic
 # add node properties that are fed into socket properties on init (allow for calling node with filled in params)
+# update node catagories to menus; command, boolean, output
+
+# Active object type
+# Objects visible
+#     Used as the if visible objects check and the check for if the amount visible is of value
+# Objects selected
+#     Used as the if selected objects check and the check for if the amount selected is of value
+# Objects type
+# Property
+#     Check a properties value (such as whether object xray is enabled)
+#     Should be able to paste commands copied from copy data path, will assume object property otherwise
+#     Should detect property type and produce corresponding options
+# Selection mode
+#     Needs to check for modes this applies to
+#     Check for whether in verts/edge/face selection mode as example
+# Selection amount
+#     Needs to check for modes this applies to
+#     Check for number of verts/edges/faces selected as example
+
 
 import traceback
 
@@ -75,7 +92,7 @@ class FidgetBoolSocket(NodeSocket):
         description = "The value of this boolean socket",
         default = True)
 
-    logic = EnumProperty(
+    compare_logic = EnumProperty(
         name = "Logic",
         description = "Type of logic to use for comparison",
         items = [
@@ -87,48 +104,88 @@ class FidgetBoolSocket(NodeSocket):
             ("AND", "And", "If both")],
         default = "AND")
 
-    mode = EnumProperty(
+    active_object_mode = EnumProperty(
         name = "Object Mode",
         description = "Mode requirements to allow executing",
         items = [
-            ("PARTICLE_EDIT", "Particle Edit", ""),
-            ("TEXTURE_PAINT", "Texture Paint", ""),
-            ("WEIGHT_PAINT", "Weight Paint", ""),
-            ("VERTEX_PAINT", "Vertex Paint", ""),
-            ("SCULPT", "Sculpt", ""),
-            ("EDIT", "Edit", ""),
-            ("OBJECT", "Object", "")],
+            ("PARTICLE_EDIT", "Particle Edit", "", "PARTICLEMODE", 6),
+            ("TEXTURE_PAINT", "Texture Paint", "", "TPAINT_HLT", 5),
+            ("WEIGHT_PAINT", "Weight Paint", "", "WPAINT_HLT", 4),
+            ("VERTEX_PAINT", "Vertex Paint", "", "VPAINT_HLT", 3),
+            ("SCULPT", "Sculpt", "", "SCULPTMODE_HLT", 2),
+            ("EDIT", "Edit", "", "EDITMODE_HLT", 1),
+            ("OBJECT", "Object", "", "OBJECT_DATAMODE", 0)],
         default = "OBJECT")
 
-    statement = StringProperty(
+    object_type = EnumProperty(
+        name = "Object Type",
+        description = "Type requirements to allow executing",
+        items = [
+            ('LAMP', "Lamp", "", "OUTLINER_OB_LAMP", 10),
+            ('CAMERA', "Camera", "", "OUTLINER_OB_CAMERA", 9),
+            ('SPEAKER', "Speaker", "", "OUTLINER_OB_SPEAKER", 8),
+            ('EMPTY', "Empty", "", "OUTLINER_OB_EMPTY", 7),
+            ('LATTICE', "Lattice", "", "OUTLINER_OB_LATTICE", 6),
+            ('ARMATURE', "Armature", "", "OUTLINER_OB_ARMATURE", 5),
+            ('FONT', "Font", "", "OUTLINER_OB_FONT", 4),
+            ('META', "Metaball", "", "OUTLINER_OB_META", 3),
+            ('SURFACE', "Serface", "", "OUTLINER_OB_SURFACE", 2),
+            ('CURVE', "Curve", "", "OUTLINER_OB_CURVE", 1),
+            ('MESH', "Mesh", "", "OUTLINER_OB_MESH", 0)],
+        default = "MESH")
+
+    objects_amount = EnumProperty(
+        name = "Objects Amount",
+        description = "",
+        items = [
+            ('ANY', "Any", "Executes if there is any selected objects"),
+            ('AMOUNT', "Amount", "Executes based on amount of selected objects")],
+        default = 'ANY')
+
+    bool_statement = StringProperty(
         name = "Statement",
         description = "Statement to evaluate",
         default = "")
 
     def draw(self, context, layout, node, text):
+        self.draw_socket_row(layout)
+
+    def draw_color(self, context, node):
+        return (0.698, 0.651, 0.188, 1.0)
+
+    def draw_socket_row(self, layout):
         col = layout.column()
         col.scale_x = 10
         row = col.row(align=True)
 
-        if node.bl_idname == "FidgetSwitchNode":
-            row.label(text=self.name)
-        elif node.bl_idname == "FidgetCompareNode":
-            if self.is_output:
-                row.prop(self, "logic", text="")
-            else:
-                row.label(text="Boolean")
-        elif node.bl_idname == "FidgetActiveObjectNode":
-            if self.name == "Object":
-                sub = row.row()
-                sub.prop(self, "value", text="")
-                row.label(text="{} active object".format("Is" if self.value else "Isn't"))
-        elif node.bl_idname == "FidgetObjectModeNode":
-            row.prop(self, "mode", text="")
-        elif node.bl_idname == "FidgetStatementNode":
-            row.prop(self, "statement", text="")
+        getattr(self, self.node.bl_idname[6:-4].lower())(row)
 
-    def draw_color(self, context, node):
-        return (0.698, 0.651, 0.188, 1.0)
+    def switch(self, row):
+        row.label(text=self.name)
+
+    def compare(self, row):
+        if self.is_output:
+            row.prop(self, "compare_logic", text="")
+        else:
+            row.label(text="Boolean")
+
+    def activeobject(self, row):
+        if self.name == "Object":
+            sub = row.row()
+            sub.prop(self, "value", text="")
+            row.label(text="{} active object".format("Is" if self.value else "Isn't"))
+
+    def activeobjectmode(self, row):
+        row.prop(self, "active_object_mode", text="")
+
+    def activeobjecttype(self, row):
+        row.prop(self, "object_type", text="")
+
+    def objectsselected(self, row):
+        row.prop(self, "objects_amount", expand=True)
+
+    def statement(self, row):
+        row.prop(self, "bool_statement", text="")
 
 class FidgetTreeNode:
     bl_width_min = 150
@@ -242,8 +299,8 @@ class FidgetSwitchNode(FidgetTreeNode, Node):
 
     def init(self, context):
         self.inputs.new("FidgetBoolSocket", "Use First")
-        self.inputs.new("FidgetCommandSocket", "Command 1")
-        self.inputs.new("FidgetCommandSocket", "Command 2")
+        self.inputs.new("FidgetCommandSocket", "")
+        self.inputs.new("FidgetCommandSocket", "")
         self.outputs.new("FidgetCommandSocket", "")
 
     def draw_buttons(self, context, layout):
@@ -287,8 +344,18 @@ class FidgetCompareNode(FidgetTreeNode, Node):
         self.inputs.new("FidgetBoolSocket", "Boolean")
         self.inputs.new("FidgetBoolSocket", "Boolean")
 
-class FidgetObjectModeNode(FidgetTreeNode, Node):
-    bl_idname = "FidgetObjectModeNode"
+class FidgetActiveObjectNode(FidgetTreeNode, Node):
+    bl_idname = "FidgetActiveObjectNode"
+    bl_label = "Active Object"
+
+    def init(self, context):
+        self.outputs.new("FidgetBoolSocket", "")
+
+    def draw_buttons(self, context, layout):
+        layout.separator()
+
+class FidgetActiveObjectModeNode(FidgetTreeNode, Node):
+    bl_idname = "FidgetActiveObjectModeNode"
     bl_label = "Object Mode"
 
     def init(self, context):
@@ -297,15 +364,48 @@ class FidgetObjectModeNode(FidgetTreeNode, Node):
     def draw_buttons(self, context, layout):
         layout.separator()
 
-class FidgetActiveObjectNode(FidgetTreeNode, Node):
-    bl_idname = "FidgetActiveObjectNode"
-    bl_label = "Active Object"
+class FidgetActiveObjectTypeNode(FidgetTreeNode, Node):
+    bl_idname = "FidgetActiveObjectTypeNode"
+    bl_label = "Active Object Type"
 
     def init(self, context):
-        self.outputs.new("FidgetBoolSocket", "Object")
+        self.outputs.new("FidgetBoolSocket", "")
 
     def draw_buttons(self, context, layout):
         layout.separator()
+
+class FidgetObjectsSelectedNode(FidgetTreeNode, Node):
+    bl_idname = "FidgetObjectsSelectedNode"
+    bl_label = "Objects Selected"
+
+    relation = EnumProperty(
+        name = "Relation",
+        description = "",
+        items = [
+            ('EQUAL', "Equal to", ""),
+            ('LESSER', "Less then", ""),
+            ('LESSEREQUAL', "Lesser or equal to", ""),
+            ('GREATER', "Greater then", ""),
+            ('GREATEREQUAL', "Greater or equal to", ""),
+            ('NOT', "Not equal to", "")],
+        default = "EQUAL")
+
+    amount = IntProperty(
+        name = "Amount",
+        description = "The amount to use for the above relation operation",
+        min = 0,
+        default = 0)
+
+    def init(self, context):
+        self.outputs.new("FidgetBoolSocket", "")
+
+    def draw_buttons(self, context, layout):
+        if self.outputs[0].objects_amount == "AMOUNT":
+            column = layout.column(align=True)
+            column.prop(self, 'relation', text="")
+            column.prop(self, 'amount', text="")
+        else:
+            layout.separator()
 
 class FidgetStatementNode(FidgetTreeNode, Node):
     bl_idname = "FidgetStatementNode"
@@ -363,15 +463,17 @@ class FidgetNodeCategory(NodeCategory):
         return context.space_data.tree_type == "FidgetNodeTree"
 
 node_categories = [
-    FidgetNodeCategory("FIDGETINPUT", "Input", items=[
+    FidgetNodeCategory("FIDGETINPUT", "Boolean", items=[
+        NodeItem("FidgetCompareNode"),
+        NodeItem("FidgetActiveObjectNode"),
+        NodeItem("FidgetActiveObjectModeNode"),
+        NodeItem("FidgetActiveObjectTypeNode"),
+        NodeItem("FidgetObjectsSelectedNode"),
+        NodeItem("FidgetStatementNode")]),
+    FidgetNodeCategory("FIDGETLOGIC", "Command", items=[
         NodeItem("FidgetCommandNode"),
         NodeItem("FidgetSwitchNode"),
         NodeItem("FidgetScriptNode")]),
-    FidgetNodeCategory("FIDGETLOGIC", "Logic", items=[
-        NodeItem("FidgetCompareNode"),
-        NodeItem("FidgetObjectModeNode"),
-        NodeItem("FidgetActiveObjectNode"),
-        NodeItem("FidgetStatementNode")]),
     FidgetNodeCategory("FIDGETOUTPUT", "Output", items=[
         NodeItem("FidgetOutputNode")]),
     FidgetNodeCategory("LAYOUT", "Layout", items=[
@@ -511,10 +613,10 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
                 command=self.insert_indentation(self.socket_logic(self.output.inputs[0])))
 
         # debug
-        print("")
-        print("----command value----")
+        print("\n*****************")
+        print("* Fidget Output *")
+        print("*****************\n")
         print(self.command_value.replace("\t", "    "))
-        print(self.command_value)
 
         self.replace_command()
 
@@ -597,9 +699,18 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
             bool1 = self.socket_logic(node.inputs[0])
             bool2 = self.socket_logic(node.inputs[1])
 
-            return logic[node.outputs[0].logic](bool1, bool2)
+            return logic[node.outputs[0].compare_logic](bool1, bool2)
 
-    def objectmode(self, node):
+    def activeobject(self, node):
+        if self.base_switch:
+            return node
+        else:
+            if node.outputs['Object'].value:
+                return "context.active_object"
+            else:
+                return "(not context.active_object)"
+
+    def activeobjectmode(self, node):
         if self.base_switch:
             return node
         else:
@@ -612,22 +723,52 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
                 'TEXTURE_PAINT': "context.active_object.mode == 'TEXTURE_PAINT'",
                 'PARTICLE_EDIT': "context.active_object.mode == 'PARTICLE_EDIT'"}
 
-            return logic[node.outputs[0].mode]
+            return "(context.active_object and {logic})".format(logic=logic[node.outputs[0].active_object_mode])
 
-    def activeobject(self, node):
+    def activeobjecttype(self, node):
         if self.base_switch:
             return node
         else:
-            if node.outputs['Object'].value:
-                return "context.active_object"
+            logic = {
+                'LAMP': "context.active_object.type == 'LAMP'",
+                'CAMERA': "context.active_object.type == 'CAMERA'",
+                'SPEAKER': "context.active_object.type == 'SPEAKER'",
+                'EMPTY': "context.active_object.type == 'EMPTY'",
+                'LATTICE': "context.active_object.type == 'LATTICE'",
+                'ARMATURE': "context.active_object.type == 'ARMATURE'",
+                'FONT': "context.active_object.type == 'FONT'",
+                'META': "context.active_object.type == 'META'",
+                'SURFACE': "context.active_object.type == 'SURFACE'",
+                'CURVE': "context.active_object.type == 'CURVE'",
+                'MESH': "context.active_object.type == 'MESH'"}
+
+            return "(context.active_object and {logic})".format(logic=logic[node.outputs[0].object_type])
+
+    def objectsselected(self, node):
+        if self.base_switch:
+            return node
+        else:
+            logic = {
+                'ANY': "context.selected_objects",
+                'EQUAL': "len(context.selected_objects) == ",
+                'LESSER': "len(context.selected_objects) < ",
+                'LESSEREQUAL': "len(context.selected_objects) <= ",
+                'GREATER': "len(context.selected_objects) > ",
+                'GREATEREQUAL': "len(context.selected_objects) >= ",
+                'NOT': "len(context.selected_objects) != "}
+
+            if node.outputs[0].objects_amount == 'ANY':
+                return logic['ANY']
             else:
-                return "(not context.active_object)"
+                return "{relation}{amount}".format(
+                    relation=logic[node.relation],
+                    amount=node.amount)
 
     def statement(self, node):
         if self.base_switch:
             return node
         else:
-            return node.outputs[0].statement
+            return node.outputs[0].bool_statement
 
 def nodes_register():
     nodeitems_utils.register_node_categories("FIDGET_NODES", node_categories)
