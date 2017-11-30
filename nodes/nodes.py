@@ -1,11 +1,5 @@
-# add node properties that are fed into socket properties on init (allow for calling node with filled in params)
-# update node catagories to menus; command, boolean, output
-
-# Active object type
 # Objects visible
 #     Used as the if visible objects check and the check for if the amount visible is of value
-# Objects selected
-#     Used as the if selected objects check and the check for if the amount selected is of value
 # Objects type
 # Property
 #     Check a properties value (such as whether object xray is enabled)
@@ -62,8 +56,6 @@ class FidgetCommandSocket(NodeSocket):
     def draw(self, context, layout, node, text):
         if self.is_linked and not self.is_output:
             pass
-        # elif node.bl_idname == "FidgetCommandNode":
-        #     self.row(context, layout, node, specials=False)
         elif self.is_output:
             layout.label(text="Output")
         else:
@@ -75,8 +67,10 @@ class FidgetCommandSocket(NodeSocket):
     def row(self, context, layout, node, specials=True):
         col = layout.column() # HACK: forces row to span width
         col.scale_x = 10
+
         row = col.row(align=True)
         row.prop(self, "command", text="")
+
         if specials:
             op = row.operator("fidget.command_options", text="", icon="COLLAPSEMENU")
             op.tree = node.id_data.name
@@ -156,8 +150,8 @@ class FidgetBoolSocket(NodeSocket):
     def draw_socket_row(self, layout):
         col = layout.column()
         col.scale_x = 10
-        row = col.row(align=True)
 
+        row = col.row(align=True)
         getattr(self, self.node.bl_idname[6:-4].lower())(row)
 
     def switch(self, row):
@@ -220,9 +214,13 @@ class FidgetCommandNode(FidgetTreeNode, Node):
         self.outputs.new("FidgetCommandSocket", "")
 
     def draw_buttons(self, context, layout):
+        layout.separator()
+
         col = layout.column()
         col.prop(self, "command", text="")
+
         col = layout.column(align=True)
+
         row = col.row(align=True)
         row.prop(self, "info_text", text="")
         row = col.row(align=True)
@@ -263,11 +261,14 @@ class FidgetCommandOptions(FidgetNodeOperators, Operator):
         layout = self.layout
         tree = bpy.data.node_groups[self.tree]
         node = tree.nodes[self.node]
+
         if node.bl_idname == "FidgetCommandNode":
             socket = node.outputs[0]
         else:
             socket = node.inputs[self.socket]
+
         col = layout.column(align=True)
+
         row = col.row(align=True)
         row.prop(socket, "info_text", text="")
         row = col.row(align=True)
@@ -293,10 +294,14 @@ class FidgetCommandAdd(FidgetNodeOperators, Operator):
 
         split = len(node.inputs)//2
         bool_count = len(node.inputs[:split])
+
         node.inputs.new("FidgetBoolSocket", "Use {}".format(self.get_count_word(bool_count)))
         node.inputs.move(len(node.inputs)-1, bool_count)
+
         command_count = len(node.inputs[split:])
+
         node.inputs.new("FidgetCommandSocket", "Command {}".format(command_count))
+
         return {'FINISHED'}
 
 class FidgetCommandRemove(FidgetNodeOperators, Operator):
@@ -324,7 +329,7 @@ class FidgetSwitchNode(FidgetTreeNode, Node):
         self.outputs.new("FidgetCommandSocket", "")
 
     def draw_buttons(self, context, layout):
-        layout.separator() # give us some space!
+        layout.separator()
 
         col = layout.column()
         col.scale_x = 10
@@ -334,6 +339,7 @@ class FidgetSwitchNode(FidgetTreeNode, Node):
         sub = split.column(align=True)
         sub.scale_y = 1.25
         sub.enabled = len(self.inputs) > 3
+
         op = sub.operator("fidget.command_remove", text="", icon="ZOOMOUT")
         op.tree = self.id_data.name
         op.node = self.name
@@ -341,6 +347,7 @@ class FidgetSwitchNode(FidgetTreeNode, Node):
         sub = split.column(align=True)
         sub.scale_y = 1.25
         sub.enabled = len(self.inputs) < 21
+
         op = sub.operator("fidget.command_add", text="", icon="ZOOMIN")
         op.tree = self.id_data.name
         op.node = self.name
@@ -468,6 +475,7 @@ class FidgetOutputNode(FidgetTreeNode, Node):
 
         row = layout.row(align=True)
         row.scale_y = 1.25
+
         op = row.operator("fidget.update")
         op.output_id = str((self.id_data.name, self.name))
         op.write = True
@@ -544,6 +552,7 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
             tree_name, output_name = ('NodeTree', 'Output')
 
         tree = bpy.data.node_groups[tree_name]
+
         self.output = tree.nodes[output_name]
         self.input = self.output.inputs[0].links[0].from_node if len(self.output.inputs[0].links) else None
 
