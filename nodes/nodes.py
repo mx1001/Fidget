@@ -507,20 +507,20 @@ node_categories = [
 
     FidgetNodeCategory('FIDGETPRESETCOMMAND', "Preset Command", items=[
         # NodeItem('FidgetCommandNode', # make sure we match the node type we are after
-        #     label="", # Menu entry display text
-        #     settings={ # use repr() to convert to string if it is not already (doesn't hurt to use it anyways)
+        #     label = "", # Menu entry display text
+        #     settings = { # use repr() to convert to string if it is not already (doesn't hurt to use it anyways)
         #         'info_text': repr(""),
         #         'event_value': repr(""),
         #         'command': repr("")}),
         NodeItem('FidgetCommandNode',
-            label="Transform",
-            settings={
+            label = "Transform",
+            settings = {
                 'info_text': repr("Transform"),
                 'event_value': repr("RELEASE"),
                 'command': repr("bpy.ops.transform.translate('INVOKE_DEFAULT')")}),
         NodeItem('FidgetCommandNode',
-            label="HOps Bool Menu",
-            settings={
+            label = "HOps Bool Menu",
+            settings = {
                 'info_text': repr("HOps Bool Menu"),
                 'event_value': repr("RELEASE"),
                 'command': repr("bpy.ops.wm.call_menu(name='hops.bool_menu')")}),
@@ -585,6 +585,7 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
 
         if self.base_switch:
             # TODO: place into functions, optimize
+            # XXX: adding a switch infront of a switch with the name 'Switch' breaks everything...
             self.switches = []
             self.switch_data = {}
             self.node_logic(self.input)
@@ -598,7 +599,9 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
 
                     if not isinstance(self.switch_data[node.name]['bool'][index], str):
                         bool_node = self.switch_data[node.name]['bool'][index]
-                        self.switch_data[node.name]['bool'][index] = "if {bool}:".format(bool=self.node_logic(bool_node))
+                        self.switch_data[node.name]['bool'][index] = "{if_type} {bool}:".format(
+                            if_type = "if" if index == 0 else "elif",
+                            bool = self.node_logic(bool_node))
 
                     if not isinstance(self.switch_data[node.name]['command'][index], str):
                         command_node = self.switch_data[node.name]['command'][index]
@@ -651,12 +654,12 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
 
         elif self.input:
             self.command_value += "{command}\n".format(
-                tab="\t"*self.indent,
-                command=self.insert_indentation(self.node_logic(self.input)))
+                tab = "\t"*self.indent,
+                command = self.insert_indentation(self.node_logic(self.input)))
         else:
             self.command_value += "{command}\n".format(
-                tab="\t"*self.indent,
-                command=self.insert_indentation(self.socket_logic(self.output.inputs[0])))
+                tab = "\t"*self.indent,
+                command = self.insert_indentation(self.socket_logic(self.output.inputs[0])))
 
         # debug
         print("\n*****************")
@@ -687,9 +690,9 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
 
     def command_output(self, socket):
         return "self.info_text = '{info_text}'\nif event.type == 'LEFTMOUSE' and event.value == '{event_value}':\n\t{command}".format(
-            info_text=socket.info_text if socket.node.bl_idname != 'FidgetCommandNode' else socket.node.info_text,
-            event_value=socket.event_value if socket.node.bl_idname != 'FidgetCommandNode' else socket.node.event_value,
-            command=socket.command if socket.node.bl_idname != 'FidgetCommandNode' else socket.node.command)
+            info_text = socket.info_text if socket.node.bl_idname != 'FidgetCommandNode' else socket.node.info_text,
+            event_value = socket.event_value if socket.node.bl_idname != 'FidgetCommandNode' else socket.node.event_value,
+            command = socket.command if socket.node.bl_idname != 'FidgetCommandNode' else socket.node.command)
 
     def set_output(self):
         if self.write:
@@ -807,8 +810,8 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
                 return logic['ANY']
             else:
                 return "{relation}{amount}".format(
-                    relation=logic[node.relation],
-                    amount=node.amount)
+                    relation = logic[node.relation],
+                    amount = node.amount)
 
     def statement(self, node):
         if self.base_switch:
