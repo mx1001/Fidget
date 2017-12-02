@@ -12,7 +12,6 @@
 #     Needs to check for modes this applies to
 #     Check for number of verts/edges/faces selected as example
 
-
 import traceback
 
 import bpy
@@ -128,12 +127,20 @@ class FidgetBoolSocket(NodeSocket):
             ('MESH', "Mesh", "", "OUTLINER_OB_MESH", 0)],
         default = "MESH")
 
-    objects_amount = EnumProperty(
-        name = "Objects Amount",
+    objects_selected_amount = EnumProperty(
+        name = "Objects Selected Amount",
         description = "",
         items = [
             ('ANY', "Any", "Executes if there is any selected objects"),
             ('AMOUNT', "Amount", "Executes based on amount of selected objects")],
+        default = 'ANY')
+
+    objects_visible_amount = EnumProperty(
+        name = "Objects Visible Amount",
+        description = "",
+        items = [
+            ('ANY', "Any", "Executes if there is any visible objects"),
+            ('AMOUNT', "Amount", "Executes based on amount of visible objects")],
         default = 'ANY')
 
     bool_statement = StringProperty(
@@ -176,7 +183,10 @@ class FidgetBoolSocket(NodeSocket):
         row.prop(self, "object_type", text="")
 
     def objectsselected(self, row):
-        row.prop(self, "objects_amount", expand=True)
+        row.prop(self, "objects_selected_amount", expand=True)
+
+    def objectsvisible(self, row):
+        row.prop(self, "objects_visible_amount", expand=True)
 
     def statement(self, row):
         row.prop(self, "bool_statement", text="")
@@ -226,106 +236,14 @@ class FidgetCommandNode(FidgetTreeNode, Node):
         row = col.row(align=True)
         row.prop(self, "event_value", expand=True)
 
-class FidgetNodeOperators:
-
-    tree = StringProperty()
-    node = StringProperty()
-    socket = StringProperty()
-
-    @classmethod
-    def poll(build, context):
-        return context.area.type == "NODE_EDITOR" and context.space_data.tree_type == "FidgetNodeTree"
-
-    @staticmethod
-    def get_count_word(integer):
-        convert = [
-            'First',
-            'Second',
-            'Third',
-            'Fourth',
-            'Fifth',
-            'Sixth',
-            'Seventh',
-            'Eighth',
-            'Ninth',
-            'Tenth']
-
-        return convert[integer]
-
-class FidgetCommandOptions(FidgetNodeOperators, Operator):
-    bl_idname = "fidget.command_options"
-    bl_label = "Command Options"
-    bl_description = "Adjust command options"
-
-    def draw(self, context):
-        layout = self.layout
-        tree = bpy.data.node_groups[self.tree]
-        node = tree.nodes[self.node]
-
-        if node.bl_idname == "FidgetCommandNode":
-            socket = node.outputs[0]
-        else:
-            socket = node.inputs[self.socket]
-
-        col = layout.column(align=True)
-
-        row = col.row(align=True)
-        row.prop(socket, "info_text", text="")
-        row = col.row(align=True)
-        row.prop(socket, "event_value", expand=True)
-
-    def execute(self, context):
-        return {'FINISHED'}
-
-    def invoke(self, context, event):
-
-        context.window_manager.invoke_popup(self, width=200)
-
-        return {'RUNNING_MODAL'}
-
-class FidgetCommandAdd(FidgetNodeOperators, Operator):
-    bl_idname = "fidget.command_add"
-    bl_label = "Add Command"
-    bl_description = "Add a command and bool input socket pair to this node"
-
-    def execute(self, context):
-        tree = bpy.data.node_groups[self.tree]
-        node = tree.nodes[self.node]
-
-        split = len(node.inputs)//2
-        bool_count = len(node.inputs[:split])
-
-        node.inputs.new("FidgetBoolSocket", "Use {}".format(self.get_count_word(bool_count)))
-        node.inputs.move(len(node.inputs)-1, bool_count)
-
-        command_count = len(node.inputs[split:])
-
-        node.inputs.new("FidgetCommandSocket", "Command {}".format(command_count))
-
-        return {'FINISHED'}
-
-class FidgetCommandRemove(FidgetNodeOperators, Operator):
-    bl_idname = "fidget.command_remove"
-    bl_label = "Remove Command"
-    bl_description = "Remove the last command and bool input socket pair from this node"
-
-    def execute(self, context):
-        tree = bpy.data.node_groups[self.tree]
-        node = tree.nodes[self.node]
-
-        bool_index = len(node.inputs[:len(node.inputs)//2])-1
-        node.inputs.remove(node.inputs[bool_index])
-        node.inputs.remove(node.inputs[-1])
-        return {'FINISHED'}
-
 class FidgetSwitchNode(FidgetTreeNode, Node):
     bl_idname = "FidgetSwitchNode"
     bl_label = "Switch"
 
     def init(self, context):
         self.inputs.new("FidgetBoolSocket", "Use First")
-        self.inputs.new("FidgetCommandSocket", "")
-        self.inputs.new("FidgetCommandSocket", "")
+        self.inputs.new("FidgetCommandSocket", "Command 1")
+        self.inputs.new("FidgetCommandSocket", "Command 2")
         self.outputs.new("FidgetCommandSocket", "")
 
     def draw_buttons(self, context, layout):
@@ -427,7 +345,40 @@ class FidgetObjectsSelectedNode(FidgetTreeNode, Node):
         self.outputs.new("FidgetBoolSocket", "")
 
     def draw_buttons(self, context, layout):
-        if self.outputs[0].objects_amount == "AMOUNT":
+        if self.outputs[0].objects_selected_amount == "AMOUNT":
+            column = layout.column(align=True)
+            column.prop(self, 'relation', text="")
+            column.prop(self, 'amount', text="")
+        else:
+            layout.separator()
+
+class FidgetObjectsVisibleNode(FidgetTreeNode, Node):
+    bl_idname = "FidgetObjectsVisibleNode"
+    bl_label = "Objects Visible"
+
+    relation = EnumProperty(
+        name = "Relation",
+        description = "",
+        items = [
+            ('EQUAL', "Equal to", ""),
+            ('LESSER', "Less then", ""),
+            ('LESSEREQUAL', "Lesser or equal to", ""),
+            ('GREATER', "Greater then", ""),
+            ('GREATEREQUAL', "Greater or equal to", ""),
+            ('NOT', "Not equal to", "")],
+        default = "EQUAL")
+
+    amount = IntProperty(
+        name = "Amount",
+        description = "The amount to use for the above relation operation",
+        min = 0,
+        default = 0)
+
+    def init(self, context):
+        self.outputs.new("FidgetBoolSocket", "")
+
+    def draw_buttons(self, context, layout):
+        if self.outputs[0].objects_visible_amount == "AMOUNT":
             column = layout.column(align=True)
             column.prop(self, 'relation', text="")
             column.prop(self, 'amount', text="")
@@ -467,7 +418,7 @@ class FidgetOutputNode(FidgetTreeNode, Node):
         default = "MODE1")
 
     def init(self, context):
-        self.inputs.new("FidgetCommandSocket", "")
+        self.inputs.new("FidgetCommandSocket", "Command")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "button", text="")
@@ -498,6 +449,7 @@ node_categories = [
         NodeItem('FidgetActiveObjectModeNode'),
         NodeItem('FidgetActiveObjectTypeNode'),
         NodeItem('FidgetObjectsSelectedNode'),
+        NodeItem('FidgetObjectsVisibleNode'),
         NodeItem('FidgetStatementNode')]),
 
     FidgetNodeCategory('FIDGETCOMMAND', "Command", items=[
@@ -532,6 +484,98 @@ node_categories = [
     FidgetNodeCategory('LAYOUT', "Layout", items=[
         NodeItem("NodeFrame"),
         NodeItem("NodeReroute")])]
+
+class FidgetNodeOperators:
+
+    tree = StringProperty()
+    node = StringProperty()
+    socket = StringProperty()
+
+    @classmethod
+    def poll(build, context):
+        return context.area.type == "NODE_EDITOR" and context.space_data.tree_type == "FidgetNodeTree"
+
+    @staticmethod
+    def get_count_word(integer):
+        convert = [
+            'First',
+            'Second',
+            'Third',
+            'Fourth',
+            'Fifth',
+            'Sixth',
+            'Seventh',
+            'Eighth',
+            'Ninth',
+            'Tenth']
+
+        return convert[integer]
+
+class FidgetCommandOptions(FidgetNodeOperators, Operator):
+    bl_idname = "fidget.command_options"
+    bl_label = "Command Options"
+    bl_description = "Adjust command options"
+
+    def draw(self, context):
+        layout = self.layout
+        tree = bpy.data.node_groups[self.tree]
+        node = tree.nodes[self.node]
+
+        if node.bl_idname == "FidgetCommandNode":
+            socket = node.outputs[0]
+        else:
+            socket = node.inputs[self.socket]
+
+        col = layout.column(align=True)
+
+        row = col.row(align=True)
+        row.prop(socket, "info_text", text="")
+        row = col.row(align=True)
+        row.prop(socket, "event_value", expand=True)
+
+    def execute(self, context):
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+
+        context.window_manager.invoke_popup(self, width=200)
+
+        return {'RUNNING_MODAL'}
+
+class FidgetCommandAdd(FidgetNodeOperators, Operator):
+    bl_idname = "fidget.command_add"
+    bl_label = "Add Command"
+    bl_description = "Add a command and bool input socket pair to this node"
+
+    def execute(self, context):
+        tree = bpy.data.node_groups[self.tree]
+        node = tree.nodes[self.node]
+
+        split = len(node.inputs)//2
+        bool_count = len(node.inputs[:split])
+
+        node.inputs.new("FidgetBoolSocket", "Use {}".format(self.get_count_word(bool_count)))
+        node.inputs.move(len(node.inputs)-1, bool_count)
+
+        command_count = len(node.inputs[split:])
+
+        node.inputs.new("FidgetCommandSocket", "Command {}".format(command_count))
+
+        return {'FINISHED'}
+
+class FidgetCommandRemove(FidgetNodeOperators, Operator):
+    bl_idname = "fidget.command_remove"
+    bl_label = "Remove Command"
+    bl_description = "Remove the last command and bool input socket pair from this node"
+
+    def execute(self, context):
+        tree = bpy.data.node_groups[self.tree]
+        node = tree.nodes[self.node]
+
+        bool_index = len(node.inputs[:len(node.inputs)//2])-1
+        node.inputs.remove(node.inputs[bool_index])
+        node.inputs.remove(node.inputs[-1])
+        return {'FINISHED'}
 
 class FidgetUpdateOperator(FidgetNodeOperators, Operator):
     bl_idname = "fidget.update"
@@ -585,7 +629,6 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
 
         if self.base_switch:
             # TODO: place into functions, optimize
-            # XXX: adding a switch infront of a switch with the name 'Switch' breaks everything...
             self.switches = []
             self.switch_data = {}
             self.node_logic(self.input)
@@ -617,6 +660,7 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
             # replace switch nodes with indented switch data
             for node_index, node in enumerate(self.switches):
 
+                # self.indent -= node_index
                 self.indent = len(self.switches) - node_index
 
                 for index, bool in enumerate(self.switch_data[node.name]['bool']):
@@ -640,8 +684,15 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
                     command += self.switch_data[node.name]['command'][index]
 
                 if node_index < len(self.switches) - 1:
-                    next_node = self.switches[node_index+1]
-                    switch_index = self.switch_data[next_node.name]['command'].index(node)
+                    found_command = False
+                    index = node_index
+
+                    while not found_command:
+                        index += 1
+                        next_node = self.switches[index]
+                        if node in self.switch_data[next_node.name]['command']:
+                            switch_index = self.switch_data[next_node.name]['command'].index(node)
+                            found_command = True
 
                     self.switch_data[next_node.name]['command'][switch_index] = command
 
@@ -806,7 +857,27 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
                 'GREATEREQUAL': "len(context.selected_objects) >= ",
                 'NOT': "len(context.selected_objects) != "}
 
-            if node.outputs[0].objects_amount == 'ANY':
+            if node.outputs[0].objects_selected_amount == 'ANY':
+                return logic['ANY']
+            else:
+                return "{relation}{amount}".format(
+                    relation = logic[node.relation],
+                    amount = node.amount)
+
+    def objectsvisible(self, node):
+        if self.base_switch:
+            return node
+        else:
+            logic = {
+                'ANY': "context.visible_objects",
+                'EQUAL': "len(context.visible_objects) == ",
+                'LESSER': "len(context.visible_objects) < ",
+                'LESSEREQUAL': "len(context.visible_objects) <= ",
+                'GREATER': "len(context.visible_objects) > ",
+                'GREATEREQUAL': "len(context.visible_objects) >= ",
+                'NOT': "len(context.visible_objects) != "}
+
+            if node.outputs[0].objects_visible_amount == 'ANY':
                 return logic['ANY']
             else:
                 return "{relation}{amount}".format(
