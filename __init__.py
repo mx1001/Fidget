@@ -44,11 +44,23 @@ def draw_header(cls, context):
         cls.layout.operator("wm.addon_enable", text="Enable Fidget", icon="CHECKBOX_DEHLT", emboss=False).module = "Fidget"
 bpy.types.NODE_HT_header.append(draw_header)
 
+addon_keymaps = []
+
+
 def register():
     bpy.utils.register_module(__name__)
     nodes_register()
     # bpy.types.NODE_HT_header.append(draw_header)
     # register_all()
+
+    kc = bpy.context.window_manager.keyconfigs.addon
+
+    km = kc.keymaps.new(name='Node Editor', space_type='NODE_EDITOR')
+
+    kmi = km.keymap_items.new('wm.call_menu', 'W', 'PRESS', ctrl=False, shift=True, alt=False)
+    kmi.properties.name = "fidget.custom_menu"
+    addon_keymaps.append((km, kmi))
+
     print("Registered {} with {} modules".format(bl_info["name"], len(modules)))
 
 
@@ -58,4 +70,9 @@ def unregister():
     nodes_unregister()
     # bpy.types.NODE_HT_header.remove(draw_header)
     # unregister_all()
+
+    for km, kmi in addon_keymaps:
+        km.keymap_items.remove(kmi)
+    addon_keymaps.clear()
+
     print("Unregistered {}".format(bl_info["name"]))
