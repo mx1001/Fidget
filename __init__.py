@@ -32,18 +32,47 @@ bl_info = {
 
 from . import developer_utils
 modules = developer_utils.setup_addon_modules(__path__, __name__, "bpy" in locals())
-
-import bpy,bgl,blf
+import bpy
+from . nodes.nodes import nodes_register, nodes_unregister
 # from . registration import register_all, unregister_all
+
+
+def draw_header(cls, context):
+    if "Fidget" in context.user_preferences.addons:
+        cls.layout.operator("wm.addon_disable", text="Disable Fidget", icon="CHECKBOX_HLT", emboss=False).module = "Fidget"
+    else:
+        cls.layout.operator("wm.addon_enable", text="Enable Fidget", icon="CHECKBOX_DEHLT", emboss=False).module = "Fidget"
+bpy.types.NODE_HT_header.append(draw_header)
+
+addon_keymaps = []
 
 
 def register():
     bpy.utils.register_module(__name__)
+    nodes_register()
+    # bpy.types.NODE_HT_header.append(draw_header)
     # register_all()
+
+    kc = bpy.context.window_manager.keyconfigs.addon
+
+    km = kc.keymaps.new(name='Node Editor', space_type='NODE_EDITOR')
+
+    kmi = km.keymap_items.new('wm.call_menu', 'W', 'PRESS', ctrl=False, shift=True, alt=False)
+    kmi.properties.name = "fidget.custom_menu"
+    addon_keymaps.append((km, kmi))
+
     print("Registered {} with {} modules".format(bl_info["name"], len(modules)))
 
 
 def unregister():
     bpy.utils.unregister_module(__name__)
+    # remove commands
+    nodes_unregister()
+    # bpy.types.NODE_HT_header.remove(draw_header)
     # unregister_all()
+
+    for km, kmi in addon_keymaps:
+        km.keymap_items.remove(kmi)
+    addon_keymaps.clear()
+
     print("Unregistered {}".format(bl_info["name"]))
