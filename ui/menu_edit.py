@@ -4,6 +4,7 @@ from bpy.props import *
 
 operators_edit = [
     ("EXTRUDE", "", ""),
+    ("EXTRUDE_INDIVIDUAL", "", ""),
     ("SUBDIVIDE", "", ""),
     ("BEVEL", "", ""),
     ("INSET", "", ""),
@@ -28,6 +29,10 @@ class FidgetMenuOperatorEdit(bpy.types.Operator):
 
         if {"EXTRUDE"}.issubset(self.operator_types):
             bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Extrude'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.mesh.extrude_region_move('INVOKE_DEFAULT')\""}])
+            bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
+
+        elif {"EXTRUDE_INDIVIDUAL"}.issubset(self.operator_types):
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Extrude Individual'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.mesh.extrude_faces_move('INVOKE_DEFAULT')\""}])
             bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
 
         elif {"SUBDIVIDE"}.issubset(self.operator_types):
@@ -66,7 +71,6 @@ class FidgetMenuOperatorEdit(bpy.types.Operator):
             bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Vert Mode'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.mesh.select_mode(type='VERT')\""}])
             bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
 
-
         return {'FINISHED'}
 
 
@@ -77,6 +81,7 @@ class FidgetCustomEditMenu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         layout.operator("fidget.operator_edit", "Extrude").operator_types = {"EXTRUDE"}
+        layout.operator("fidget.operator_edit", "EXTRUDE_INDIVIDUAL").operator_types = {"EXTRUDE_INDIVIDUAL"}
         layout.operator("fidget.operator_edit", "Bevel").operator_types = {"BEVEL"}
         layout.operator("fidget.operator_edit", "Inset").operator_types = {"INSET"}
         layout.separator()

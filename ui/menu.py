@@ -13,5 +13,6 @@ class FidgetCustomMenu(bpy.types.Menu):
         layout.menu("fidget.custom_bc_menu", text="BoxCutter")
         layout.menu("fidget.custom_hops_menu", text="Hardops")
         layout.separator()
+        layout.menu("fidget.custom_menus_menu", text="Menus")
         # TO DO
         # layout.menu("fidget.custom_logic_menu", text="Logic")
