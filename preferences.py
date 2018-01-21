@@ -154,7 +154,7 @@ class FidgetPreferences(bpy.types.AddonPreferences):
 
     fidget_button3_color = FloatVectorProperty(
             name="",
-            default=(0.7, 0.7, 0.7, 0.5),
+            default=(0.448, 0.448, 0.448, 0.5),
             size=4,
             min=0, max=1,
             subtype='COLOR'
@@ -203,7 +203,7 @@ class FidgetPreferences(bpy.types.AddonPreferences):
 
     fidget_button3_color_mode2 = FloatVectorProperty(
             name="",
-            default=(0.7, 0.7, 0.7, 0.5),
+            default=(0.448, 0.448, 0.448, 0.5),
             size=4,
             min=0, max=1,
             subtype='COLOR'
@@ -252,7 +252,7 @@ class FidgetPreferences(bpy.types.AddonPreferences):
 
     fidget_button3_color_mode3 = FloatVectorProperty(
             name="",
-            default=(0.7, 0.7, 0.7, 0.5),
+            default=(0.448, 0.448, 0.448, 0.5),
             size=4,
             min=0, max=1,
             subtype='COLOR'
