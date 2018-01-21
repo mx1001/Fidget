@@ -25,35 +25,35 @@ class FidgetMenuOperatorModifiers(bpy.types.Operator):
     def execute(self, context):
 
         if {"Array"}.issubset(self.operator_types):
-            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Extrude'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='ARRAY')\""}])
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Array Mod'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='ARRAY')\""}])
             bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
 
         elif {"Bevel"}.issubset(self.operator_types):
-            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Extrude Individual'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='BEVEL')\""}])
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Bevel Mod'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='BEVEL')\""}])
             bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
 
         elif {"Subdivision"}.issubset(self.operator_types):
-            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Subdivide'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='SUBSURF')\""}])
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Subdivision Mod'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='SUBSURF')\""}])
             bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
 
         elif {"Mirror"}.issubset(self.operator_types):
-            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Shade Smooth'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='MIRROR')\""}])
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Mirror Mod'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='MIRROR')\""}])
             bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
 
         elif {"Boolean"}.issubset(self.operator_types):
-            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Shade Flat'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='Boolean')\""}])
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Boolean Mod'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='Boolean')\""}])
             bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
 
         elif {"Solidify"}.issubset(self.operator_types):
-            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Bridge Loops'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='SOLIDIFY')\""}])
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Solidify Mod'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='SOLIDIFY')\""}])
             bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
 
         elif {"Displace"}.issubset(self.operator_types):
-            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Inset'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='DISPLACE')\""}])
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Displace Mod'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='DISPLACE')\""}])
             bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
 
         elif {"Simple Deform"}.issubset(self.operator_types):
-            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Bevel'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='SIMPLE_DEFORM')\""}])
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Simple Deform Mod'"}, {"name":"event_value", "value":"'PRESS'"}, {"name":"command", "value":"\"bpy.ops.object.modifier_add(type='SIMPLE_DEFORM')\""}])
             bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
 
         return {'FINISHED'}
@@ -65,11 +65,11 @@ class FidgetCustomModifiersMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        layout.operator("fidget.operator_edit", "Array").operator_types = {"Array"}
-        layout.operator("fidget.operator_edit", "Bevel").operator_types = {"Bevel"}
-        layout.operator("fidget.operator_edit", "Subdivision").operator_types = {"Subdivision"}
-        layout.operator("fidget.operator_edit", "Mirror").operator_types = {"Mirror"}
-        layout.operator("fidget.operator_edit", "Boolean").operator_types = {"Boolean"}
-        layout.operator("fidget.operator_edit", "Solidify").operator_types = {"Solidify"}
-        layout.operator("fidget.operator_edit", "Displace").operator_types = {"Displace"}
-        layout.operator("fidget.operator_edit", "Simple Deform").operator_types = {"Simple Deform"}
+        layout.operator("fidget.operator_modifiers", "Array").operator_types = {"Array"}
+        layout.operator("fidget.operator_modifiers", "Bevel").operator_types = {"Bevel"}
+        layout.operator("fidget.operator_modifiers", "Subdivision").operator_types = {"Subdivision"}
+        layout.operator("fidget.operator_modifiers", "Mirror").operator_types = {"Mirror"}
+        layout.operator("fidget.operator_modifiers", "Boolean").operator_types = {"Boolean"}
+        layout.operator("fidget.operator_modifiers", "Solidify").operator_types = {"Solidify"}
+        layout.operator("fidget.operator_modifiers", "Displace").operator_types = {"Displace"}
+        layout.operator("fidget.operator_modifiers", "Simple Deform").operator_types = {"Simple Deform"}
