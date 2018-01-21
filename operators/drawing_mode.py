@@ -105,6 +105,31 @@ class ViewportButtons(bpy.types.Operator):
 
             if not (self._region in self._region_mouse): return {'PASS_THROUGH'}
 
+            if self.drag_mode == "MOVE":
+                if event.value == 'RELEASE':
+                    self.drag_mode = None
+                self.center = self.mouse_pos
+                self.drag_static = Vector((self.center[0]+35.0, self.center[1]+21.0))
+                self.info_text = " "
+                return {'RUNNING_MODAL'}
+
+            elif self.drag_mode == 'ROTATE':
+                if event.value == 'RELEASE':
+                    self.drag_mode = None
+                self.info_text = " "
+                self.mouse_pos = Vector((event.mouse_region_x, event.mouse_region_y))
+                a = np.array([self.center.x, self.center.y])
+                b = np.array([self.drag_static.x, self.drag_static.y])
+                c = np.array([self.mouse_pos.x, self.mouse_pos.y])
+                # create vectors
+                ba = a - b
+                ac = a - c
+                # rotate
+                base = get_preferences().fidget_manimulator_rotation_angle
+                cal_angle = int(base * round(float((360 - calculate_angle(ba, ac))/base)))
+                get_preferences().fidget_manimulator_rotation = cal_angle
+                return {'RUNNING_MODAL'}
+
             if event.type == 'RIGHTMOUSE':
                 if event.value == 'PRESS':
                     if self.is_over_mode1:
@@ -145,27 +170,6 @@ class ViewportButtons(bpy.types.Operator):
                 return {'RUNNING_MODAL'}
             elif self.button_left:
                 getattr(getattr(button, "left_{}".format(get_preferences().mode.lower())), "command")(self, context, event)
-                return {'RUNNING_MODAL'}
-
-            if self.drag_mode == "MOVE":
-                self.center = self.mouse_pos
-                self.drag_static = Vector((self.center[0]+35.0, self.center[1]+21.0))
-                self.info_text = " "
-                return {'RUNNING_MODAL'}
-
-            elif self.drag_mode == 'ROTATE':
-                self.info_text = " "
-                self.mouse_pos = Vector((event.mouse_region_x, event.mouse_region_y))
-                a = np.array([self.center.x, self.center.y])
-                b = np.array([self.drag_static.x, self.drag_static.y])
-                c = np.array([self.mouse_pos.x, self.mouse_pos.y])
-                # create vectors
-                ba = a - b
-                ac = a - c
-                # rotate
-                base = get_preferences().fidget_manimulator_rotation_angle
-                cal_angle = int(base * round(float((360 - calculate_angle(ba, ac))/base)))
-                get_preferences().fidget_manimulator_rotation = cal_angle
                 return {'RUNNING_MODAL'}
 
             if event.type == 'ESC' and event.value == 'PRESS':
