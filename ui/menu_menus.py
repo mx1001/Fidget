@@ -7,6 +7,10 @@ operators_edit = [
     ("FACES", "", ""),
     ("EDGES", "", ""),
     ("VERTS", "", ""),
+    ("VIEW", "", ""),
+    ("Select", "", ""),
+    ("ADD", "", ""),
+    ("OBJECT", "", ""),
     ("MIRROR", "", ""),
     ("EXTRUDE", "", ""),
     ("TRANSFORM", "", ""),
@@ -56,6 +60,22 @@ class FidgetMenuOperatorMenus(bpy.types.Operator):
             bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'HARDOPS'"}, {"name":"event_value", "value":"'RELEASE'"}, {"name":"command", "value":"\"bpy.ops.wm.call_menu(name='hops_main_menu')\""}])
             bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
 
+        elif {"VIEW"}.issubset(self.operator_types):
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'View'"}, {"name":"event_value", "value":"'RELEASE'"}, {"name":"command", "value":"\"bpy.ops.wm.call_menu(name='VIEW3D_MT_view')\""}])
+            bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
+
+        elif {"Select"}.issubset(self.operator_types):
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Select'"}, {"name":"event_value", "value":"'RELEASE'"}, {"name":"command", "value":"\"bpy.ops.wm.call_menu(name='VIEW3D_MT_select_object')\""}])
+            bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
+
+        elif {"ADD"}.issubset(self.operator_types):
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Add'"}, {"name":"event_value", "value":"'RELEASE'"}, {"name":"command", "value":"\"bpy.ops.wm.call_menu(name='INFO_MT_add')\""}])
+            bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
+
+        elif {"OBJECT"}.issubset(self.operator_types):
+            bpy.ops.node.add_node(type="FidgetCommandNode", use_transform=True, settings=[{"name":"info_text", "value":"'Object'"}, {"name":"event_value", "value":"'RELEASE'"}, {"name":"command", "value":"\"bpy.ops.wm.call_menu(name='VIEW3D_MT_object')\""}])
+            bpy.ops.node.translate_attach_remove_on_cancel('INVOKE_DEFAULT')
+
         return {'FINISHED'}
 
 
@@ -69,6 +89,11 @@ class FidgetCustomMenusMenu(bpy.types.Menu):
         layout.operator("fidget.operator_menus", "Faces").operator_types = {"FACES"}
         layout.operator("fidget.operator_menus", "Edges").operator_types = {"EDGES"}
         layout.operator("fidget.operator_menus", "Verts").operator_types = {"VERTS"}
+        layout.separator()
+        layout.operator("fidget.operator_menus", "View").operator_types = {"VIEW"}
+        layout.operator("fidget.operator_menus", "Select").operator_types = {"Select"}
+        layout.operator("fidget.operator_menus", "Add").operator_types = {"ADD"}
+        layout.operator("fidget.operator_menus", "Object").operator_types = {"OBJECT"}
         layout.separator()
         layout.operator("fidget.operator_menus", "Extrude").operator_types = {"EXTRUDE"}
         layout.operator("fidget.operator_menus", "Transform").operator_types = {"TRANSFORM"}
