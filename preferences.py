@@ -1,6 +1,8 @@
 import os
 import bpy
+import rna_keymap_ui
 from bpy.props import *
+from . utils.registers import get_hotkey_entry_item
 
 
 def get_preferences():
@@ -18,7 +20,6 @@ manipulator_modes = [
 
 settings_tabs_items = [
     ("UI", "UI", ""),
-    ("PROPERTIES", "Properties", ""),
     ("INFO", "Info", ""),
     ("KEYMAP", "Keymap", "")]
 
@@ -308,8 +309,8 @@ class FidgetPreferences(bpy.types.AddonPreferences):
 
         if self.tab == "UI":
             self.draw_ui_tab(box)
-        elif self.tab == "PROPERTIES":
-            self.draw_properties_tab(box)
+        # elif self.tab == "PROPERTIES":
+        #     self.draw_properties_tab(box)
         elif self.tab == "INFO":
             self.draw_info_tab(box)
         elif self.tab == "KEYMAP":
@@ -397,7 +398,29 @@ class FidgetPreferences(bpy.types.AddonPreferences):
         box = layout.box()
 
     def draw_info_tab(self, layout):
-        box = layout.box()
+        layout.label('Info')
 
     def draw_keymap_tab(self, layout):
         box = layout.box()
+        split = box.split()
+        col = split.column()
+        col.label('Do not remove hotkeys, disable them instead.')
+        col.separator()
+        col.label('Hotkeys')
+
+        col.separator()
+
+        wm = bpy.context.window_manager
+        kc = wm.keyconfigs.user
+
+        col.label('Open:')
+
+        col.separator()
+        km = kc.keymaps['3D View']
+        kmi = get_hotkey_entry_item(km, 'fidget.viewport_buttons', 'none', 'none')
+        if kmi:
+            col.context_pointer_set("keymap", km)
+            rna_keymap_ui.draw_kmi([], kc, km, kmi, col, 0)
+        else:
+            col.label("No hotkey entry found")
+            col.label("restore hotkeys from interface tab")
