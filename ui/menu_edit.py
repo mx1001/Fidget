@@ -81,7 +81,7 @@ class FidgetCustomEditMenu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         layout.operator("fidget.operator_edit", "Extrude").operator_types = {"EXTRUDE"}
-        layout.operator("fidget.operator_edit", "EXTRUDE_INDIVIDUAL").operator_types = {"EXTRUDE_INDIVIDUAL"}
+        layout.operator("fidget.operator_edit", "Extrude individual").operator_types = {"EXTRUDE_INDIVIDUAL"}
         layout.operator("fidget.operator_edit", "Bevel").operator_types = {"BEVEL"}
         layout.operator("fidget.operator_edit", "Inset").operator_types = {"INSET"}
         layout.separator()
