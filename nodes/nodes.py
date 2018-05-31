@@ -430,6 +430,7 @@ class FidgetOutputNode(FidgetTreeNode, Node):
         op = row.operator("fidget.update")
         op.output_id = str((self.id_data.name, self.name))
         op.write = True
+        op.update_all_outputs = False
 
         # TODO: write_file and reset behavior
         # row.operator("fidget.save", text="", icon="FILE_TICK")
@@ -564,40 +565,50 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
     output_id = StringProperty()
     write = BoolProperty()
     reset = BoolProperty()
+    update_all_outputs = BoolProperty()
 
     @staticmethod
     def get_input(socket):
         return socket.links[0].from_node if socket.links else None
 
     def execute(self, context):
-        try: tree_name, output_name = eval(self.output_id)
-        except Exception as error:
-            traceback.print_exc()
+        
+        if self.output_id != "":
+            tree_name, output_name = eval(self.output_id)
+            tree = bpy.data.node_groups[tree_name]
+            trees = [tree]
+            self.outputs = [tree.nodes[output_name]]
+            
+        if self.output_id == "" or self.update_all_outputs:
             tree_name, output_name = ('NodeTree', 'Output')
+            trees = [t for t in bpy.data.node_groups]
+            self.outputs = []
+            for tree in trees:
+                self.outputs.extend([n for n in tree.nodes if n.bl_label == "Output"])
+            print(self.outputs)
 
-        tree = bpy.data.node_groups[tree_name]
+        for output in self.outputs:
 
-        self.output = tree.nodes[output_name]
-        self.input = self.output.inputs[0].links[0].from_node if len(self.output.inputs[0].links) else None
+            self.output = output
+            self.input = self.output.inputs[0].links[0].from_node if len(self.output.inputs[0].links) else None
+            links = self.output.inputs[0].links
 
-        links = self.output.inputs[0].links
+            if self.input:
+                if self.input.bl_idname in {'FidgetCommandNode', 'FidgetScriptNode', 'FidgetSwitchNode'}:
+                    self.build(context)
 
-        if self.input:
-            if self.input.bl_idname in {'FidgetCommandNode', 'FidgetScriptNode', 'FidgetSwitchNode'}:
+                else:
+                    self.report({'WARNING'}, "{} node is an invalid input command for {}".format(self.input.bl_label.capitalize(), self.output.bl_label.lower()))
+
+                    return {'CANCELLED'}
+
+            elif self.output.inputs[0].command:
                 self.build(context)
 
             else:
-                self.report({'WARNING'}, "{} node is an invalid input command for {}".format(self.input.bl_label.capitalize(), self.output.bl_label.lower()))
+                self.report({'WARNING'}, "Must have a command for output")
 
                 return {'CANCELLED'}
-
-        elif self.output.inputs[0].command:
-            self.build(context)
-
-        else:
-            self.report({'WARNING'}, "Must have a command for output")
-
-            return {'CANCELLED'}
 
         return {'FINISHED'}
 

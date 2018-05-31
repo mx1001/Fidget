@@ -40,8 +40,13 @@ from . keymap import register_keymap, unregister_keymap
 def draw_header(cls, context):
     if "Fidget" in context.user_preferences.addons:
         cls.layout.operator("wm.addon_disable", text="Disable Fidget", icon="CHECKBOX_HLT", emboss=False).module = "Fidget"
+        op = cls.layout.operator("fidget.update", text="Update All Outputs")
+        op.write = True
+        op.update_all_outputs = True
     else:
         cls.layout.operator("wm.addon_enable", text="Enable Fidget", icon="CHECKBOX_DEHLT", emboss=False).module = "Fidget"
+
+
 bpy.types.NODE_HT_header.append(draw_header)
 
 
