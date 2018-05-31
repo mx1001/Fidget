@@ -599,16 +599,14 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
 
                 else:
                     self.report({'WARNING'}, "{} node is an invalid input command for {}".format(self.input.bl_label.capitalize(), self.output.bl_label.lower()))
-
-                    return {'CANCELLED'}
+                    #return {'CANCELLED'}
 
             elif self.output.inputs[0].command:
                 self.build(context)
 
             else:
-                self.report({'WARNING'}, "Must have a command for output")
-
-                return {'CANCELLED'}
+                self.report({'WARNING'}, self.output.name+": Must have a command for output")
+                #return {'CANCELLED'}
 
         return {'FINISHED'}
 
