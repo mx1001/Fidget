@@ -43,6 +43,8 @@ def draw_header(cls, context):
         op = cls.layout.operator("fidget.update", text="Update All Outputs")
         op.write = True
         op.update_all_outputs = True
+        op = cls.layout.operator("fidget.save_startup", text="Save Tree as Startup")
+        op = cls.layout.operator("fidget.load_startup", text="Load Tree")
     else:
         cls.layout.operator("wm.addon_enable", text="Enable Fidget", icon="CHECKBOX_DEHLT", emboss=False).module = "Fidget"
 

@@ -1,0 +1,807 @@
+{
+    "Tree": "TestGraph1_1",
+    "Nodes": [
+        {
+            "bl_idname": "NodeFrame",
+            "name": "Frame.001",
+            "parent": "None",
+            "location": [
+                774.205078125,
+                -13.83534049987793
+            ],
+            "width": 740.2671508789062,
+            "height": 667.7603759765625,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.002",
+            "parent": "None",
+            "location": [
+                -893.9860229492188,
+                -129.53370666503906
+            ],
+            "width": 451.040771484375,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "RELEASE",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetOutputNode",
+            "name": "Output.002",
+            "parent": "None",
+            "location": [
+                -19.05706787109375,
+                14.953643798828125
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Command"
+            ],
+            "outputs": []
+        },
+        {
+            "bl_idname": "FidgetSwitchNode",
+            "name": "Switch.002",
+            "parent": "None",
+            "location": [
+                -346.1583251953125,
+                -9.49407958984375
+            ],
+            "width": 276.605712890625,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Use First",
+                "Command 1",
+                "Command 2"
+            ],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetActiveObjectModeNode",
+            "name": "Object Mode",
+            "parent": "None",
+            "location": [
+                -593.76025390625,
+                371.81890869140625
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.001",
+            "parent": "None",
+            "location": [
+                -598.9755249023438,
+                148.892822265625
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "RELEASE",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command",
+            "parent": "None",
+            "location": [
+                -597.4456176757812,
+                291.69781494140625
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "RELEASE",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetSwitchNode",
+            "name": "Switch",
+            "parent": "None",
+            "location": [
+                -339.15728759765625,
+                354.2117919921875
+            ],
+            "width": 278.23944091796875,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Use First",
+                "Command 1",
+                "Command 2"
+            ],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetSwitchNode",
+            "name": "Switch.001",
+            "parent": "None",
+            "location": [
+                -343.37835693359375,
+                176.21063232421875
+            ],
+            "width": 276.605712890625,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Use First",
+                "Command 1",
+                "Command 2"
+            ],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.013",
+            "parent": "None",
+            "location": [
+                -912.9549560546875,
+                215.84478759765625
+            ],
+            "width": 275.035888671875,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "PRESS",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.012",
+            "parent": "None",
+            "location": [
+                -899.9302368164062,
+                360.2330322265625
+            ],
+            "width": 271.9124755859375,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "PRESS",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.004",
+            "parent": "None",
+            "location": [
+                -846.7528686523438,
+                1.0695648193359375
+            ],
+            "width": 397.90325927734375,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "RELEASE",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetSwitchNode",
+            "name": "Switch.003",
+            "parent": "None",
+            "location": [
+                1491.504150390625,
+                330.6149597167969
+            ],
+            "width": 181.07000732421875,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Use First",
+                "Use Second",
+                "Command 1",
+                "Command 2",
+                "Command 3"
+            ],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetSwitchNode",
+            "name": "Switch.005",
+            "parent": "None",
+            "location": [
+                1479.394287109375,
+                -99.394775390625
+            ],
+            "width": 187.61114501953125,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Use First",
+                "Use Second",
+                "Use Third",
+                "Use Fourth",
+                "Command 1",
+                "Command 2",
+                "Command 3",
+                "Command 4",
+                "Command 5"
+            ],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetSwitchNode",
+            "name": "Switch.004",
+            "parent": "None",
+            "location": [
+                1483.3277587890625,
+                111.3197021484375
+            ],
+            "width": 184.340576171875,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Use First",
+                "Use Second",
+                "Command 1",
+                "Command 2",
+                "Command 3"
+            ],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetOutputNode",
+            "name": "Output.006",
+            "parent": "None",
+            "location": [
+                1937.361083984375,
+                209.1468505859375
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Command"
+            ],
+            "outputs": []
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.003",
+            "parent": "None",
+            "location": [
+                1026.41162109375,
+                312.2416076660156
+            ],
+            "width": 240.946533203125,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "PRESS",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.008",
+            "parent": "None",
+            "location": [
+                1025.1083984375,
+                176.3961181640625
+            ],
+            "width": 243.744873046875,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "PRESS",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.010",
+            "parent": "None",
+            "location": [
+                1023.491455078125,
+                40.2393798828125
+            ],
+            "width": 247.43011474609375,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "RELEASE",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.009",
+            "parent": "None",
+            "location": [
+                1022.6945190429688,
+                -94.6156005859375
+            ],
+            "width": 250.22613525390625,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "RELEASE",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetActiveObjectModeNode",
+            "name": "Object Mode.002",
+            "parent": "None",
+            "location": [
+                1172.586669921875,
+                391.5301208496094
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetActiveObjectModeNode",
+            "name": "Object Mode.001",
+            "parent": "None",
+            "location": [
+                1173.8798828125,
+                466.37896728515625
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.015",
+            "parent": "None",
+            "location": [
+                970.46826171875,
+                -400.02166748046875
+            ],
+            "width": 409.53765869140625,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "RELEASE",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetOutputNode",
+            "name": "Output.007",
+            "parent": "None",
+            "location": [
+                1931.02880859375,
+                73.84228515625
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Command"
+            ],
+            "outputs": []
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.011",
+            "parent": "None",
+            "location": [
+                989.9544677734375,
+                -265.4852294921875
+            ],
+            "width": 275.035888671875,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "PRESS",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetOutputNode",
+            "name": "Output.008",
+            "parent": "None",
+            "location": [
+                1936.827392578125,
+                349.6775207519531
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Command"
+            ],
+            "outputs": []
+        },
+        {
+            "bl_idname": "FidgetOutputNode",
+            "name": "Output.001",
+            "parent": "None",
+            "location": [
+                -19.16259765625,
+                194.96484375
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Command"
+            ],
+            "outputs": []
+        },
+        {
+            "bl_idname": "FidgetOutputNode",
+            "name": "Output",
+            "parent": "None",
+            "location": [
+                -16.34832763671875,
+                355.723388671875
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Command"
+            ],
+            "outputs": []
+        },
+        {
+            "bl_idname": "FidgetOutputNode",
+            "name": "Output.003",
+            "parent": "Frame.001",
+            "location": [
+                -37.735107421875,
+                359.3551025390625
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Command"
+            ],
+            "outputs": []
+        },
+        {
+            "bl_idname": "FidgetOutputNode",
+            "name": "Output.004",
+            "parent": "Frame.001",
+            "location": [
+                -40.54931640625,
+                198.5965118408203
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Command"
+            ],
+            "outputs": []
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.007",
+            "parent": "Frame.001",
+            "location": [
+                -558.6123657226562,
+                183.8633575439453
+            ],
+            "width": 301.11065673828125,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "RELEASE",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.006",
+            "parent": "Frame.001",
+            "location": [
+                -566.3697509765625,
+                11.708221435546875
+            ],
+            "width": 301.11065673828125,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "RELEASE",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetOutputNode",
+            "name": "Output.005",
+            "parent": "Frame.001",
+            "location": [
+                -40.44384765625,
+                18.585357666015625
+            ],
+            "width": 150.0,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "None",
+            "inputs": [
+                "Command"
+            ],
+            "outputs": []
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.014",
+            "parent": "Frame.001",
+            "location": [
+                -560.5208740234375,
+                -111.08088684082031
+            ],
+            "width": 397.90325927734375,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "RELEASE",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        },
+        {
+            "bl_idname": "FidgetCommandNode",
+            "name": "Command.005",
+            "parent": "Frame.001",
+            "location": [
+                -568.4160766601562,
+                369.59576416015625
+            ],
+            "width": 301.11065673828125,
+            "height": 100.0,
+            "color": [
+                0.6079999804496765,
+                0.6079999804496765,
+                0.6079999804496765
+            ],
+            "label": "",
+            "event_value": "RELEASE",
+            "inputs": [],
+            "outputs": [
+                "socket"
+            ]
+        }
+    ]
+}

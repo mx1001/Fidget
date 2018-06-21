@@ -15,9 +15,13 @@
 import traceback
 
 import bpy
+import os
+import json
+import mathutils
 
 from bpy.props import *
 from bpy.types import Operator, NodeTree, Node, NodeSocket
+from bpy.app.handlers import persistent
 
 import nodeitems_utils
 from nodeitems_utils import NodeCategory, NodeItem
@@ -557,6 +561,124 @@ class FidgetCommandRemove(FidgetNodeOperators, Operator):
         node.inputs.remove(node.inputs[-1])
         return {'FINISHED'}
 
+class FidgetSaveOperator(FidgetNodeOperators, Operator):
+    bl_idname = "fidget.save_startup"
+    bl_label = "Save"
+    bl_description = "Save this node tree and have it be loaded automatically."
+
+    def execute(self, context):
+        tree = context.space_data.node_tree
+        nodes = tree.nodes
+
+        nodeTree = {"Tree": tree.name, "Nodes": []}
+
+
+        for n in nodes:
+
+            properties = ["bl_idname", "name", "parent", "location", "width", "height", "color", "label"]
+            types = [str, str, str, tuple, float, float, tuple, str]
+            data = [getattr(n, i) for i in properties]
+
+            #if len(n.inputs) > 0:
+                #print([i.identifier for i in n.inputs])
+
+            if data[2] is not None:
+                data[2] = data[2].name
+
+            #event_value = socket.event_value if socket.node.bl_idname != 'FidgetCommandNode' else socket.node.event_value
+            event_value = n.event_value if n.bl_idname == "FidgetCommandNode" else "None"
+            data.append(event_value)
+            properties.append("event_value")
+            types.append(str)
+                
+            data = [convert(i) for convert, i in zip(types, data)]
+
+            
+            data.append([i.identifier for i in n.inputs])
+            data.append([i.identifier for i in n.outputs])
+            properties.append("inputs")
+            properties.append("outputs")
+
+            #print(n.name, [i.identifier for i in n.inputs])
+
+            nodeTree["Nodes"].append(dict(zip(properties, data)))
+            
+
+        path = os.path.dirname(os.path.abspath(__file__))
+        startupFile = open(os.path.join(path, "startup_fidget_tree.json"), 'w')
+        startupFile.write(json.dumps(nodeTree, indent = 4))
+        startupFile.close()
+        
+        return {'FINISHED'}
+
+
+class FidgetLoadOperator(FidgetNodeOperators, Operator):
+    bl_idname = "fidget.load_startup"
+    bl_label = "Load"
+    bl_description = "Load the saved fidget tree"
+
+    def execute(self, context):
+
+        #load the file
+        path = os.path.dirname(os.path.abspath(__file__))
+
+        if not os.path.exists(path):
+            return {'CANCELLED'}
+        
+        startupFile = open(os.path.join(path, "startup_fidget_tree.json"), 'r')
+        data = startupFile.read()
+        data = json.loads(data)
+        startupFile.close()
+
+
+        tree = bpy.data.node_groups.new(type="FidgetNodeTree", name=data["Tree"]+"loaded")
+        nodes = tree.nodes
+
+        for n in data["Nodes"]:
+            
+            node = tree.nodes.new(n["bl_idname"])
+
+            for prop in n:
+
+                value = n[prop]
+                #print(prop not in ["inputs", "outputs"])
+                if hasattr(node, prop) and value != "None" and prop not in ["inputs", "outputs"]:
+                    
+                    if prop == "parent":
+                        value = nodes[n[prop]]
+
+                    setattr(node, prop, value)
+
+
+            if node.bl_idname == "FidgetSwitchNode":
+
+                for count, socket in enumerate(n["inputs"]):
+                
+                    split = len(node.inputs)//2
+                    bool_count = len(node.inputs[:split])
+
+                    title = "Use {}".format(self.get_count_word(bool_count))
+
+                    print(socket, node.inputs[count].identifier)
+
+                    if socket != node.inputs[count].identifier:
+
+                        node.inputs.new("FidgetBoolSocket", title)
+                        node.inputs.move(len(node.inputs)-1, bool_count)
+
+                        command_count = len(node.inputs[split:])
+
+                        node.inputs.new("FidgetCommandSocket", "Command {}".format(command_count))
+
+            #for inputNode in n["inputs"]:
+                #tree.links.new(nodes[inputNode[0]].outputs[inputNode[1]], node.inputs[inputNode[2]])
+
+        return {'FINISHED'}
+        
+
+
+        
+
 class FidgetUpdateOperator(FidgetNodeOperators, Operator):
     bl_idname = "fidget.update"
     bl_label = "Update"
@@ -575,6 +697,7 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
         
         if self.output_id != "":
             tree_name, output_name = eval(self.output_id)
+            #print(tree_name)
             tree = bpy.data.node_groups[tree_name]
             trees = [tree]
             self.outputs = [tree.nodes[output_name]]
@@ -585,7 +708,6 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
             self.outputs = []
             for tree in trees:
                 self.outputs.extend([n for n in tree.nodes if n.bl_label == "Output"])
-            print(self.outputs)
 
         for output in self.outputs:
 
@@ -700,13 +822,32 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
                 tab = "\t"*self.indent,
                 command = self.insert_indentation(self.socket_logic(self.output.inputs[0])))
 
+        self.command_value = self.command_value.replace("\t", "    ")
+
         # debug
         print("\n*****************")
         print("* Fidget Output *")
         print("*****************\n")
-        print(self.command_value.replace("\t", "    "))
+        print(self.command_value)
+
+##        path = os.path.dirname(os.path.abspath(__file__))
+##        savedCode = open(os.path.join(path, self.input.name+".fidget"), 'w')
+##        savedCode.write(self.command_value)
+##        savedCode.close()
 
         self.replace_command()
+
+##    def get_startup_code(self, context):
+##        path = os.path.dirname(os.path.abspath(__file__))
+##        files = os.listdir(path)
+##
+##        for f in files:
+##            if f.endswith(".fidget"):
+##                codeFile = open(f)
+##                code = codeFile.read()
+##                self.command_value = code
+                
+        
 
     def insert_indentation(self, string):
         logic_split = string.split("\n")
@@ -878,8 +1019,16 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
         else:
             return node.outputs[0].bool_statement
 
+@persistent
+def scripts_loader():
+    bpy.ops.fidget.update()
+    
+    
+
+
 def nodes_register():
     nodeitems_utils.register_node_categories("FIDGET_NODES", node_categories)
+    bpy.app.handlers.load_post.append(scripts_loader)
 
 def nodes_unregister():
     nodeitems_utils.unregister_node_categories("FIDGET_NODES")
