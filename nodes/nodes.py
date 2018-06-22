@@ -477,7 +477,10 @@ class FidgetNodeOperators:
 
     @classmethod
     def poll(build, context):
-        return context.area.type == "NODE_EDITOR" and context.space_data.tree_type == "FidgetNodeTree"
+        if context.area is not None:
+            return context.area.type == "NODE_EDITOR" and context.space_data.tree_type == "FidgetNodeTree"
+        else:
+            return True
 
     @staticmethod
     def get_count_word(integer):
@@ -727,10 +730,7 @@ class FidgetLoadOperator(FidgetNodeOperators, Operator):
                     tree.links.new(from_socket, to_socket)
 
         return {'FINISHED'}
-        
-
-
-        
+         
 
 class FidgetUpdateOperator(FidgetNodeOperators, Operator):
     bl_idname = "fidget.update"
@@ -883,24 +883,8 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
         print("*****************\n")
         print(self.command_value)
 
-##        path = os.path.dirname(os.path.abspath(__file__))
-##        savedCode = open(os.path.join(path, self.input.name+".fidget"), 'w')
-##        savedCode.write(self.command_value)
-##        savedCode.close()
-
         self.replace_command()
 
-##    def get_startup_code(self, context):
-##        path = os.path.dirname(os.path.abspath(__file__))
-##        files = os.listdir(path)
-##
-##        for f in files:
-##            if f.endswith(".fidget"):
-##                codeFile = open(f)
-##                code = codeFile.read()
-##                self.command_value = code
-                
-        
 
     def insert_indentation(self, string):
         logic_split = string.split("\n")
@@ -1073,15 +1057,12 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
             return node.outputs[0].bool_statement
 
 @persistent
-def scripts_loader():
-    bpy.ops.fidget.update()
+def startup_graph_loader(dummy):
+    bpy.ops.fidget.load_startup()
     
-    
-
-
 def nodes_register():
     nodeitems_utils.register_node_categories("FIDGET_NODES", node_categories)
-    bpy.app.handlers.load_post.append(scripts_loader)
+    bpy.app.handlers.load_post.append(startup_graph_loader)
 
 def nodes_unregister():
     nodeitems_utils.unregister_node_categories("FIDGET_NODES")
