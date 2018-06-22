@@ -571,28 +571,21 @@ class FidgetSaveOperator(FidgetNodeOperators, Operator):
         nodes = tree.nodes
         links = tree.links
 
-
         nodeTree = {"Tree": tree.name, "Nodes": [], "Links": []}
-
         
-
-        #print([l for l in links])
-
         for l in links:
             nodeTree["Links"].append({"from_node": l.from_node.name, "to_node": l.to_node.name, "from_socket": l.from_socket.identifier, "to_socket": l.to_socket.identifier})
 
-        
-        
-
         for n in nodes:
-
-                
 
             data = {}
 
-            properties = list(dir(n))#["bl_idname", "name", "parent", "location", "width", "height", "color", "label", "event_value", "command"]
+            properties = dir(n)
             parent = properties[properties.index("parent")]
             properties[0], parent = parent, properties[0]
+
+            #illegalAttributes = []#"identifier", "dimensions", "type", "is_linked", "is_output"]
+            types = [str, bool, float, int, tuple, list]
 
             for prop in properties:
                 if hasattr(n, prop):
@@ -601,20 +594,14 @@ class FidgetSaveOperator(FidgetNodeOperators, Operator):
                         value = value.name
                     if type(value) in [mathutils.Vector, mathutils.Color]:
                         value = tuple(value)
-                    if type(value) in [str, bool, float, int, tuple, list] and "__" not in prop and prop not in ["dimensions", "type"]:
+                    if type(value) in types and "__" not in prop:
                         data.update({prop: value})
 
             
             data.update({"inputs": [i.identifier for i in n.inputs]})
             data.update({"outputs": [i.identifier for i in n.outputs]})
-
-            
             data.update({"insockets": []})
             data.update({"outsockets": []})
-
-            
-            
-            #insocketList = []
 
 
             for sock in n.inputs:
@@ -624,11 +611,10 @@ class FidgetSaveOperator(FidgetNodeOperators, Operator):
                         value = getattr(sock, prop)
                         if type(value) in [mathutils.Vector, mathutils.Color]:
                             value = tuple(value)
-                        if type(value) in [str, bool, float, int, tuple, list] and "__" not in prop and prop not in []:
+                        if type(value) in types and "__" not in prop:
                             insocketDict.update({prop: value})
 
                 data["insockets"].append(insocketDict)
-
 
 
             for sock in n.outputs:
@@ -638,7 +624,7 @@ class FidgetSaveOperator(FidgetNodeOperators, Operator):
                         value = getattr(sock, prop)
                         if type(value) in [mathutils.Vector, mathutils.Color]:
                             value = tuple(value)
-                        if type(value) in [str, bool, float, int, tuple, list] and "__" not in prop and prop not in []:
+                        if type(value) in types and "__" not in prop:
                             outsocketDict.update({prop: value})
 
                 data["outsockets"].append(outsocketDict)
@@ -646,8 +632,6 @@ class FidgetSaveOperator(FidgetNodeOperators, Operator):
 
             nodeTree["Nodes"].append(data)
 
-        
-            
 
         path = os.path.dirname(os.path.abspath(__file__))
         startupFile = open(os.path.join(path, "startup_fidget_tree.json"), 'w')
@@ -664,7 +648,6 @@ class FidgetLoadOperator(FidgetNodeOperators, Operator):
 
     def execute(self, context):
 
-        #load the file
         path = os.path.dirname(os.path.abspath(__file__))
 
         if not os.path.exists(path):
@@ -676,7 +659,7 @@ class FidgetLoadOperator(FidgetNodeOperators, Operator):
         startupFile.close()
 
 
-        tree = bpy.data.node_groups.new(type="FidgetNodeTree", name=data["Tree"]+"loaded")
+        tree = bpy.data.node_groups.new(type="FidgetNodeTree", name=data["Tree"])
         nodes = tree.nodes
 
         for n in data["Nodes"]:
@@ -691,8 +674,10 @@ class FidgetLoadOperator(FidgetNodeOperators, Operator):
                     
                     if prop == "parent":
                         value = nodes[n[prop]]
-
-                    setattr(node, prop, value)
+                    try:
+                        setattr(node, prop, value)
+                    except:
+                        pass
 
 
             if node.bl_idname == "FidgetSwitchNode":
@@ -701,34 +686,34 @@ class FidgetLoadOperator(FidgetNodeOperators, Operator):
                 
                     split = len(node.inputs)//2
                     bool_count = len(node.inputs[:split])
-
                     title = "Use {}".format(self.get_count_word(bool_count))
-
-                    #print(socket, node.inputs[count].identifier)
 
                     if socket != node.inputs[count].identifier:
 
                         node.inputs.new("FidgetBoolSocket", title)
                         node.inputs.move(len(node.inputs)-1, bool_count)
-
                         command_count = len(node.inputs[split:])
-
                         node.inputs.new("FidgetCommandSocket", "Command {}".format(command_count))
 
 
-            for count, prop in enumerate(n["insockets"]):
-                value = n["insockets"][count]
-                #print(getattr(node.inputs[count], prop), "--", prop, value)
-                setattr(node.inputs[count], prop, value)
+            for count, sock in enumerate(n["insockets"]):
+                for prop in sock:                
+                    value = sock[prop]
+                    try:
+                        setattr(node.inputs[count], prop, value)
+                    except:
+                        pass
 
             for count, sock in enumerate(n["outsockets"]):
-                value = n["outsockets"][count]
-                setattr(node.outputs[count], sock, value)
-
+                for prop in sock:                
+                    value = sock[prop]
+                    try:
+                        setattr(node.outputs[count], prop, value)
+                    except:
+                        pass
 
 
         for l in data["Links"]:
-            
 
             from_node = nodes[l["from_node"]]
             to_node = nodes[l["to_node"]]
@@ -740,8 +725,6 @@ class FidgetLoadOperator(FidgetNodeOperators, Operator):
                     from_socket = from_node.outputs[count]
                     to_socket = to_node.inputs[l["to_socket"]]
                     tree.links.new(from_socket, to_socket)
-
-        
 
         return {'FINISHED'}
         

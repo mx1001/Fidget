@@ -18,6 +18,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                894.489501953125,
+                806.877197265625
+            ],
             "height": 667.7603759765625,
             "hide": false,
             "label": "",
@@ -33,6 +37,7 @@
             "show_preview": false,
             "show_texture": false,
             "shrink": true,
+            "type": "FRAME",
             "use_custom_color": false,
             "width": 740.2671508789062,
             "width_hidden": 42.0,
@@ -59,6 +64,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.view3d.view_all(center=True)",
+            "dimensions": [
+                545.0076293945312,
+                154.4801025390625
+            ],
             "event_value": "RELEASE",
             "height": 100.0,
             "hide": false,
@@ -74,6 +83,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 451.040771484375,
             "width_hidden": 42.0,
@@ -121,6 +131,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                181.25,
+                153.06898498535156
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -135,6 +149,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -181,6 +196,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                334.2319030761719,
+                187.52798461914062
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -194,6 +213,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 276.605712890625,
             "width_hidden": 42.0,
@@ -303,6 +323,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                181.25,
+                73.28118896484375
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -316,6 +340,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -367,6 +392,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.mesh.select_less()",
+            "dimensions": [
+                181.25,
+                155.91217041015625
+            ],
             "event_value": "RELEASE",
             "height": 100.0,
             "hide": false,
@@ -382,6 +411,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -429,6 +459,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.mesh.select_more()",
+            "dimensions": [
+                181.25,
+                155.46820068359375
+            ],
             "event_value": "RELEASE",
             "height": 100.0,
             "hide": false,
@@ -444,6 +478,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -490,6 +525,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                336.20599365234375,
+                190.00592041015625
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -503,6 +542,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 278.23944091796875,
             "width_hidden": 42.0,
@@ -612,6 +652,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                334.2319030761719,
+                190.9211883544922
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -625,6 +669,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 276.605712890625,
             "width_hidden": 42.0,
@@ -735,6 +780,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.screen. screen_full_area (use_hide_panels=True)",
+            "dimensions": [
+                332.3350830078125,
+                155.81246948242188
+            ],
             "event_value": "PRESS",
             "height": 100.0,
             "hide": false,
@@ -750,6 +799,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 275.035888671875,
             "width_hidden": 42.0,
@@ -797,6 +847,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.wm.window_fullscreen_toggle()",
+            "dimensions": [
+                328.5609130859375,
+                155.28158569335938
+            ],
             "event_value": "PRESS",
             "height": 100.0,
             "hide": false,
@@ -812,6 +866,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 271.9124755859375,
             "width_hidden": 42.0,
@@ -859,6 +914,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.view3d.view_selected(use_all_regions=False)",
+            "dimensions": [
+                480.79974365234375,
+                154.29238891601562
+            ],
             "event_value": "RELEASE",
             "height": 100.0,
             "hide": false,
@@ -874,6 +933,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 397.90325927734375,
             "width_hidden": 42.0,
@@ -920,6 +980,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                218.79296875,
+                242.49310302734375
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -933,6 +997,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 181.07000732421875,
             "width_hidden": 42.0,
@@ -1084,6 +1149,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                226.69677734375,
+                237.89797973632812
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -1097,6 +1166,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 187.61114501953125,
             "width_hidden": 42.0,
@@ -1248,6 +1318,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                222.744873046875,
+                239.5113067626953
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -1261,6 +1335,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 184.340576171875,
             "width_hidden": 42.0,
@@ -1413,6 +1488,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                181.25,
+                154.7191162109375
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -1427,6 +1506,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -1474,6 +1554,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.view3d.view_all(center=False)",
+            "dimensions": [
+                291.1436767578125,
+                155.29196166992188
+            ],
             "event_value": "PRESS",
             "height": 100.0,
             "hide": false,
@@ -1489,6 +1573,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 240.946533203125,
             "width_hidden": 42.0,
@@ -1536,6 +1621,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.boxcutter.invoke_operators('INVOKE_DEFAULT', mode='KNIFE')",
+            "dimensions": [
+                294.5250244140625,
+                155.1453094482422
+            ],
             "event_value": "PRESS",
             "height": 100.0,
             "hide": false,
@@ -1551,6 +1640,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 243.744873046875,
             "width_hidden": 42.0,
@@ -1598,6 +1688,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.object.editmode_toggle()",
+            "dimensions": [
+                298.97802734375,
+                155.62258911132812
+            ],
             "event_value": "RELEASE",
             "height": 100.0,
             "hide": false,
@@ -1613,6 +1707,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 247.43011474609375,
             "width_hidden": 42.0,
@@ -1660,6 +1755,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.mesh.shortest_path_select()",
+            "dimensions": [
+                302.3565673828125,
+                154.67282104492188
+            ],
             "event_value": "RELEASE",
             "height": 100.0,
             "hide": false,
@@ -1675,6 +1774,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 250.22613525390625,
             "width_hidden": 42.0,
@@ -1721,6 +1821,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                181.25,
+                73.09890747070312
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -1734,6 +1838,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -1784,6 +1889,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                181.25,
+                73.541259765625
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -1797,6 +1906,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -1848,6 +1958,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.wm.call_menu(name='hops.vieport_submenu')",
+            "dimensions": [
+                494.8580322265625,
+                154.64047241210938
+            ],
             "event_value": "RELEASE",
             "height": 100.0,
             "hide": false,
@@ -1863,6 +1977,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 409.53765869140625,
             "width_hidden": 42.0,
@@ -1910,6 +2025,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                181.25,
+                154.22610473632812
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -1924,6 +2043,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -1971,6 +2091,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.screen. screen_full_area (use_hide_panels=True)",
+            "dimensions": [
+                332.3350830078125,
+                154.205322265625
+            ],
             "event_value": "PRESS",
             "height": 100.0,
             "hide": false,
@@ -1986,6 +2110,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 275.035888671875,
             "width_hidden": 42.0,
@@ -2033,6 +2158,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                181.25,
+                154.52700805664062
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -2047,6 +2176,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -2094,6 +2224,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                181.25,
+                154.58253479003906
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -2108,6 +2242,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -2155,6 +2290,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                181.25,
+                154.83242797851562
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -2169,6 +2308,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -2217,6 +2357,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                181.25,
+                154.50308227539062
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -2231,6 +2375,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -2279,6 +2424,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                181.25,
+                154.25308227539062
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -2293,6 +2442,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -2341,6 +2491,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.view3d.viewnumpad(type='FRONT')",
+            "dimensions": [
+                363.842041015625,
+                155.45053100585938
+            ],
             "event_value": "RELEASE",
             "height": 100.0,
             "hide": false,
@@ -2356,6 +2510,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 301.11065673828125,
             "width_hidden": 42.0,
@@ -2404,6 +2559,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.view3d.viewnumpad(type='TOP')",
+            "dimensions": [
+                363.8420715332031,
+                154.4297332763672
+            ],
             "event_value": "RELEASE",
             "height": 100.0,
             "hide": false,
@@ -2419,6 +2578,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 301.11065673828125,
             "width_hidden": 42.0,
@@ -2467,6 +2627,10 @@
                 0.6079999804496765,
                 0.6079999804496765
             ],
+            "dimensions": [
+                181.25,
+                153.73960876464844
+            ],
             "height": 100.0,
             "hide": false,
             "label": "",
@@ -2481,6 +2645,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 150.0,
             "width_hidden": 42.0,
@@ -2529,6 +2694,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.view3d.view_selected(use_all_regions=False)",
+            "dimensions": [
+                480.7997741699219,
+                154.05955505371094
+            ],
             "event_value": "RELEASE",
             "height": 100.0,
             "hide": false,
@@ -2544,6 +2713,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 397.90325927734375,
             "width_hidden": 42.0,
@@ -2592,6 +2762,10 @@
                 0.6079999804496765
             ],
             "command": "bpy.ops.view3d.localview()",
+            "dimensions": [
+                363.8420715332031,
+                155.877197265625
+            ],
             "event_value": "RELEASE",
             "height": 100.0,
             "hide": false,
@@ -2607,6 +2781,7 @@
             "show_options": true,
             "show_preview": false,
             "show_texture": false,
+            "type": "CUSTOM",
             "use_custom_color": false,
             "width": 301.11065673828125,
             "width_hidden": 42.0,
