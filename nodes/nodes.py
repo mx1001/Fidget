@@ -569,39 +569,84 @@ class FidgetSaveOperator(FidgetNodeOperators, Operator):
     def execute(self, context):
         tree = context.space_data.node_tree
         nodes = tree.nodes
+        links = tree.links
 
-        nodeTree = {"Tree": tree.name, "Nodes": []}
 
+        nodeTree = {"Tree": tree.name, "Nodes": [], "Links": []}
+
+        
+
+        #print([l for l in links])
+
+        for l in links:
+            nodeTree["Links"].append({"from_node": l.from_node.name, "to_node": l.to_node.name, "from_socket": l.from_socket.identifier, "to_socket": l.to_socket.identifier})
+
+        
+        
 
         for n in nodes:
 
-            properties = ["bl_idname", "name", "parent", "location", "width", "height", "color", "label"]
-            types = [str, str, str, tuple, float, float, tuple, str]
-            data = [getattr(n, i) for i in properties]
-
-            #if len(n.inputs) > 0:
-                #print([i.identifier for i in n.inputs])
-
-            if data[2] is not None:
-                data[2] = data[2].name
-
-            #event_value = socket.event_value if socket.node.bl_idname != 'FidgetCommandNode' else socket.node.event_value
-            event_value = n.event_value if n.bl_idname == "FidgetCommandNode" else "None"
-            data.append(event_value)
-            properties.append("event_value")
-            types.append(str)
                 
-            data = [convert(i) for convert, i in zip(types, data)]
+
+            data = {}
+
+            properties = list(dir(n))#["bl_idname", "name", "parent", "location", "width", "height", "color", "label", "event_value", "command"]
+            parent = properties[properties.index("parent")]
+            properties[0], parent = parent, properties[0]
+
+            for prop in properties:
+                if hasattr(n, prop):
+                    value = getattr(n, prop)
+                    if prop == "parent" and value is not None:
+                        value = value.name
+                    if type(value) in [mathutils.Vector, mathutils.Color]:
+                        value = tuple(value)
+                    if type(value) in [str, bool, float, int, tuple, list] and "__" not in prop and prop not in ["dimensions", "type"]:
+                        data.update({prop: value})
 
             
-            data.append([i.identifier for i in n.inputs])
-            data.append([i.identifier for i in n.outputs])
-            properties.append("inputs")
-            properties.append("outputs")
+            data.update({"inputs": [i.identifier for i in n.inputs]})
+            data.update({"outputs": [i.identifier for i in n.outputs]})
 
-            #print(n.name, [i.identifier for i in n.inputs])
+            
+            data.update({"insockets": []})
+            data.update({"outsockets": []})
 
-            nodeTree["Nodes"].append(dict(zip(properties, data)))
+            
+            
+            #insocketList = []
+
+
+            for sock in n.inputs:
+                insocketDict = {}
+                for prop in dir(sock):
+                    if hasattr(sock, prop) and "__" not in prop:
+                        value = getattr(sock, prop)
+                        if type(value) in [mathutils.Vector, mathutils.Color]:
+                            value = tuple(value)
+                        if type(value) in [str, bool, float, int, tuple, list] and "__" not in prop and prop not in []:
+                            insocketDict.update({prop: value})
+
+                data["insockets"].append(insocketDict)
+
+
+
+            for sock in n.outputs:
+                outsocketDict = {}
+                for prop in dir(sock):
+                    if hasattr(sock, prop) and "__" not in prop:
+                        value = getattr(sock, prop)
+                        if type(value) in [mathutils.Vector, mathutils.Color]:
+                            value = tuple(value)
+                        if type(value) in [str, bool, float, int, tuple, list] and "__" not in prop and prop not in []:
+                            outsocketDict.update({prop: value})
+
+                data["outsockets"].append(outsocketDict)
+
+
+            nodeTree["Nodes"].append(data)
+
+        
             
 
         path = os.path.dirname(os.path.abspath(__file__))
@@ -641,8 +686,8 @@ class FidgetLoadOperator(FidgetNodeOperators, Operator):
             for prop in n:
 
                 value = n[prop]
-                #print(prop not in ["inputs", "outputs"])
-                if hasattr(node, prop) and value != "None" and prop not in ["inputs", "outputs"]:
+
+                if hasattr(node, prop) and value is not None and prop not in ["inputs", "outputs"]:
                     
                     if prop == "parent":
                         value = nodes[n[prop]]
@@ -659,7 +704,7 @@ class FidgetLoadOperator(FidgetNodeOperators, Operator):
 
                     title = "Use {}".format(self.get_count_word(bool_count))
 
-                    print(socket, node.inputs[count].identifier)
+                    #print(socket, node.inputs[count].identifier)
 
                     if socket != node.inputs[count].identifier:
 
@@ -670,8 +715,33 @@ class FidgetLoadOperator(FidgetNodeOperators, Operator):
 
                         node.inputs.new("FidgetCommandSocket", "Command {}".format(command_count))
 
-            #for inputNode in n["inputs"]:
-                #tree.links.new(nodes[inputNode[0]].outputs[inputNode[1]], node.inputs[inputNode[2]])
+
+            for count, prop in enumerate(n["insockets"]):
+                value = n["insockets"][count]
+                #print(getattr(node.inputs[count], prop), "--", prop, value)
+                setattr(node.inputs[count], prop, value)
+
+            for count, sock in enumerate(n["outsockets"]):
+                value = n["outsockets"][count]
+                setattr(node.outputs[count], sock, value)
+
+
+
+        for l in data["Links"]:
+            
+
+            from_node = nodes[l["from_node"]]
+            to_node = nodes[l["to_node"]]
+
+            for count, sock in enumerate(from_node.outputs):
+                
+                if sock.identifier == l["from_socket"]:
+                    
+                    from_socket = from_node.outputs[count]
+                    to_socket = to_node.inputs[l["to_socket"]]
+                    tree.links.new(from_socket, to_socket)
+
+        
 
         return {'FINISHED'}
         
