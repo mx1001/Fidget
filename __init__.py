@@ -40,8 +40,16 @@ from . keymap import register_keymap, unregister_keymap
 def draw_header(cls, context):
     if "Fidget" in context.user_preferences.addons:
         cls.layout.operator("wm.addon_disable", text="Disable Fidget", icon="CHECKBOX_HLT", emboss=False).module = "Fidget"
+        if context.space_data.tree_type == "FidgetNodeTree":
+            op = cls.layout.operator("fidget.update", text="Update All Outputs")
+            op.write = True
+            op.update_all_outputs = True
+            cls.layout.operator("fidget.save_startup", text="Save Tree as Startup")
+            cls.layout.operator("fidget.load_startup", text="Reload Saved Load Tree")
     else:
         cls.layout.operator("wm.addon_enable", text="Enable Fidget", icon="CHECKBOX_DEHLT", emboss=False).module = "Fidget"
+
+
 bpy.types.NODE_HT_header.append(draw_header)
 
 

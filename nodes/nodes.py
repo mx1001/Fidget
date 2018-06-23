@@ -15,9 +15,13 @@
 import traceback
 
 import bpy
+import os
+import json
+import mathutils
 
 from bpy.props import *
 from bpy.types import Operator, NodeTree, Node, NodeSocket
+from bpy.app.handlers import persistent
 
 import nodeitems_utils
 from nodeitems_utils import NodeCategory, NodeItem
@@ -430,6 +434,7 @@ class FidgetOutputNode(FidgetTreeNode, Node):
         op = row.operator("fidget.update")
         op.output_id = str((self.id_data.name, self.name))
         op.write = True
+        op.update_all_outputs = False
 
         # TODO: write_file and reset behavior
         # row.operator("fidget.save", text="", icon="FILE_TICK")
@@ -472,7 +477,10 @@ class FidgetNodeOperators:
 
     @classmethod
     def poll(build, context):
-        return context.area.type == "NODE_EDITOR" and context.space_data.tree_type == "FidgetNodeTree"
+        if context.area is not None:
+            return context.area.type == "NODE_EDITOR" and context.space_data.tree_type == "FidgetNodeTree"
+        else:
+            return True
 
     @staticmethod
     def get_count_word(integer):
@@ -556,6 +564,174 @@ class FidgetCommandRemove(FidgetNodeOperators, Operator):
         node.inputs.remove(node.inputs[-1])
         return {'FINISHED'}
 
+class FidgetSaveOperator(FidgetNodeOperators, Operator):
+    bl_idname = "fidget.save_startup"
+    bl_label = "Save"
+    bl_description = "Save this node tree and have it be loaded automatically."
+
+    def execute(self, context):
+        tree = context.space_data.node_tree
+        nodes = tree.nodes
+        links = tree.links
+
+        nodeTree = {"Tree": tree.name, "Nodes": [], "Links": []}
+        
+        for l in links:
+            nodeTree["Links"].append({"from_node": l.from_node.name, "to_node": l.to_node.name, "from_socket": l.from_socket.identifier, "to_socket": l.to_socket.identifier})
+
+        for n in nodes:
+
+            data = {}
+
+            properties = dir(n)
+            parent = properties[properties.index("parent")]
+            properties[0], parent = parent, properties[0]
+
+            #illegalAttributes = []#"identifier", "dimensions", "type", "is_linked", "is_output"]
+            types = [str, bool, float, int, tuple, list]
+
+            for prop in properties:
+                if hasattr(n, prop):
+                    value = getattr(n, prop)
+                    if prop == "parent" and value is not None:
+                        value = value.name
+                    if type(value) in [mathutils.Vector, mathutils.Color]:
+                        value = tuple(value)
+                    if type(value) in types and "__" not in prop:
+                        data.update({prop: value})
+
+            
+            data.update({"inputs": [i.identifier for i in n.inputs]})
+            data.update({"outputs": [i.identifier for i in n.outputs]})
+            data.update({"insockets": []})
+            data.update({"outsockets": []})
+
+
+            for sock in n.inputs:
+                insocketDict = {}
+                for prop in dir(sock):
+                    if hasattr(sock, prop) and "__" not in prop:
+                        value = getattr(sock, prop)
+                        if type(value) in [mathutils.Vector, mathutils.Color]:
+                            value = tuple(value)
+                        if type(value) in types and "__" not in prop:
+                            insocketDict.update({prop: value})
+
+                data["insockets"].append(insocketDict)
+
+
+            for sock in n.outputs:
+                outsocketDict = {}
+                for prop in dir(sock):
+                    if hasattr(sock, prop) and "__" not in prop:
+                        value = getattr(sock, prop)
+                        if type(value) in [mathutils.Vector, mathutils.Color]:
+                            value = tuple(value)
+                        if type(value) in types and "__" not in prop:
+                            outsocketDict.update({prop: value})
+
+                data["outsockets"].append(outsocketDict)
+
+
+            nodeTree["Nodes"].append(data)
+
+
+        path = os.path.dirname(os.path.abspath(__file__))
+        startupFile = open(os.path.join(path, "startup_fidget_tree.json"), 'w')
+        startupFile.write(json.dumps(nodeTree, indent = 4))
+        startupFile.close()
+        
+        return {'FINISHED'}
+
+
+class FidgetLoadOperator(FidgetNodeOperators, Operator):
+    bl_idname = "fidget.load_startup"
+    bl_label = "Load"
+    bl_description = "Load the saved fidget tree"
+
+    def execute(self, context):
+
+        path = os.path.dirname(os.path.abspath(__file__))
+
+        if not os.path.exists(path):
+            return {'CANCELLED'}
+        
+        startupFile = open(os.path.join(path, "startup_fidget_tree.json"), 'r')
+        data = startupFile.read()
+        data = json.loads(data)
+        startupFile.close()
+
+
+        tree = bpy.data.node_groups.new(type="FidgetNodeTree", name=data["Tree"])
+        nodes = tree.nodes
+
+        for n in data["Nodes"]:
+            
+            node = tree.nodes.new(n["bl_idname"])
+
+            for prop in n:
+
+                value = n[prop]
+
+                if hasattr(node, prop) and value is not None and prop not in ["inputs", "outputs"]:
+                    
+                    if prop == "parent":
+                        value = nodes[n[prop]]
+                    try:
+                        setattr(node, prop, value)
+                    except:
+                        pass
+
+
+            if node.bl_idname == "FidgetSwitchNode":
+
+                for count, socket in enumerate(n["inputs"]):
+                
+                    split = len(node.inputs)//2
+                    bool_count = len(node.inputs[:split])
+                    title = "Use {}".format(self.get_count_word(bool_count))
+
+                    if socket != node.inputs[count].identifier:
+
+                        node.inputs.new("FidgetBoolSocket", title)
+                        node.inputs.move(len(node.inputs)-1, bool_count)
+                        command_count = len(node.inputs[split:])
+                        node.inputs.new("FidgetCommandSocket", "Command {}".format(command_count))
+
+
+            for count, sock in enumerate(n["insockets"]):
+                for prop in sock:                
+                    value = sock[prop]
+                    try:
+                        setattr(node.inputs[count], prop, value)
+                    except:
+                        pass
+
+            for count, sock in enumerate(n["outsockets"]):
+                for prop in sock:                
+                    value = sock[prop]
+                    try:
+                        setattr(node.outputs[count], prop, value)
+                    except:
+                        pass
+
+
+        for l in data["Links"]:
+
+            from_node = nodes[l["from_node"]]
+            to_node = nodes[l["to_node"]]
+
+            for count, sock in enumerate(from_node.outputs):
+                
+                if sock.identifier == l["from_socket"]:
+                    
+                    from_socket = from_node.outputs[count]
+                    to_socket = to_node.inputs[l["to_socket"]]
+                    tree.links.new(from_socket, to_socket)
+
+        return {'FINISHED'}
+         
+
 class FidgetUpdateOperator(FidgetNodeOperators, Operator):
     bl_idname = "fidget.update"
     bl_label = "Update"
@@ -564,40 +740,48 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
     output_id = StringProperty()
     write = BoolProperty()
     reset = BoolProperty()
+    update_all_outputs = BoolProperty()
 
     @staticmethod
     def get_input(socket):
         return socket.links[0].from_node if socket.links else None
 
     def execute(self, context):
-        try: tree_name, output_name = eval(self.output_id)
-        except Exception as error:
-            traceback.print_exc()
+        
+        if self.output_id != "":
+            tree_name, output_name = eval(self.output_id)
+            #print(tree_name)
+            tree = bpy.data.node_groups[tree_name]
+            trees = [tree]
+            self.outputs = [tree.nodes[output_name]]
+            
+        if self.output_id == "" or self.update_all_outputs:
             tree_name, output_name = ('NodeTree', 'Output')
+            trees = [t for t in bpy.data.node_groups]
+            self.outputs = []
+            for tree in trees:
+                self.outputs.extend([n for n in tree.nodes if n.bl_label == "Output"])
 
-        tree = bpy.data.node_groups[tree_name]
+        for output in self.outputs:
 
-        self.output = tree.nodes[output_name]
-        self.input = self.output.inputs[0].links[0].from_node if len(self.output.inputs[0].links) else None
+            self.output = output
+            self.input = self.output.inputs[0].links[0].from_node if len(self.output.inputs[0].links) else None
+            links = self.output.inputs[0].links
 
-        links = self.output.inputs[0].links
+            if self.input:
+                if self.input.bl_idname in {'FidgetCommandNode', 'FidgetScriptNode', 'FidgetSwitchNode'}:
+                    self.build(context)
 
-        if self.input:
-            if self.input.bl_idname in {'FidgetCommandNode', 'FidgetScriptNode', 'FidgetSwitchNode'}:
+                else:
+                    self.report({'WARNING'}, "{} node is an invalid input command for {}".format(self.input.bl_label.capitalize(), self.output.bl_label.lower()))
+                    #return {'CANCELLED'}
+
+            elif self.output.inputs[0].command:
                 self.build(context)
 
             else:
-                self.report({'WARNING'}, "{} node is an invalid input command for {}".format(self.input.bl_label.capitalize(), self.output.bl_label.lower()))
-
-                return {'CANCELLED'}
-
-        elif self.output.inputs[0].command:
-            self.build(context)
-
-        else:
-            self.report({'WARNING'}, "Must have a command for output")
-
-            return {'CANCELLED'}
+                self.report({'WARNING'}, self.output.name+": Must have a command for output")
+                #return {'CANCELLED'}
 
         return {'FINISHED'}
 
@@ -691,13 +875,16 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
                 tab = "\t"*self.indent,
                 command = self.insert_indentation(self.socket_logic(self.output.inputs[0])))
 
+        self.command_value = self.command_value.replace("\t", "    ")
+
         # debug
         print("\n*****************")
         print("* Fidget Output *")
         print("*****************\n")
-        print(self.command_value.replace("\t", "    "))
+        print(self.command_value)
 
         self.replace_command()
+
 
     def insert_indentation(self, string):
         logic_split = string.split("\n")
@@ -869,8 +1056,13 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
         else:
             return node.outputs[0].bool_statement
 
+@persistent
+def startup_graph_loader(dummy):
+    bpy.ops.fidget.load_startup()
+    
 def nodes_register():
     nodeitems_utils.register_node_categories("FIDGET_NODES", node_categories)
+    bpy.app.handlers.load_post.append(startup_graph_loader)
 
 def nodes_unregister():
     nodeitems_utils.unregister_node_categories("FIDGET_NODES")
