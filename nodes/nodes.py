@@ -653,13 +653,14 @@ class FidgetLoadOperator(FidgetNodeOperators, Operator):
 
         path = os.path.dirname(os.path.abspath(__file__))
 
-        if not os.path.exists(path):
+        if not os.path.exists(os.path.join(path, "startup_fidget_tree.json")):
             return {'CANCELLED'}
-        
+
         startupFile = open(os.path.join(path, "startup_fidget_tree.json"), 'r')
         data = startupFile.read()
         data = json.loads(data)
         startupFile.close()
+        print("reloaded fidget tree")
 
 
         tree = bpy.data.node_groups.new(type="FidgetNodeTree", name=data["Tree"])
@@ -747,20 +748,21 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
         return socket.links[0].from_node if socket.links else None
 
     def execute(self, context):
-        
-        if self.output_id != "":
-            tree_name, output_name = eval(self.output_id)
-            #print(tree_name)
-            tree = bpy.data.node_groups[tree_name]
-            trees = [tree]
-            self.outputs = [tree.nodes[output_name]]
             
-        if self.output_id == "" or self.update_all_outputs:
+        if self.update_all_outputs:
+            print("updated all fidget outputs")
             tree_name, output_name = ('NodeTree', 'Output')
             trees = [t for t in bpy.data.node_groups]
             self.outputs = []
             for tree in trees:
-                self.outputs.extend([n for n in tree.nodes if n.bl_label == "Output"])
+                self.outputs.extend([n for n in tree.nodes if n.bl_label == "Output"])#list containing all output nodes
+
+        elif self.output_id != "":
+            print("updated single fidget output")
+            tree_name, output_name = eval(self.output_id)
+            tree = bpy.data.node_groups[tree_name]
+            trees = [tree]
+            self.outputs = [tree.nodes[output_name]]#list containing single node
 
         for output in self.outputs:
 
@@ -878,10 +880,10 @@ class FidgetUpdateOperator(FidgetNodeOperators, Operator):
         self.command_value = self.command_value.replace("\t", "    ")
 
         # debug
-        print("\n*****************")
-        print("* Fidget Output *")
-        print("*****************\n")
-        print(self.command_value)
+##        print("\n*****************")
+##        print("* Fidget Output *")
+##        print("*****************\n")
+##        print(self.command_value)
 
         self.replace_command()
 
